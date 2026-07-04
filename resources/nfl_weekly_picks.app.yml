@@ -1,0 +1,32 @@
+resources:
+  apps:
+    nfl_weekly_picks:
+      name: nfl-weekly-picks
+      description: Read-only dashboard for latest weekly NFL spread and total picks.
+      source_code_path: ../app/weekly_picks
+      lifecycle:
+        started: true
+      config:
+        env:
+          - name: DATABRICKS_WAREHOUSE_ID
+            value_from: sql-warehouse
+          - name: NFL_CATALOG
+            value: ${var.catalog}
+          - name: NFL_PREDICTIONS_SCHEMA
+            value: ${var.predictions_schema}
+          - name: NFL_SCHEDULE_SEASON
+            value: ${var.schedule_season}
+          - name: STREAMLIT_BROWSER_GATHER_USAGE_STATS
+            value: "false"
+      resources:
+        - name: sql-warehouse
+          description: SQL warehouse for querying game_predictions
+          sql_warehouse:
+            id: ${var.sql_warehouse_id}
+            permission: CAN_USE
+        - name: predictions-table
+          description: Latest Monte Carlo picks per game
+          uc_securable:
+            securable_type: TABLE
+            securable_full_name: ${var.catalog}.${var.predictions_schema}.game_predictions
+            permission: SELECT

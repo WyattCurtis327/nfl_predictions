@@ -40,6 +40,11 @@ def main() -> None:
             "Set DATABRICKS_EMAIL_ACCOUNT in .env before deploying, e.g.\n"
             "  DATABRICKS_EMAIL_ACCOUNT=you@example.com"
         )
+    if not merged.get("DATABRICKS_WAREHOUSE_ID", "").strip():
+        raise SystemExit(
+            "Set DATABRICKS_WAREHOUSE_ID in .env before deploying "
+            "(required for Genie space and weekly picks app)."
+        )
 
     env = os.environ.copy()
     env["DATABRICKS_CONFIG_PROFILE"] = profile

@@ -37,6 +37,8 @@ jobs:
           test -f notebooks/22_ingest_nfelo_ratings.py
           test -f resources/nfl_game_pick_metrics.genie_space.yml
           test -f src/nfl_game_pick_metrics.geniespace.json
+          test -f resources/nfl_weekly_picks.app.yml
+          test -f app/weekly_picks/app.py
 
       - name: Install Databricks CLI
         run: |

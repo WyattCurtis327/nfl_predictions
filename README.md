@@ -21,6 +21,7 @@ Last updated: July 2026.
 | `prediction_grades` | Live — populated after completed weeks / backtests |
 | `game_pick_metrics` | Metric view deployed; powers Genie space |
 | Genie space | `NFL Pick Metrics` — natural-language Q&A on pick accuracy |
+| Weekly picks app | `nfl-weekly-picks` — read-only Streamlit pick board |
 | CI | GitHub Actions — pytest, wheel build, bundle validate |
 
 ### Prediction model (high level)
@@ -158,6 +159,22 @@ databricks bundle open nfl_game_pick_metrics -t prod --profile <your-profile>
 ```
 
 To pull UI edits back into git: `databricks bundle generate genie-space --resource nfl_game_pick_metrics --force`
+
+### Weekly picks app (Phase 1)
+
+Read-only Streamlit dashboard for the latest spread/total picks per game.
+
+- Code: `app/weekly_picks/`
+- Bundle resource: `resources/nfl_weekly_picks.app.yml`
+- Requires `DATABRICKS_WAREHOUSE_ID` in `.env` (same warehouse as Genie)
+
+```powershell
+python scripts/sync_bundle_env.py
+databricks bundle deploy -t prod --profile <your-profile>
+databricks bundle run nfl_weekly_picks -t prod --profile <your-profile>
+```
+
+Open from bundle summary or the Apps page in the workspace.
 
 ### `nfl_weekly_refresh` task order
 
