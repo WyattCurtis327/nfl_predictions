@@ -1,0 +1,48 @@
+resources:
+  jobs:
+    nfl_weekly_predictions:
+      name: nfl_weekly_predictions
+      description: >
+        Weekly Monte Carlo predictions for the next unplayed week and grading
+        for the latest completed week.
+      email_notifications:
+        on_failure:
+          - ${var.notify_email}
+      environments:
+        - environment_key: nfl_env
+          spec:
+            environment_version: "4"
+            dependencies:
+              - pandas>=2.0.0
+              - pyarrow>=14.0.0
+              - numpy>=1.26.0
+              - mlflow>=2.14.0
+              - ../dist/nfl_predictions-0.1.0-py3-none-any.whl
+      tasks:
+        - task_key: predict_upcoming_week
+          environment_key: nfl_env
+          notebook_task:
+            notebook_path: ../notebooks/predict_upcoming_week.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schedules_schema: ${var.schedules_schema}
+              pbp_schema: ${var.pbp_schema}
+              odds_schema: ${var.odds_schema}
+              predictions_schema: ${var.predictions_schema}
+              season: ${var.schedule_season}
+              pbp_season: ${var.pbp_season}
+              current_pbp_season: ${var.current_pbp_season}
+              preferred_bookmaker: ${var.preferred_bookmaker}
+              mlflow_experiment: ${var.mlflow_experiment}
+
+        - task_key: grade_elapsed_week
+          environment_key: nfl_env
+          depends_on:
+            - task_key: predict_upcoming_week
+          notebook_task:
+            notebook_path: ../notebooks/grade_elapsed_week.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schedules_schema: ${var.schedules_schema}
+              predictions_schema: ${var.predictions_schema}
+              mlflow_experiment: ${var.mlflow_experiment}

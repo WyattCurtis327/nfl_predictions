@@ -1,0 +1,22 @@
+{
+  "table": "nfl.predictions.game_predictions",
+  "comment": "Append-only log of Monte Carlo spread and total picks per game.",
+  "columns": [
+    {"name": "prediction_id", "type": "string", "nullable": true, "comment": "Unique id: prediction_run_id plus game_id."},
+    {"name": "prediction_run_id", "type": "string", "nullable": true, "comment": "UUID grouping one predict notebook execution."},
+    {"name": "predicted_at", "type": "string", "nullable": true, "comment": "UTC timestamp when picks were generated."},
+    {"name": "game_id", "type": "string", "nullable": true, "comment": "nflverse game identifier."},
+    {"name": "season", "type": "bigint", "nullable": true, "comment": "Schedule season for the predicted game."},
+    {"name": "week", "type": "bigint", "nullable": true, "comment": "Schedule week for the predicted game."},
+    {"name": "game_type", "type": "string", "nullable": true, "comment": "REG, WC, DIV, CON, or SB."},
+    {"name": "spread_pick", "type": "string", "nullable": true, "comment": "Team abbreviation picked ATS."},
+    {"name": "spread_confidence", "type": "double", "nullable": true, "comment": "Simulated cover probability for spread_pick."},
+    {"name": "total_pick", "type": "string", "nullable": true, "comment": "OVER or UNDER."},
+    {"name": "total_confidence", "type": "double", "nullable": true, "comment": "Simulated probability for total_pick."},
+    {"name": "proj_home_score", "type": "double", "nullable": true, "comment": "Projected home score after market blend."},
+    {"name": "proj_away_score", "type": "double", "nullable": true, "comment": "Projected away score after market blend."},
+    {"name": "proj_total", "type": "double", "nullable": true, "comment": "Projected combined points."},
+    {"name": "ingested_at", "type": "timestamp", "nullable": true, "comment": "Row ingestion timestamp."},
+    {"name": "_source_file", "type": "string", "nullable": true, "comment": "Lineage string for the predict run."}
+  ]
+}

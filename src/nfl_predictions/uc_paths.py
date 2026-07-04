@@ -11,6 +11,7 @@ DEFAULT_PBP_SCHEMA = "pbp"
 DEFAULT_ROSTERS_SCHEMA = "rosters"
 DEFAULT_PLAYERS_SCHEMA = "players"
 DEFAULT_ODDS_SCHEMA = "odds"
+DEFAULT_PREDICTIONS_SCHEMA = "predictions"
 
 
 @dataclass(frozen=True)
@@ -22,6 +23,7 @@ class UcPaths:
     rosters: str = DEFAULT_ROSTERS_SCHEMA
     players: str = DEFAULT_PLAYERS_SCHEMA
     odds: str = DEFAULT_ODDS_SCHEMA
+    predictions: str = DEFAULT_PREDICTIONS_SCHEMA
 
     def table(self, schema: str, table: str) -> str:
         return f"{self.catalog}.{schema}.{table}"
@@ -59,6 +61,15 @@ class UcPaths:
     def odds_ingest_gaps_table(self) -> str:
         return self.table(self.odds, "odds_ingest_gaps")
 
+    def game_predictions_table(self) -> str:
+        return self.table(self.predictions, "game_predictions")
+
+    def prediction_grades_table(self) -> str:
+        return self.table(self.predictions, "prediction_grades")
+
+    def game_pick_metrics_view(self) -> str:
+        return self.table(self.predictions, "game_pick_metrics")
+
     def schema_map(self) -> dict[str, str]:
         """Map canonical schema names in metadata JSON to configured schemas."""
         return {
@@ -68,6 +79,7 @@ class UcPaths:
             DEFAULT_ROSTERS_SCHEMA: self.rosters,
             DEFAULT_PLAYERS_SCHEMA: self.players,
             DEFAULT_ODDS_SCHEMA: self.odds,
+            DEFAULT_PREDICTIONS_SCHEMA: self.predictions,
         }
 
     def bootstrap_tables(self) -> list[str]:

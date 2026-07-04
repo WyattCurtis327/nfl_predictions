@@ -8,6 +8,7 @@ def test_uc_paths_builds_volume_and_tables():
     assert paths.pbp_volume() == "/Volumes/prod/pbp_data/raw"
     assert paths.game_odds_table() == "prod.odds_data.game_odds"
     assert paths.schedules_games_table() == "prod.schedules.games"
+    assert paths.game_predictions_table() == "prod.predictions.game_predictions"
 
 
 def test_bootstrap_tables_for_catalog():

@@ -44,6 +44,9 @@ variables:
   odds_schema:
     description: Unity Catalog schema for odds tables
     default: odds
+  predictions_schema:
+    description: Unity Catalog schema for prediction tables
+    default: predictions
   pbp_seasons:
     description: Comma-separated PBP seasons for bootstrap backfill
     default: "2024,2025"
@@ -71,6 +74,9 @@ variables:
   preferred_bookmaker:
     description: Primary bookmaker for latest odds and metrics
     default: draftkings
+  mlflow_experiment:
+    description: MLflow experiment path for predict and grade runs
+    default: /Shared/nfl_predictions
   notify_email:
     description: Job failure notification email (set via sync_bundle_env.py or BUNDLE_VAR_notify_email)
     default: ""

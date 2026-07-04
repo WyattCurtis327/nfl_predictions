@@ -56,6 +56,19 @@ def write_delta_table(
     )
 
 
+def append_delta_table(spark, pdf: pd.DataFrame, table: str) -> None:
+    """Append rows to a Delta table, creating it when missing."""
+    if pdf.empty:
+        return
+    spark_df = pandas_to_spark(spark, pdf)
+    (
+        spark_df.write.format("delta")
+        .mode("append")
+        .option("mergeSchema", "true")
+        .saveAsTable(table)
+    )
+
+
 def conflicting_column_names(
     left_types: dict[str, str],
     right_types: dict[str, str],
