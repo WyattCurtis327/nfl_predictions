@@ -13,7 +13,6 @@ ROOT = Path(__file__).resolve().parents[1]
 SQL_DIR = ROOT / "resources" / "sql"
 GRADES_TABLE_SQL = SQL_DIR / "create_prediction_grades_table.sql"
 METRIC_VIEW_SQL = SQL_DIR / "create_mv_game_pick_metrics.sql"
-DEFAULT_WAREHOUSE_ID = "abae422499df211c"
 DEFAULT_CATALOG = "nfl"
 DEFAULT_PREDICTIONS_SCHEMA = "predictions"
 
@@ -24,11 +23,22 @@ def _profile() -> str:
         for line in env_path.read_text(encoding="utf-8").splitlines():
             if line.startswith("DATABRICKS_CONFIG_PROFILE="):
                 return line.split("=", 1)[1].strip()
-    return os.environ.get("DATABRICKS_CONFIG_PROFILE", "wyatts_databricks")
+    for key in ("DATABRICKS_CONFIG_PROFILE", "databricks_profile"):
+        value = os.environ.get(key, "").strip()
+        if value:
+            return value
+    raise SystemExit(
+        "Set DATABRICKS_CONFIG_PROFILE in .env (run scripts/sync_bundle_env.py)."
+    )
 
 
 def _warehouse_id() -> str:
-    return os.environ.get("DATABRICKS_WAREHOUSE_ID", DEFAULT_WAREHOUSE_ID)
+    warehouse_id = os.environ.get("DATABRICKS_WAREHOUSE_ID", "").strip()
+    if not warehouse_id:
+        raise SystemExit(
+            "Set DATABRICKS_WAREHOUSE_ID in .env (SQL warehouse for metric view deploy)."
+        )
+    return warehouse_id
 
 
 def _render_sql(path: Path, *, catalog: str, predictions_schema: str) -> str:

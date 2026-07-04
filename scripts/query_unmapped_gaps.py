@@ -15,7 +15,9 @@ from databricks.connect import DatabricksSession  # noqa: E402
 
 def main() -> None:
     _load_project_env()
-    profile = os.environ.get("DATABRICKS_CONFIG_PROFILE", "wyatts_databricks")
+    profile = os.environ.get("DATABRICKS_CONFIG_PROFILE", "").strip()
+    if not profile:
+        raise SystemExit("Set DATABRICKS_CONFIG_PROFILE in .env")
     spark = DatabricksSession.builder.profile(profile).getOrCreate()
     print("=== odds_ingest_gaps by gap_reason ===")
     spark.sql(

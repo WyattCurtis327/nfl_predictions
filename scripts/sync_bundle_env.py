@@ -170,17 +170,28 @@ def _upsert_vscode_env(updates: dict[str, str]) -> None:
     _upsert_env_file(VSCODE_ENV_FILE, updates, vscode_env=True)
 
 
+def _sql_warehouse_id(env: dict[str, str]) -> str:
+    return env.get("DATABRICKS_WAREHOUSE_ID", "").strip()
+
+
 def _sync_bundle_var_overrides(
-    email: str, target: str = DEFAULT_BUNDLE_TARGET
+    env: dict[str, str],
+    *,
+    target: str = DEFAULT_BUNDLE_TARGET,
 ) -> None:
     path = _bundle_var_overrides_path(target)
     path.parent.mkdir(parents=True, exist_ok=True)
 
+    overrides: dict[str, str] = {}
+    email = _notify_email(env)
+    warehouse_id = _sql_warehouse_id(env)
     if email:
-        path.write_text(
-            json.dumps({"notify_email": email}, indent=2) + "\n",
-            encoding="utf-8",
-        )
+        overrides["notify_email"] = email
+    if warehouse_id:
+        overrides["sql_warehouse_id"] = warehouse_id
+
+    if overrides:
+        path.write_text(json.dumps(overrides, indent=2) + "\n", encoding="utf-8")
     elif path.exists():
         path.unlink()
 
@@ -245,16 +256,21 @@ def sync_from_env_file(env_path: Path = ENV_FILE) -> None:
     _upsert_vscode_env(vscode_updates)
     _sync_databricks_yml_host(host)
     _sync_vscode_overrides(profile)
-    _sync_bundle_var_overrides(email)
+    _sync_bundle_var_overrides(merged)
 
     if profile:
         print(f"Synced profile={profile!r}, serverless compute")
     else:
         print("No DATABRICKS_CONFIG_PROFILE set in .env")
+    warehouse_id = _sql_warehouse_id(merged)
     if email:
         print(f"Synced notify_email={email}")
     else:
         print("No DATABRICKS_EMAIL_ACCOUNT set in .env")
+    if warehouse_id:
+        print(f"Synced sql_warehouse_id for Genie + SQL deploy scripts")
+    else:
+        print("No DATABRICKS_WAREHOUSE_ID set in .env")
     if host:
         print(f"Synced workspace host={host.rstrip('/')}")
     print(f"Updated {ENV_FILE}")
@@ -262,7 +278,7 @@ def sync_from_env_file(env_path: Path = ENV_FILE) -> None:
     if host and BUNDLE_FILE.exists():
         print(f"Updated {BUNDLE_FILE}")
     print(f"Updated {_vscode_overrides_path()}")
-    if email:
+    if email or warehouse_id:
         print(f"Updated {_bundle_var_overrides_path()}")
 
 

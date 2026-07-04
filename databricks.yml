@@ -15,7 +15,6 @@ artifacts:
 sync:
   include:
     - src/**
-    - src/*.geniespace.json
     - notebooks/**
     - staging/**
     - resources/**
@@ -97,17 +96,17 @@ variables:
     description: Minimum confidence to highlight a spread/total pick
     default: "0.55"
   sql_warehouse_id:
-    description: SQL warehouse ID for Genie space queries
-    default: "abae422499df211c"
+    description: SQL warehouse ID for Genie space queries (set via .env / sync_bundle_env)
+    default: ""
 targets:
   dev:
     mode: development
     workspace:
-      host: https://dbc-89a97ed5-5f7d.cloud.databricks.com
+      host: https://YOUR_WORKSPACE.cloud.databricks.com
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
   prod:
     mode: production
     default: true
     workspace:
-      host: https://dbc-89a97ed5-5f7d.cloud.databricks.com
+      host: https://YOUR_WORKSPACE.cloud.databricks.com
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

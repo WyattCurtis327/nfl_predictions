@@ -12,7 +12,9 @@
     "nfl.predictions.prediction_grades",
     "nfl.rosters.rosters",
     "nfl.schedules.games",
-    "nfl.teams.teams"
+    "nfl.teams.teams",
+    "nfl.teams.nfelo_ratings",
+    "nfl.teams.nfelo_games"
   ],
   "files": [
     "nfl/odds/game_odds.json",
@@ -26,6 +28,8 @@
     "nfl/predictions/prediction_grades.json",
     "nfl/rosters/rosters.json",
     "nfl/schedules/games.json",
-    "nfl/teams/teams.json"
+    "nfl/teams/teams.json",
+    "nfl/teams/nfelo_ratings.json",
+    "nfl/teams/nfelo_games.json"
   ]
 }

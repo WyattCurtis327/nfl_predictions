@@ -1,0 +1,14 @@
+{
+  "table": "nfl.teams.nfelo_games",
+  "comment": "Per-game nfelo lines and pre-game team ratings for simulation blending.",
+  "columns": [
+    {"name": "game_id", "type": "string", "nullable": true, "comment": "nflverse game identifier."},
+    {"name": "season", "type": "bigint", "nullable": true, "comment": "Schedule season parsed from game_id."},
+    {"name": "nfelo_home_line_close", "type": "double", "nullable": true, "comment": "nfelo closing home spread (negative = home favored)."},
+    {"name": "starting_nfelo_home", "type": "double", "nullable": true, "comment": "Home team pre-game nfelo rating."},
+    {"name": "starting_nfelo_away", "type": "double", "nullable": true, "comment": "Away team pre-game nfelo rating."},
+    {"name": "nfelo_home_probability_close", "type": "double", "nullable": true, "comment": "nfelo implied home win probability at close."},
+    {"name": "ingested_at", "type": "string", "nullable": true, "comment": "UTC ingest timestamp."},
+    {"name": "_source_file", "type": "string", "nullable": true, "comment": "Upstream source identifier."}
+  ]
+}

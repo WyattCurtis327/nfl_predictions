@@ -1,3 +1,0 @@
--- Canonical SQL lives in resources/sql/create_mv_game_pick_metrics.sql
--- Deploy via: python scripts/deploy_mv_game_pick_metrics.py
--- Or automatically with: python scripts/deploy_bundle.py prod
