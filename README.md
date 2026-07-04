@@ -17,8 +17,8 @@ Last updated: July 2026.
 | Week 1 predictions | Done — `nfl.predictions.game_predictions` |
 | Weekly data refresh | Done (`nfl_weekly_refresh`) |
 | Full Wednesday pipeline | Done (`nfl_weekly_pipeline`) |
-| `prediction_grades` | Pending — no completed week yet |
-| `game_pick_metrics` view | SQL ready; deploy after first grades |
+| `prediction_grades` | Table created (empty until first completed week) |
+| `game_pick_metrics` view | Deployed — populates after grading runs |
 | `nfl_annual_refresh` | Not built |
 
 ### Odds sources
@@ -54,8 +54,14 @@ databricks bundle run nfl_weekly_pipeline -t prod --profile <your-profile>
 python scripts/pull_uc_column_descriptions.py --profile <your-profile> --include-predictions
 ```
 
-3. Deploy the accuracy metric view — run `scripts/create_mv_game_pick_metrics.sql` on the SQL warehouse.
+3. Pull UC descriptions for `prediction_grades` (if not done in step 2).
 4. Re-apply descriptions if needed (`80_apply_uc_column_descriptions` with `only_schema=predictions`).
+
+Metric view deploy (already done for this project):
+
+```powershell
+python scripts/deploy_mv_game_pick_metrics.py
+```
 
 ### During the 2026 season (each week)
 
