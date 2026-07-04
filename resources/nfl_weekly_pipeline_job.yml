@@ -13,12 +13,12 @@ resources:
         on_failure:
           - ${var.notify_email}
       tasks:
-        - task_key: weekly_refresh
+        - task_key: 00_weekly_refresh
           run_job_task:
             job_id: ${resources.jobs.nfl_weekly_refresh.id}
 
-        - task_key: weekly_predictions
+        - task_key: 01_weekly_predictions
           depends_on:
-            - task_key: weekly_refresh
+            - task_key: 00_weekly_refresh
           run_job_task:
             job_id: ${resources.jobs.nfl_weekly_predictions.id}

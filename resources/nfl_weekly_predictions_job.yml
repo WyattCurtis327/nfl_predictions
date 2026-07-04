@@ -19,10 +19,10 @@ resources:
               - mlflow>=2.14.0
               - ../dist/nfl_predictions-0.1.0-py3-none-any.whl
       tasks:
-        - task_key: ingest_odds_api
+        - task_key: 00_ingest_odds_api
           environment_key: nfl_env
           notebook_task:
-            notebook_path: ../notebooks/ingest_odds_api.py
+            notebook_path: ../notebooks/21_ingest_odds_api.py
             base_parameters:
               catalog: ${var.catalog}
               odds_schema: ${var.odds_schema}
@@ -32,12 +32,12 @@ resources:
               preferred_bookmaker: ${var.preferred_bookmaker}
               min_match_rate: ${var.min_match_rate}
 
-        - task_key: predict_upcoming_week
+        - task_key: 01_predict_upcoming_week
           environment_key: nfl_env
           depends_on:
-            - task_key: ingest_odds_api
+            - task_key: 00_ingest_odds_api
           notebook_task:
-            notebook_path: ../notebooks/predict_upcoming_week.py
+            notebook_path: ../notebooks/50_predict_upcoming_week.py
             base_parameters:
               catalog: ${var.catalog}
               schedules_schema: ${var.schedules_schema}
@@ -51,25 +51,25 @@ resources:
               preferred_bookmaker: ${var.preferred_bookmaker}
               mlflow_experiment: ${var.mlflow_experiment}
 
-        - task_key: grade_elapsed_week
+        - task_key: 02_grade_elapsed_week
           environment_key: nfl_env
           depends_on:
-            - task_key: predict_upcoming_week
+            - task_key: 01_predict_upcoming_week
           notebook_task:
-            notebook_path: ../notebooks/grade_elapsed_week.py
+            notebook_path: ../notebooks/60_grade_elapsed_week.py
             base_parameters:
               catalog: ${var.catalog}
               schedules_schema: ${var.schedules_schema}
               predictions_schema: ${var.predictions_schema}
               mlflow_experiment: ${var.mlflow_experiment}
 
-        - task_key: apply_predictions_column_descriptions
+        - task_key: 03_apply_predictions_column_descriptions
           environment_key: nfl_env
           depends_on:
-            - task_key: predict_upcoming_week
-            - task_key: grade_elapsed_week
+            - task_key: 01_predict_upcoming_week
+            - task_key: 02_grade_elapsed_week
           notebook_task:
-            notebook_path: ../notebooks/apply_uc_column_descriptions.py
+            notebook_path: ../notebooks/80_apply_uc_column_descriptions.py
             base_parameters:
               catalog: ${var.catalog}
               predictions_schema: ${var.predictions_schema}

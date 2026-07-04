@@ -24,10 +24,10 @@ resources:
               - numpy>=1.26.0
               - ../dist/nfl_predictions-0.1.0-py3-none-any.whl
       tasks:
-        - task_key: download_pbp
+        - task_key: 00_download_pbp
           environment_key: nfl_env
           notebook_task:
-            notebook_path: ../notebooks/download_pbp_to_volume.py
+            notebook_path: ../notebooks/00_download_pbp_to_volume.py
             base_parameters:
               catalog: ${var.catalog}
               pbp_schema: ${var.pbp_schema}
@@ -35,31 +35,31 @@ resources:
               pbp_volume: /Volumes/${var.catalog}/${var.pbp_schema}/raw
               skip_unavailable_seasons: "true"
 
-        - task_key: ingest_schedules
+        - task_key: 01_ingest_schedules
           environment_key: nfl_env
           notebook_task:
-            notebook_path: ../notebooks/ingest_schedules.py
+            notebook_path: ../notebooks/11_ingest_schedules.py
             base_parameters:
               catalog: ${var.catalog}
               schedules_schema: ${var.schedules_schema}
               schedule_seasons: ${var.schedule_seasons}
 
-        - task_key: ingest_rosters
+        - task_key: 02_ingest_rosters
           environment_key: nfl_env
           notebook_task:
-            notebook_path: ../notebooks/ingest_rosters.py
+            notebook_path: ../notebooks/12_ingest_rosters.py
             base_parameters:
               catalog: ${var.catalog}
               rosters_schema: ${var.rosters_schema}
               roster_season: ${var.roster_season}
 
-        - task_key: load_pbp
+        - task_key: 03_load_pbp
           environment_key: nfl_env
           depends_on:
-            - task_key: download_pbp
-            - task_key: ingest_schedules
+            - task_key: 00_download_pbp
+            - task_key: 01_ingest_schedules
           notebook_task:
-            notebook_path: ../notebooks/load_pbp_from_volume.py
+            notebook_path: ../notebooks/30_load_pbp_from_volume.py
             base_parameters:
               catalog: ${var.catalog}
               pbp_schema: ${var.pbp_schema}
@@ -68,12 +68,12 @@ resources:
               pbp_volume: /Volumes/${var.catalog}/${var.pbp_schema}/raw
               skip_missing_volume: "true"
 
-        - task_key: ingest_odds_api
+        - task_key: 04_ingest_odds_api
           environment_key: nfl_env
           depends_on:
-            - task_key: ingest_schedules
+            - task_key: 01_ingest_schedules
           notebook_task:
-            notebook_path: ../notebooks/ingest_odds_api.py
+            notebook_path: ../notebooks/21_ingest_odds_api.py
             base_parameters:
               catalog: ${var.catalog}
               odds_schema: ${var.odds_schema}
@@ -83,26 +83,26 @@ resources:
               preferred_bookmaker: ${var.preferred_bookmaker}
               min_match_rate: ${var.min_match_rate}
 
-        - task_key: build_players
+        - task_key: 05_build_players
           environment_key: nfl_env
           depends_on:
-            - task_key: load_pbp
-            - task_key: ingest_rosters
+            - task_key: 03_load_pbp
+            - task_key: 02_ingest_rosters
           notebook_task:
-            notebook_path: ../notebooks/build_players.py
+            notebook_path: ../notebooks/40_build_players.py
             base_parameters:
               catalog: ${var.catalog}
               players_schema: ${var.players_schema}
               rosters_schema: ${var.rosters_schema}
               pbp_schema: ${var.pbp_schema}
 
-        - task_key: apply_refresh_column_descriptions
+        - task_key: 06_apply_refresh_column_descriptions
           environment_key: nfl_env
           depends_on:
-            - task_key: build_players
-            - task_key: ingest_odds_api
+            - task_key: 05_build_players
+            - task_key: 04_ingest_odds_api
           notebook_task:
-            notebook_path: ../notebooks/apply_uc_column_descriptions.py
+            notebook_path: ../notebooks/80_apply_uc_column_descriptions.py
             base_parameters:
               catalog: ${var.catalog}
               schedules_schema: ${var.schedules_schema}
@@ -112,12 +112,12 @@ resources:
               odds_schema: ${var.odds_schema}
               skip_missing_tables: "true"
 
-        - task_key: validate_weekly_refresh
+        - task_key: 07_validate_weekly_refresh
           environment_key: nfl_env
           depends_on:
-            - task_key: apply_refresh_column_descriptions
+            - task_key: 06_apply_refresh_column_descriptions
           notebook_task:
-            notebook_path: ../notebooks/validate_weekly_refresh.py
+            notebook_path: ../notebooks/91_validate_weekly_refresh.py
             base_parameters:
               catalog: ${var.catalog}
               schedules_schema: ${var.schedules_schema}

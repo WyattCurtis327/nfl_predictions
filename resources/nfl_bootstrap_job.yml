@@ -20,52 +20,61 @@ resources:
               - ../dist/nfl_predictions-0.1.0-py3-none-any.whl
       tasks:
         # Wave 1 — parallel
-        - task_key: download_pbp
+        - task_key: 00_download_pbp
           environment_key: nfl_env
           notebook_task:
-            notebook_path: ../notebooks/download_pbp_to_volume.py
+            notebook_path: ../notebooks/00_download_pbp_to_volume.py
             base_parameters:
               catalog: ${var.catalog}
               pbp_schema: ${var.pbp_schema}
               pbp_seasons: ${var.pbp_seasons}
               pbp_volume: /Volumes/${var.catalog}/${var.pbp_schema}/raw
 
-        - task_key: ingest_teams
+        - task_key: 01_ingest_teams
           environment_key: nfl_env
           notebook_task:
-            notebook_path: ../notebooks/ingest_teams.py
+            notebook_path: ../notebooks/10_ingest_teams.py
             base_parameters:
               catalog: ${var.catalog}
               teams_schema: ${var.teams_schema}
 
-        - task_key: ingest_schedules
+        - task_key: 02_ingest_schedules
           environment_key: nfl_env
           notebook_task:
-            notebook_path: ../notebooks/ingest_schedules.py
+            notebook_path: ../notebooks/11_ingest_schedules.py
             base_parameters:
               catalog: ${var.catalog}
               schedules_schema: ${var.schedules_schema}
               schedule_seasons: ${var.schedule_seasons}
 
-        - task_key: ingest_odds
+        - task_key: 03_ingest_rosters
+          environment_key: nfl_env
+          notebook_task:
+            notebook_path: ../notebooks/12_ingest_rosters.py
+            base_parameters:
+              catalog: ${var.catalog}
+              rosters_schema: ${var.rosters_schema}
+              roster_season: ${var.roster_season}
+
+        - task_key: 04_ingest_odds
           environment_key: nfl_env
           depends_on:
-            - task_key: ingest_schedules
+            - task_key: 02_ingest_schedules
           notebook_task:
-            notebook_path: ../notebooks/ingest_odds_from_schedules.py
+            notebook_path: ../notebooks/20_ingest_odds_from_schedules.py
             base_parameters:
               catalog: ${var.catalog}
               odds_schema: ${var.odds_schema}
               schedules_schema: ${var.schedules_schema}
 
-        # Wave 2 — parallel
-        - task_key: load_pbp
+        # Wave 2
+        - task_key: 05_load_pbp
           environment_key: nfl_env
           depends_on:
-            - task_key: download_pbp
-            - task_key: ingest_schedules
+            - task_key: 00_download_pbp
+            - task_key: 02_ingest_schedules
           notebook_task:
-            notebook_path: ../notebooks/load_pbp_from_volume.py
+            notebook_path: ../notebooks/30_load_pbp_from_volume.py
             base_parameters:
               catalog: ${var.catalog}
               pbp_schema: ${var.pbp_schema}
@@ -73,40 +82,31 @@ resources:
               pbp_seasons: ${var.pbp_seasons}
               pbp_volume: /Volumes/${var.catalog}/${var.pbp_schema}/raw
 
-        - task_key: ingest_rosters
-          environment_key: nfl_env
-          notebook_task:
-            notebook_path: ../notebooks/ingest_rosters.py
-            base_parameters:
-              catalog: ${var.catalog}
-              rosters_schema: ${var.rosters_schema}
-              roster_season: ${var.roster_season}
-
         # Wave 3 — serial
-        - task_key: build_players
+        - task_key: 06_build_players
           environment_key: nfl_env
           depends_on:
-            - task_key: load_pbp
-            - task_key: ingest_rosters
+            - task_key: 05_load_pbp
+            - task_key: 03_ingest_rosters
           notebook_task:
-            notebook_path: ../notebooks/build_players.py
+            notebook_path: ../notebooks/40_build_players.py
             base_parameters:
               catalog: ${var.catalog}
               players_schema: ${var.players_schema}
               rosters_schema: ${var.rosters_schema}
               pbp_schema: ${var.pbp_schema}
 
-        - task_key: apply_uc_column_descriptions
+        - task_key: 07_apply_uc_column_descriptions
           environment_key: nfl_env
           depends_on:
-            - task_key: ingest_teams
-            - task_key: ingest_schedules
-            - task_key: ingest_odds
-            - task_key: load_pbp
-            - task_key: ingest_rosters
-            - task_key: build_players
+            - task_key: 01_ingest_teams
+            - task_key: 02_ingest_schedules
+            - task_key: 04_ingest_odds
+            - task_key: 05_load_pbp
+            - task_key: 03_ingest_rosters
+            - task_key: 06_build_players
           notebook_task:
-            notebook_path: ../notebooks/apply_uc_column_descriptions.py
+            notebook_path: ../notebooks/80_apply_uc_column_descriptions.py
             base_parameters:
               catalog: ${var.catalog}
               teams_schema: ${var.teams_schema}
@@ -116,12 +116,12 @@ resources:
               players_schema: ${var.players_schema}
               odds_schema: ${var.odds_schema}
 
-        - task_key: validate_bootstrap
+        - task_key: 08_validate_bootstrap
           environment_key: nfl_env
           depends_on:
-            - task_key: apply_uc_column_descriptions
+            - task_key: 07_apply_uc_column_descriptions
           notebook_task:
-            notebook_path: ../notebooks/validate_bootstrap.py
+            notebook_path: ../notebooks/90_validate_bootstrap.py
             base_parameters:
               catalog: ${var.catalog}
               teams_schema: ${var.teams_schema}
