@@ -51,6 +51,69 @@ def _render_sql(path: Path, *, catalog: str, predictions_schema: str) -> str:
     )
 
 
+def _notify_email() -> str:
+    env_path = ROOT / ".env"
+    if env_path.exists():
+        for line in env_path.read_text(encoding="utf-8").splitlines():
+            if line.startswith("DATABRICKS_EMAIL_ACCOUNT="):
+                return line.split("=", 1)[1].strip()
+    return os.environ.get("DATABRICKS_EMAIL_ACCOUNT", "").strip()
+
+
+def _app_service_principals(profile: str) -> list[str]:
+    principals: list[str] = []
+    for app_name in ("nfl-rca-dashboard", "nfl-weekly-picks"):
+        cmd = [
+            "databricks",
+            "apps",
+            "get",
+            app_name,
+            "--profile",
+            profile,
+            "-o",
+            "json",
+        ]
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
+        if result.returncode != 0:
+            continue
+        payload = json.loads(result.stdout)
+        client_id = payload.get("service_principal_client_id", "").strip()
+        if client_id:
+            principals.append(client_id)
+    return principals
+
+
+def _grant_predictions_read_access(
+    *,
+    catalog: str,
+    predictions_schema: str,
+    principals: list[str],
+) -> None:
+    schema = f"{catalog}.{predictions_schema}"
+    pbp_schema = os.environ.get("NFL_PBP_SCHEMA", "pbp")
+    objects = [
+        ("TABLE", f"{schema}.prediction_grades"),
+        ("TABLE", f"{schema}.prediction_rca"),
+        ("TABLE", f"{schema}.game_predictions"),
+        ("VIEW", f"{schema}.pick_miss_rca"),
+        ("TABLE", f"{catalog}.{pbp_schema}.play_by_play"),
+    ]
+    for principal in principals:
+        safe_principal = principal.replace("`", "")
+        grants = [
+            f"GRANT USE SCHEMA ON SCHEMA {schema} TO `{safe_principal}`",
+            *[
+                f"GRANT SELECT ON {object_type} {name} TO `{safe_principal}`"
+                for object_type, name in objects
+            ],
+        ]
+        for statement in grants:
+            try:
+                _execute_sql(statement, label=f"grant for {safe_principal}")
+            except SystemExit as exc:
+                print(f"Warning: grant skipped for {safe_principal}: {exc}")
+
+
 def _execute_sql(statement: str, *, label: str) -> dict:
     payload = {
         "warehouse_id": _warehouse_id(),
@@ -126,6 +189,20 @@ def deploy_metric_view(
     )
     print(f"Deployed {catalog}.{predictions_schema}.game_pick_metrics")
     print(f"statement_id: {view_response.get('statement_id')}")
+
+    principals: list[str] = []
+    email = _notify_email()
+    if email:
+        principals.append(email)
+    principals.extend(_app_service_principals(_profile()))
+    unique_principals = list(dict.fromkeys(principals))
+    if unique_principals:
+        _grant_predictions_read_access(
+            catalog=catalog,
+            predictions_schema=predictions_schema,
+            principals=unique_principals,
+        )
+        print(f"Granted predictions read access to: {', '.join(unique_principals)}")
 
 
 def main() -> None:

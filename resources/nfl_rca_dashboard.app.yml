@@ -2,7 +2,7 @@ resources:
   apps:
     nfl_rca_dashboard:
       name: nfl-rca-dashboard
-      description: Root-cause analysis dashboard for missed NFL spread and total picks.
+      description: Root-cause analysis and team net rating analytics for NFL predictions.
       source_code_path: ../app/rca_dashboard
       lifecycle:
         started: true
@@ -14,6 +14,8 @@ resources:
             value: ${var.catalog}
           - name: NFL_PREDICTIONS_SCHEMA
             value: ${var.predictions_schema}
+          - name: NFL_PBP_SCHEMA
+            value: ${var.pbp_schema}
           - name: NFL_SCHEDULE_SEASON
             value: ${var.schedule_season}
           - name: STREAMLIT_BROWSER_GATHER_USAGE_STATS
@@ -41,4 +43,10 @@ resources:
           uc_securable:
             securable_type: TABLE
             securable_full_name: ${var.catalog}.${var.predictions_schema}.pick_miss_rca
+            permission: SELECT
+        - name: play-by-play-table
+          description: Play-by-play for team rating analytics
+          uc_securable:
+            securable_type: TABLE
+            securable_full_name: ${var.catalog}.${var.pbp_schema}.play_by_play
             permission: SELECT

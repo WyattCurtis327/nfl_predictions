@@ -19,6 +19,7 @@ dbutils.widgets.text("predictions_schema", DEFAULT_PREDICTIONS_SCHEMA, "Predicti
 dbutils.widgets.text("season", "", "Season to grade (blank = auto-detect)")
 dbutils.widgets.text("target_week", "", "Week to grade (blank = latest completed)")
 dbutils.widgets.text("mlflow_experiment", "/Shared/nfl_predictions", "MLflow experiment path")
+dbutils.widgets.text("model_id", "monte_carlo", "Model to grade (blank = all models in latest run)")
 dbutils.widgets.dropdown("log_grades", "true", ["true", "false"], "Append grades to Delta")
 dbutils.widgets.dropdown("log_rca", "true", ["true", "false"], "Analyze missed picks and append RCA")
 
@@ -30,6 +31,8 @@ paths = UcPaths(
 season_raw = dbutils.widgets.get("season").strip()
 target_week_raw = dbutils.widgets.get("target_week").strip()
 mlflow_experiment = dbutils.widgets.get("mlflow_experiment").strip()
+model_id_raw = dbutils.widgets.get("model_id").strip()
+model_id = model_id_raw or None
 log_grades = dbutils.widgets.get("log_grades").lower() == "true"
 log_rca = dbutils.widgets.get("log_rca").lower() == "true"
 
@@ -106,10 +109,19 @@ if week_predictions.empty:
     print(f"No predictions for season={season}, week={target_week}; skipping grading.")
     dbutils.notebook.exit("SKIPPED")
 
+if model_id:
+    week_predictions = week_predictions[
+        week_predictions["model_id"].fillna("monte_carlo") == model_id
+    ].copy()
+    if week_predictions.empty:
+        print(f"No predictions for model_id={model_id}; skipping grading.")
+        dbutils.notebook.exit("SKIPPED")
+
 latest_run_id = select_latest_prediction_run(
     week_predictions,
     season=season,
     week=target_week,
+    model_id=model_id,
 )
 if latest_run_id:
     week_predictions = week_predictions[
@@ -117,7 +129,10 @@ if latest_run_id:
     ].copy()
     print(f"Using prediction_run_id: {latest_run_id}")
 
-week_predictions = select_latest_predictions_per_game(week_predictions)
+week_predictions = select_latest_predictions_per_game(
+    week_predictions,
+    model_id=model_id,
+)
 
 existing_grades = (
     spark.table(grades_table).toPandas()

@@ -147,6 +147,12 @@
       "comment": "The number of simulations run to generate the predictions, reflecting the robustness of the analysis."
     },
     {
+      "name": "model_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Prediction model family (monte_carlo, poisson, elo, epa_margin, line_relative, shrinkage_profile, situational_total, ensemble)."
+    },
+    {
       "name": "prediction_run_id",
       "type": "string",
       "nullable": true,

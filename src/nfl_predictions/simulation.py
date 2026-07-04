@@ -582,6 +582,7 @@ def prepare_prediction_log(
     predicted_at: datetime | None = None,
     mlflow_run_id: str | None = None,
     config: SimulationConfig | None = None,
+    model_id: str | None = None,
 ) -> pd.DataFrame:
     """Attach run metadata so predictions can be stored and graded later."""
     if picks.empty:
@@ -590,9 +591,14 @@ def prepare_prediction_log(
     cfg = config or SimulationConfig()
     stamped = predicted_at or datetime.now(timezone.utc)
     logged = picks.copy()
+    if model_id is not None:
+        logged["model_id"] = model_id
+    elif "model_id" not in logged.columns:
+        logged["model_id"] = "monte_carlo"
     logged["prediction_run_id"] = prediction_run_id
-    logged["prediction_id"] = logged["game_id"].map(
-        lambda game_id: f"{prediction_run_id}:{game_id}"
+    logged["prediction_id"] = logged.apply(
+        lambda row: f"{prediction_run_id}:{row['model_id']}:{row['game_id']}",
+        axis=1,
     )
     logged["season"] = season
     logged["pbp_season"] = pbp_season
@@ -757,6 +763,7 @@ def grade_predictions(
                 "grade_id": str(uuid4()),
                 "prediction_id": getattr(row, "prediction_id", None),
                 "prediction_run_id": getattr(row, "prediction_run_id", None),
+                "model_id": getattr(row, "model_id", None),
                 "mlflow_run_id": getattr(row, "mlflow_run_id", None),
                 "season": getattr(row, "season", None),
                 "week": getattr(row, "week", None),
@@ -827,8 +834,9 @@ def select_latest_prediction_run(
     *,
     season: int,
     week: int,
+    model_id: str | None = "monte_carlo",
 ) -> str | None:
-    """Return the most recent prediction_run_id for a season/week."""
+    """Return the most recent prediction_run_id for a season/week/model."""
     if predictions.empty:
         return None
 
@@ -838,19 +846,39 @@ def select_latest_prediction_run(
     if subset.empty:
         return None
 
+    if model_id is not None and "model_id" in subset.columns:
+        with_model = subset[subset["model_id"].fillna("monte_carlo") == model_id]
+        if not with_model.empty:
+            subset = with_model
+
     subset = subset.sort_values("predicted_at")
     return str(subset.iloc[-1]["prediction_run_id"])
 
 
-def select_latest_predictions_per_game(predictions: pd.DataFrame) -> pd.DataFrame:
-    """Keep the most recent prediction row per game_id."""
+def select_latest_predictions_per_game(
+    predictions: pd.DataFrame,
+    *,
+    model_id: str | None = None,
+) -> pd.DataFrame:
+    """Keep the most recent prediction row per game_id (and model when present)."""
     if predictions.empty or "game_id" not in predictions.columns:
         return predictions.copy()
-    if "predicted_at" not in predictions.columns:
-        return predictions.drop_duplicates(subset=["game_id"], keep="last")
+
+    frame = predictions.copy()
+    if model_id is not None and "model_id" in frame.columns:
+        frame = frame[frame["model_id"].fillna("monte_carlo") == model_id]
+    if frame.empty:
+        return frame
+
+    subset_cols = ["game_id"]
+    if "model_id" in frame.columns:
+        subset_cols.append("model_id")
+
+    if "predicted_at" not in frame.columns:
+        return frame.drop_duplicates(subset=subset_cols, keep="last").reset_index(drop=True)
     return (
-        predictions.sort_values("predicted_at")
-        .drop_duplicates(subset=["game_id"], keep="last")
+        frame.sort_values("predicted_at")
+        .drop_duplicates(subset=subset_cols, keep="last")
         .reset_index(drop=True)
     )
 

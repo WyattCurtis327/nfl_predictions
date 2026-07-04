@@ -1,269 +1,145 @@
-"""Root-cause analysis dashboard for missed NFL predictions."""
+"""NFL RCA dashboard — intro and navigation."""
 
 from __future__ import annotations
 
-import pandas as pd
 import streamlit as st
 
-from queries import (
-    cause_by_week_sql,
-    cause_summary_sql,
-    format_narrative,
-    game_detail_sql,
-    list_rca_season_weeks_sql,
-    list_rca_seasons_sql,
-    missed_picks_sql,
-    parse_causes,
-)
-from shared import DEFAULT_SEASON, pick_miss_rca_view, sql_query
+from shared import DEFAULT_SEASON, pick_miss_rca_view
 
 st.set_page_config(
-    page_title="NFL Pick Root Cause Analysis",
+    page_title="NFL RCA Dashboard",
     layout="wide",
-    page_icon="🔬",
+    page_icon="🏈",
 )
 
-VIEW = pick_miss_rca_view()
+st.title("NFL Predictions — RCA Dashboard")
+st.markdown(
+    """
+Welcome. This app helps you **understand why picks missed** after games are played,
+and **compare team strength** from play-by-play scoring data.
 
-st.title("NFL Pick Root Cause Analysis")
-st.caption(
-    "Post-mortem missed spread and total picks — projection decomposition, "
-    f"training profiles, and ranked causes from `{VIEW}`."
+Use the sidebar to switch pages, or jump directly below.
+    """
 )
 
+nav1, nav2 = st.columns(2)
 
-@st.cache_data(ttl=180)
-def load_seasons() -> pd.DataFrame:
-    return sql_query(list_rca_seasons_sql(VIEW))
+with nav1:
+    st.subheader("Misses & RCA")
+    st.markdown(
+        """
+Investigate spread and over/under picks that did not cover.
 
+- Season and week filters
+- Charts of the most common miss reasons
+- Per-game score pipeline (profiles → nfelo → market → simulation → actual)
+- Plain-language narrative for each miss
+        """
+    )
+    st.page_link("pages/1_Misses_and_RCA.py", label="Open Misses & RCA", icon="🔬")
 
-@st.cache_data(ttl=120)
-def load_season_weeks(season: int) -> pd.DataFrame:
-    return sql_query(list_rca_season_weeks_sql(VIEW, season=season))
+with nav2:
+    st.subheader("Team Ratings")
+    st.markdown(
+        """
+Scatter plot of **net offensive** vs **net defensive** team ratings.
 
+- Built from final scores in play-by-play data
+- Filter by season and one or more weeks
+- League-average teams sit near (0, 0)
+        """
+    )
+    st.page_link("pages/2_Team_Ratings.py", label="Open Team Ratings", icon="📊")
 
-@st.cache_data(ttl=120)
-def load_cause_summary(season: int) -> pd.DataFrame:
-    return sql_query(cause_summary_sql(VIEW, season=season))
+st.divider()
 
+st.header("Quick start")
 
-@st.cache_data(ttl=120)
-def load_cause_by_week(season: int) -> pd.DataFrame:
-    return sql_query(cause_by_week_sql(VIEW, season=season))
+st.markdown(
+    f"""
+### During the season (typical week)
 
+1. **Before kickoff** — Weekly picks are published in the **NFL Weekly Picks** app
+   (Monte Carlo model). No RCA exists yet because games have not been played.
+2. **After games finish** — The `nfl_weekly_predictions` job grades results and,
+   when enabled, writes root-cause rows for every miss.
+3. **Review here** — Open **Misses & RCA**, choose season **{DEFAULT_SEASON}** (or the
+   year you care about), pick the week, and read the Overview tab first.
 
-@st.cache_data(ttl=60)
-def load_misses(
-    *,
-    season: int,
-    week: int | None,
-    primary_cause: str | None,
-) -> pd.DataFrame:
-    return sql_query(
-        missed_picks_sql(VIEW, season=season, week=week, primary_cause=primary_cause)
+RCA only includes **incorrect** spread or total picks. Winning weeks may show few or
+no rows — that is expected.
+    """
+)
+
+st.header("Understanding root causes")
+
+st.markdown(
+    """
+Each miss gets a **primary cause** (the strongest explanation) plus a ranked list of
+contributing factors. Common labels you will see:
+    """
+)
+
+cause_help = {
+    "pbp_profile_miss": "Team scoring profiles from past games did not match how teams actually scored.",
+    "nfelo_adjustment": "The nfelo power-rating blend shifted the projection away from the final score.",
+    "market_calibration": "Blending toward the betting line moved the pick in the wrong direction.",
+    "score_projection_error": "The final simulated scores were off compared with the actual result.",
+    "low_profile_sample": "One or both teams had few games in the training window, so profiles were unreliable.",
+    "turnover_variance": "Turnovers in the game swung the margin or total more than the model expected.",
+    "single_game_profile_swing": "Including this game would have materially changed a team's profile.",
+}
+
+st.table(
+    [{"Cause": key.replace("_", " "), "What it means": desc} for key, desc in cause_help.items()]
+)
+
+st.header("Score projection pipeline")
+
+st.markdown(
+    """
+When you open a game, the bar chart shows five checkpoints for each team:
+
+| Stage | Meaning |
+|-------|---------|
+| **PBP** | Expected points from play-by-play scoring profiles |
+| **nfelo** | After blending nfelo power ratings |
+| **Market** | After blending toward the sportsbook line |
+| **Sim** | Final Monte Carlo projection used for the pick |
+| **Actual** | Real final score |
+
+Large jumps between stages show where the model diverged from reality.
+    """
+)
+
+with st.expander("For operators — how data gets here"):
+    st.markdown(
+        f"""
+**Predictions** land in `nfl.predictions.game_predictions` (see Weekly Picks app).
+
+**Grading** compares picks to final scores and writes `nfl.predictions.prediction_grades`.
+
+**RCA** runs during grading when `log_rca=true` and fills `nfl.predictions.prediction_rca`.
+This dashboard reads the view **`{pick_miss_rca_view()}`**, which exposes misses only.
+
+If a season looks empty:
+
+- Confirm games were graded after scores were final.
+- For historical seasons, an admin can run
+  `python scripts/backfill_prediction_rca.py --season <year>`.
+
+**Team Ratings** reads play-by-play directly (`nfl.pbp.play_by_play`) and does not depend
+on RCA being populated.
+        """
     )
 
-
-@st.cache_data(ttl=60)
-def load_game(game_id: str) -> pd.DataFrame:
-    return sql_query(game_detail_sql(VIEW, game_id=game_id))
-
-
-def _score_comparison(row: pd.Series) -> pd.DataFrame:
-    stages = ["PBP", "nfelo", "Market", "Sim", "Actual"]
-    away_cols = [
-        "pbp_proj_away",
-        "nfelo_proj_away",
-        "market_proj_away",
-        "proj_away_score",
-        "actual_away_score",
-    ]
-    home_cols = [
-        "pbp_proj_home",
-        "nfelo_proj_home",
-        "market_proj_home",
-        "proj_home_score",
-        "actual_home_score",
-    ]
-    return pd.DataFrame(
-        {
-            "stage": stages,
-            "away": [row.get(col) for col in away_cols],
-            "home": [row.get(col) for col in home_cols],
-        }
+with st.expander("Tips"):
+    st.markdown(
+        """
+- Start with **Overview** and filter **Primary cause** to spot recurring patterns across a season.
+- Use **Game explorer** when you want one matchup without scrolling the full miss board.
+- **Team Ratings** is useful pre-game too — it shows offensive/defensive form for any completed week window.
+- RCA explains past picks; it does **not** change future predictions automatically. Fresh PBP and
+  odds ingests are what update the model inputs for the next week.
+        """
     )
-
-
-def _render_game_card(row: pd.Series) -> None:
-    st.markdown(f"### {row['away_abbr']} @ {row['home_abbr']}")
-    st.caption(
-        f"Week {row['week']} · {row.get('gameday', '')} · "
-        f"missed **{row['miss_types']}** · `{row['primary_cause']}`"
-    )
-
-    narrative = format_narrative(row.to_dict())
-    st.info(narrative)
-
-    chart_df = _score_comparison(row)
-    st.markdown("**Score projection pipeline**")
-    st.bar_chart(chart_df.set_index("stage")[["away", "home"]])
-
-    left, right = st.columns(2)
-    with left:
-        st.markdown("**Pick context**")
-        st.write(f"Spread pick: **{row.get('spread_pick', '—')}** ({row.get('spread_confidence', 0):.0%})" if pd.notna(row.get("spread_confidence")) else f"Spread pick: **{row.get('spread_pick', '—')}**")
-        st.write(f"Total pick: **{row.get('total_pick', '—')}** ({row.get('total_confidence', 0):.0%})" if pd.notna(row.get("total_confidence")) else f"Total pick: **{row.get('total_pick', '—')}**")
-        st.write(f"Projection source: `{row.get('projection_source', '—')}`")
-    with right:
-        st.markdown("**Training & game signals**")
-        st.write(
-            f"Home profile: {row.get('home_profile_pf_mean', '—')} PF / "
-            f"{row.get('home_profile_pa_mean', '—')} PA "
-            f"({row.get('home_profile_games', '—')} games, {row.get('profile_source', '—')})"
-        )
-        st.write(
-            f"Away profile: {row.get('away_profile_pf_mean', '—')} PF / "
-            f"{row.get('away_profile_pa_mean', '—')} PA "
-            f"({row.get('away_profile_games', '—')} games)"
-        )
-        st.write(
-            f"Turnovers: {row['away_abbr']} {row.get('game_away_turnovers', '—')}, "
-            f"{row['home_abbr']} {row.get('game_home_turnovers', '—')}"
-        )
-        if pd.notna(row.get("game_home_epa")):
-            st.write(
-                f"EPA: {row['away_abbr']} {row.get('game_away_epa', '—')}, "
-                f"{row['home_abbr']} {row.get('game_home_epa', '—')}"
-            )
-
-    causes = parse_causes(row.get("cause_summary"))
-    if causes:
-        st.markdown("**Ranked root causes**")
-        cause_df = pd.DataFrame(causes)
-        if "weight" in cause_df.columns:
-            cause_df = cause_df.sort_values("weight", ascending=False)
-        st.dataframe(
-            cause_df[["label", "detail", "weight"]] if "weight" in cause_df.columns else cause_df,
-            use_container_width=True,
-            hide_index=True,
-        )
-
-
-try:
-    seasons_df = load_seasons()
-except Exception as exc:  # noqa: BLE001
-    st.error(f"Could not connect to Databricks SQL: {exc}")
-    st.stop()
-
-if seasons_df.empty:
-    st.warning(
-        "No RCA data found. Grade a week with misses (`log_rca=true`) or run "
-        "`python scripts/backfill_prediction_rca.py --season 2025`."
-    )
-    st.stop()
-
-with st.sidebar:
-    st.header("Filters")
-    seasons = sorted(seasons_df["season"].dropna().unique(), reverse=True)
-    season = st.selectbox(
-        "Season",
-        options=seasons,
-        index=seasons.index(DEFAULT_SEASON) if DEFAULT_SEASON in seasons else 0,
-    )
-    season_weeks = load_season_weeks(int(season))
-    week_labels = {None: "All weeks"}
-    for week_num in season_weeks["week"].tolist():
-        week_labels[int(week_num)] = f"Week {int(week_num)}"
-    week_choice = st.selectbox(
-        "Week",
-        options=list(week_labels.keys()),
-        format_func=lambda w: week_labels[w],
-    )
-    cause_summary = load_cause_summary(int(season))
-    cause_options: list[str | None] = [None]
-    if not cause_summary.empty:
-        cause_options.extend(cause_summary["primary_cause"].tolist())
-    cause_filter = st.selectbox(
-        "Primary cause",
-        options=cause_options,
-        format_func=lambda c: "All causes" if c is None else c,
-    )
-    st.divider()
-    st.markdown("**Data source**")
-    st.code(VIEW, language="sql")
-
-misses = load_misses(season=int(season), week=week_choice, primary_cause=cause_filter)
-causes = cause_summary if cause_filter is None else cause_summary[cause_summary["primary_cause"] == cause_filter]
-
-tab_overview, tab_week, tab_game = st.tabs(["Overview", "Miss board", "Game explorer"])
-
-with tab_overview:
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Total misses", len(misses))
-    c2.metric(
-        "Spread misses",
-        int(misses["miss_types"].astype(str).str.contains("spread").sum()) if not misses.empty else 0,
-    )
-    c3.metric(
-        "Total misses (O/U)",
-        int(misses["miss_types"].astype(str).str.contains("total").sum()) if not misses.empty else 0,
-    )
-
-    if not causes.empty:
-        st.subheader("Root causes")
-        st.bar_chart(causes.set_index("primary_cause")["misses"])
-
-    cause_week = load_cause_by_week(int(season))
-    if not cause_week.empty and week_choice is None:
-        st.subheader("Misses by week")
-        pivot = cause_week.pivot_table(
-            index="week", columns="primary_cause", values="misses", fill_value=0
-        )
-        st.bar_chart(pivot)
-
-with tab_week:
-    if misses.empty:
-        st.success("No misses match the current filters.")
-    else:
-        board = misses[
-            [
-                "week",
-                "gameday",
-                "away_abbr",
-                "home_abbr",
-                "miss_types",
-                "primary_cause",
-                "spread_pick",
-                "total_pick",
-                "proj_away_score",
-                "proj_home_score",
-                "actual_away_score",
-                "actual_home_score",
-            ]
-        ].copy()
-        st.dataframe(board, use_container_width=True, hide_index=True)
-        st.subheader("Details")
-        for _, row in misses.iterrows():
-            with st.expander(f"{row['away_abbr']} @ {row['home_abbr']} — {row['primary_cause']}"):
-                _render_game_card(row)
-
-with tab_game:
-    if misses.empty:
-        st.info("Select a season/week with misses to explore games.")
-    else:
-        game_labels = {
-            str(row["game_id"]): (
-                f"{row['away_abbr']} @ {row['home_abbr']} (wk {row['week']}) — {row['primary_cause']}"
-            )
-            for _, row in misses.iterrows()
-        }
-        selected = st.selectbox(
-            "Game",
-            options=list(game_labels.keys()),
-            format_func=lambda gid: game_labels[gid],
-        )
-        game_row = load_game(str(selected))
-        if game_row.empty:
-            st.warning(f"No RCA row for {selected}")
-        else:
-            _render_game_card(game_row.iloc[0])

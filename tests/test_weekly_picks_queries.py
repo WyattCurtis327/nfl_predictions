@@ -28,3 +28,5 @@ def test_latest_picks_sql_dedupes_and_filters():
     assert "season = 2026" in sql
     assert "week = 1" in sql
     assert "WHERE rn = 1" in sql
+    assert "model_id" in sql
+    assert "monte_carlo" in sql

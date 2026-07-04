@@ -16,7 +16,14 @@ def list_season_weeks_sql(table: str) -> str:
     """
 
 
-def latest_picks_sql(table: str, *, season: int, week: int) -> str:
+def latest_picks_sql(
+    table: str,
+    *,
+    season: int,
+    week: int,
+    model_id: str = "monte_carlo",
+) -> str:
+    model_filter = f"AND COALESCE(model_id, 'monte_carlo') = '{model_id}'"
     return f"""
         WITH ranked AS (
           SELECT
@@ -28,9 +35,11 @@ def latest_picks_sql(table: str, *, season: int, week: int) -> str:
           FROM {table}
           WHERE season = {int(season)}
             AND week = {int(week)}
+            {model_filter}
         )
         SELECT
           game_id,
+          model_id,
           season,
           week,
           game_type,

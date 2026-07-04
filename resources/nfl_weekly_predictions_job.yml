@@ -43,10 +43,36 @@ resources:
               pick_threshold: ${var.pick_threshold}
               mlflow_experiment: ${var.mlflow_experiment}
 
+        - task_key: 00b_predict_multi_model
+          environment_key: nfl_env
+          depends_on:
+            - task_key: 00_predict_upcoming_week
+          notebook_task:
+            notebook_path: ../notebooks/51_predict_multi_model.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schedules_schema: ${var.schedules_schema}
+              pbp_schema: ${var.pbp_schema}
+              odds_schema: ${var.odds_schema}
+              predictions_schema: ${var.predictions_schema}
+              teams_schema: ${var.teams_schema}
+              season: ${var.schedule_season}
+              pbp_season: ${var.pbp_season}
+              current_pbp_season: ${var.current_pbp_season}
+              target_week: ""
+              preferred_bookmaker: ${var.preferred_bookmaker}
+              n_simulations: ${var.n_simulations}
+              market_blend: ${var.market_blend}
+              nfelo_blend: ${var.nfelo_blend}
+              use_nfelo: "true"
+              pick_threshold: ${var.pick_threshold}
+              mlflow_experiment: ${var.mlflow_experiment}
+
         - task_key: 01_grade_elapsed_week
           environment_key: nfl_env
           depends_on:
             - task_key: 00_predict_upcoming_week
+            - task_key: 00b_predict_multi_model
           notebook_task:
             notebook_path: ../notebooks/60_grade_elapsed_week.py
             base_parameters:
