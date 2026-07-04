@@ -11,6 +11,8 @@ from nfl_predictions.uc_schema import (
     list_schema_files,
     remap_table_catalog,
     remap_table_reference,
+    resolve_schema_directory,
+    schema_dir_candidates,
     table_comment_sql,
     write_manifest_from_directory,
 )
@@ -161,6 +163,23 @@ def test_write_manifest_from_directory(tmp_path: Path):
     assert manifest["catalog"] == "nfl"
     assert manifest["tables"] == ["nfl.predictions.game_predictions"]
     assert manifest["files"] == ["nfl/predictions/game_predictions.json"]
+
+
+def test_schema_dir_candidates_adds_workspace_alias():
+    candidates = schema_dir_candidates("/Users/me/.bundle/nfl_predictions/prod/files/resources/schema")
+    assert candidates[0].as_posix() == "/Users/me/.bundle/nfl_predictions/prod/files/resources/schema"
+    assert candidates[1].as_posix() == "/Workspace/Users/me/.bundle/nfl_predictions/prod/files/resources/schema"
+
+
+def test_resolve_schema_directory_tries_extra_candidates(tmp_path: Path):
+    primary = tmp_path / "missing"
+    resolved_root = tmp_path / "bundle" / "resources" / "schema"
+    table_path = resolved_root / "nfl" / "teams" / "teams.json"
+    table_path.parent.mkdir(parents=True)
+    table_path.write_text("{}", encoding="utf-8")
+
+    resolved = resolve_schema_directory(primary, extra_candidates=[resolved_root])
+    assert resolved == resolved_root
 
 
 def test_list_schema_files_excludes_manifest(tmp_path: Path):

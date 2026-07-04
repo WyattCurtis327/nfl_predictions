@@ -50,12 +50,54 @@ def load_metadata_file(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def list_schema_files(schema_dir: Path | str) -> list[Path]:
-    root = Path(schema_dir)
-    if not root.exists():
+def schema_dir_candidates(schema_dir: Path | str) -> list[Path]:
+    """Return filesystem paths to try for a bundle or workspace schema directory."""
+    text = str(schema_dir).strip()
+    if not text:
         return []
-    return sorted(
-        path for path in root.rglob("*.json") if path.name != "manifest.json"
+
+    candidates: list[Path] = [Path(text)]
+    if text.startswith("/Users/"):
+        candidates.append(Path(f"/Workspace{text}"))
+    elif text.startswith("/Workspace/Users/"):
+        candidates.append(Path(text.removeprefix("/Workspace")))
+    return candidates
+
+
+def list_schema_files(schema_dir: Path | str) -> list[Path]:
+    for root in schema_dir_candidates(schema_dir):
+        if not root.exists():
+            continue
+        return sorted(
+            path for path in root.rglob("*.json") if path.name != "manifest.json"
+        )
+    return []
+
+
+def resolve_schema_directory(
+    schema_dir: Path | str,
+    *,
+    extra_candidates: list[Path | str] | None = None,
+) -> Path:
+    """Return the first schema directory that contains metadata JSON files."""
+    candidates: list[Path] = []
+    for value in [schema_dir, *(extra_candidates or [])]:
+        candidates.extend(schema_dir_candidates(value))
+
+    seen: set[str] = set()
+    tried: list[str] = []
+    for root in candidates:
+        key = root.as_posix()
+        if key in seen:
+            continue
+        seen.add(key)
+        tried.append(key)
+        files = list_schema_files(root)
+        if files:
+            return root
+
+    raise FileNotFoundError(
+        f"No schema metadata files found. Tried: {tried}"
     )
 
 
@@ -195,9 +237,10 @@ def apply_schema_directory(
     paths: UcPaths | None = None,
     only_canonical_schema: str | None = None,
     skip_missing_tables: bool = False,
+    extra_schema_dir_candidates: list[Path | str] | None = None,
 ) -> list[ApplySummary]:
     """Apply all schema metadata JSON files under a directory."""
-    root = Path(schema_dir)
+    root = resolve_schema_directory(schema_dir, extra_candidates=extra_schema_dir_candidates)
     summaries: list[ApplySummary] = []
     resolved_catalog = paths.catalog if paths else catalog
     resolved_schema_map = paths.schema_map() if paths else schema_map

@@ -45,40 +45,54 @@ schema_dir = dbutils.widgets.get("schema_dir").strip()
 
 # COMMAND ----------
 
-from pathlib import PurePosixPath
+import os
 
-from nfl_predictions.uc_schema import apply_schema_directory, list_schema_files
+from nfl_predictions.uc_schema import apply_schema_directory, resolve_schema_directory
 
 
-def _default_schema_dir() -> str:
+def _schema_dir_candidates(explicit: str) -> list[str]:
+    candidates: list[str] = []
+    if explicit:
+        candidates.append(explicit)
+
     notebook_path = (
         dbutils.notebook.entry_point.getDbutils().notebook().getContext().notebookPath().get()
     )
     parts = [part for part in notebook_path.split("/") if part]
-    if "notebooks" not in parts:
-        raise ValueError(
-            "schema_dir widget is required when notebook path does not include /notebooks/"
+    if "notebooks" in parts:
+        idx = parts.index("notebooks")
+        bundle_schema = "/" + "/".join(parts[:idx] + ["resources", "schema"])
+        candidates.extend(
+            [
+                os.path.abspath(os.path.join(os.getcwd(), "..", "resources", "schema")),
+                os.path.abspath(os.path.join(os.getcwd(), "resources", "schema")),
+                bundle_schema,
+                f"/Workspace{bundle_schema}",
+            ]
         )
-    idx = parts.index("notebooks")
-    return "/" + "/".join(parts[:idx] + ["resources", "schema"])
+    else:
+        candidates.append(os.path.abspath(os.path.join(os.getcwd(), "resources", "schema")))
+
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for candidate in candidates:
+        if candidate and candidate not in seen:
+            seen.add(candidate)
+            ordered.append(candidate)
+    return ordered
 
 
-if not schema_dir:
-    schema_dir = _default_schema_dir()
+schema_candidates = _schema_dir_candidates(schema_dir)
+resolved_schema_dir = resolve_schema_directory(schema_candidates[0], extra_candidates=schema_candidates[1:])
 
-schema_files = list_schema_files(schema_dir)
-if not schema_files:
-    raise FileNotFoundError(f"No schema metadata files found under {schema_dir}")
-
-print(f"Applying UC comments from {schema_dir}")
+print(f"Applying UC comments from {resolved_schema_dir}")
 print(f"Catalog: {paths.catalog}")
-print(f"Tables: {len(schema_files)}")
 
 # COMMAND ----------
 
 summaries = apply_schema_directory(
     spark,
-    schema_dir,
+    resolved_schema_dir,
     paths=paths,
     only_canonical_schema=only_schema,
     skip_missing_tables=skip_missing_tables,
