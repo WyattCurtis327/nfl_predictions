@@ -19,8 +19,23 @@ resources:
               - mlflow>=2.14.0
               - ../dist/nfl_predictions-0.1.0-py3-none-any.whl
       tasks:
+        - task_key: ingest_odds_api
+          environment_key: nfl_env
+          notebook_task:
+            notebook_path: ../notebooks/ingest_odds_api.py
+            base_parameters:
+              catalog: ${var.catalog}
+              odds_schema: ${var.odds_schema}
+              schedules_schema: ${var.schedules_schema}
+              season: ${var.schedule_season}
+              target_week: ""
+              preferred_bookmaker: ${var.preferred_bookmaker}
+              min_match_rate: ${var.min_match_rate}
+
         - task_key: predict_upcoming_week
           environment_key: nfl_env
+          depends_on:
+            - task_key: ingest_odds_api
           notebook_task:
             notebook_path: ../notebooks/predict_upcoming_week.py
             base_parameters:
@@ -32,6 +47,7 @@ resources:
               season: ${var.schedule_season}
               pbp_season: ${var.pbp_season}
               current_pbp_season: ${var.current_pbp_season}
+              target_week: ""
               preferred_bookmaker: ${var.preferred_bookmaker}
               mlflow_experiment: ${var.mlflow_experiment}
 

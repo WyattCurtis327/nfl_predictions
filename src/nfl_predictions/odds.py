@@ -249,3 +249,26 @@ def build_odds_from_schedule(schedule: pd.DataFrame) -> tuple[pd.DataFrame, pd.D
 
 def nflverse_odds_source_file() -> str:
     return NFLVERSE_GAMES_URL
+
+
+def merge_odds_updates(
+    existing: pd.DataFrame,
+    incoming: pd.DataFrame,
+    *,
+    dedupe_keys: list[str],
+) -> pd.DataFrame:
+    """Replace rows sharing natural keys in ``existing`` with ``incoming`` rows."""
+    if incoming.empty:
+        return existing.reset_index(drop=True)
+    if existing.empty:
+        return _dedupe(incoming, dedupe_keys)
+
+    keys = [key for key in dedupe_keys if key in existing.columns and key in incoming.columns]
+    if not keys:
+        return _dedupe(pd.concat([existing, incoming], ignore_index=True), dedupe_keys)
+
+    incoming_keys = incoming.drop_duplicates(subset=keys, keep="last")
+    key_tuples = {tuple(row[col] for col in keys) for _, row in incoming_keys.iterrows()}
+    mask = ~existing.apply(lambda row: tuple(row[col] for col in keys) in key_tuples, axis=1)
+    merged = pd.concat([existing.loc[mask], incoming_keys], ignore_index=True)
+    return _dedupe(merged, dedupe_keys)

@@ -16,6 +16,7 @@ sync:
     - notebooks/**
     - staging/**
     - resources/**
+    - resources/schema/**
   exclude:
     - .venv/**
     - dist/**

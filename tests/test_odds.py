@@ -86,3 +86,28 @@ def test_extract_game_odds_dedupes_duplicate_schedule_rows():
 
     assert len(result) == 2
     assert result["game_id"].is_unique
+
+
+def test_merge_odds_updates_replaces_matching_game_ids():
+    from nfl_predictions.odds import merge_odds_updates
+
+    existing = pd.DataFrame(
+        {
+            "game_id": ["g1", "g2"],
+            "spread_line": [-3.0, -1.0],
+            "bookmaker": ["nflverse", "nflverse"],
+        }
+    )
+    incoming = pd.DataFrame(
+        {
+            "game_id": ["g2"],
+            "spread_line": [-2.5],
+            "bookmaker": ["draftkings"],
+        }
+    )
+
+    merged = merge_odds_updates(existing, incoming, dedupe_keys=["game_id"])
+
+    assert set(merged["game_id"]) == {"g1", "g2"}
+    assert merged.loc[merged["game_id"] == "g2", "spread_line"].iloc[0] == -2.5
+    assert merged.loc[merged["game_id"] == "g2", "bookmaker"].iloc[0] == "draftkings"
