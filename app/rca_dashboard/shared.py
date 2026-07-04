@@ -22,6 +22,14 @@ def pick_miss_rca_view() -> str:
     return f"{CATALOG}.{PREDICTIONS_SCHEMA}.pick_miss_rca"
 
 
+def game_predictions_table() -> str:
+    return f"{CATALOG}.{PREDICTIONS_SCHEMA}.game_predictions"
+
+
+def prediction_grades_table() -> str:
+    return f"{CATALOG}.{PREDICTIONS_SCHEMA}.prediction_grades"
+
+
 def pbp_table() -> str:
     return f"{CATALOG}.{PBP_SCHEMA}.play_by_play"
 
@@ -130,3 +138,18 @@ def sql_query(query: str) -> pd.DataFrame:
     if env("DATABRICKS_APP_NAME"):
         return _sql_query_via_app_identity(query, wh_id)
     return _sql_query_via_user_identity(query, wh_id)
+
+
+def describe_table_sql(table: str) -> str:
+    return f"DESCRIBE TABLE {table}"
+
+
+@st.cache_data(ttl=3600)
+def table_has_column(table: str, column: str) -> bool:
+    """Return True when ``column`` exists on a Unity Catalog table."""
+    frame = sql_query(describe_table_sql(table))
+    if frame.empty:
+        return False
+    name_col = "col_name" if "col_name" in frame.columns else frame.columns[0]
+    names = frame[name_col].astype(str).str.lower()
+    return column.lower() in names.values

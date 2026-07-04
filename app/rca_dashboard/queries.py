@@ -118,6 +118,47 @@ def game_detail_sql(view: str, *, game_id: str) -> str:
     """
 
 
+MODEL_DISPLAY_NAMES: dict[str, str] = {
+    "monte_carlo": "Monte Carlo",
+    "poisson": "Poisson scoring",
+    "elo": "Elo ratings",
+    "epa_margin": "EPA margin",
+    "line_relative": "Line-relative",
+    "shrinkage_profile": "Shrunk profiles",
+    "situational_total": "Situational totals",
+    "ensemble": "Ensemble stack",
+}
+
+
+def model_leaderboard_sql(table: str, *, season: int, has_model_id: bool = True) -> str:
+    model_expr = "COALESCE(model_id, 'monte_carlo')" if has_model_id else "'monte_carlo'"
+    return f"""
+        SELECT
+          {model_expr} AS model_id,
+          COUNT(*) AS games_graded,
+          ROUND(AVG(CAST(spread_correct AS DOUBLE)), 3) AS spread_accuracy,
+          ROUND(AVG(CAST(total_correct AS DOUBLE)), 3) AS total_accuracy,
+          SUM(CASE WHEN spread_confidence >= 0.55 AND spread_correct = TRUE THEN 1 ELSE 0 END)
+            AS spread_high_conf_hits,
+          SUM(CASE WHEN spread_confidence >= 0.55 AND spread_correct IS NOT NULL THEN 1 ELSE 0 END)
+            AS spread_high_conf_games
+        FROM {table}
+        WHERE season = {int(season)}
+          AND spread_push IS NOT TRUE
+        GROUP BY {model_expr}
+        ORDER BY spread_accuracy DESC NULLS LAST, games_graded DESC
+    """
+
+
+def list_graded_seasons_sql(table: str) -> str:
+    return f"""
+        SELECT season, COUNT(*) AS grades
+        FROM {table}
+        GROUP BY season
+        ORDER BY season DESC
+    """
+
+
 def parse_causes(raw: Any) -> list[dict[str, Any]]:
     if raw is None or raw != raw:
         return []

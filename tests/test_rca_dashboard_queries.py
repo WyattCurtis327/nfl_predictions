@@ -12,6 +12,7 @@ format_narrative = _mod.format_narrative
 game_detail_sql = _mod.game_detail_sql
 list_rca_seasons_sql = _mod.list_rca_seasons_sql
 missed_picks_sql = _mod.missed_picks_sql
+model_leaderboard_sql = _mod.model_leaderboard_sql
 parse_causes = _mod.parse_causes
 
 
@@ -64,3 +65,20 @@ def test_format_narrative_includes_matchup():
 
 def test_parse_causes_empty():
     assert parse_causes(None) == []
+
+
+def test_model_leaderboard_sql_groups_by_model_id():
+    sql = model_leaderboard_sql("nfl.predictions.prediction_grades", season=2026)
+    assert "COALESCE(model_id, 'monte_carlo')" in sql
+    assert "season = 2026" in sql
+    assert "spread_push IS NOT TRUE" in sql
+
+
+def test_model_leaderboard_sql_without_model_id_column():
+    sql = model_leaderboard_sql(
+        "nfl.predictions.prediction_grades",
+        season=2026,
+        has_model_id=False,
+    )
+    assert "'monte_carlo' AS model_id" in sql
+    assert "COALESCE(model_id" not in sql

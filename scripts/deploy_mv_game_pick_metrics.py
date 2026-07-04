@@ -15,6 +15,7 @@ GRADES_TABLE_SQL = SQL_DIR / "create_prediction_grades_table.sql"
 RCA_TABLE_SQL = SQL_DIR / "create_prediction_rca_table.sql"
 PICK_MISS_RCA_VIEW_SQL = SQL_DIR / "create_vw_pick_miss_rca.sql"
 METRIC_VIEW_SQL = SQL_DIR / "create_mv_game_pick_metrics.sql"
+ALTER_MODEL_ID_SQL = SQL_DIR / "alter_game_predictions_add_model_id.sql"
 DEFAULT_CATALOG = "nfl"
 DEFAULT_PREDICTIONS_SCHEMA = "predictions"
 
@@ -168,6 +169,25 @@ def deploy_metric_view(
     )
     print(f"Ensured {catalog}.{predictions_schema}.prediction_grades exists")
     print(f"statement_id: {grades_response.get('statement_id')}")
+
+    if ALTER_MODEL_ID_SQL.exists():
+        rendered = _render_sql(
+            ALTER_MODEL_ID_SQL,
+            catalog=catalog,
+            predictions_schema=predictions_schema,
+        )
+        for chunk in rendered.split(";"):
+            lines = [
+                line
+                for line in chunk.splitlines()
+                if line.strip() and not line.strip().startswith("--")
+            ]
+            stmt = "\n".join(lines).strip()
+            if not stmt:
+                continue
+            alter_response = _execute_sql(stmt, label="model_id column alter")
+            print(f"Applied: {stmt.splitlines()[0]}")
+            print(f"statement_id: {alter_response.get('statement_id')}")
 
     rca_response = _execute_sql(
         _render_sql(RCA_TABLE_SQL, catalog=catalog, predictions_schema=predictions_schema),

@@ -6,7 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from queries import latest_picks_sql, list_season_weeks_sql
-from shared import DEFAULT_SEASON, predictions_table, sql_query
+from shared import DEFAULT_SEASON, predictions_table, sql_query, table_has_column
 
 st.set_page_config(page_title="NFL Weekly Picks", layout="wide", page_icon="🏈")
 
@@ -29,8 +29,15 @@ def load_season_weeks() -> pd.DataFrame:
 
 
 @st.cache_data(ttl=60)
-def load_picks(*, season: int, week: int) -> pd.DataFrame:
-    return sql_query(latest_picks_sql(PREDICTIONS_TABLE, season=season, week=week))
+def load_picks(*, season: int, week: int, has_model_id: bool) -> pd.DataFrame:
+    return sql_query(
+        latest_picks_sql(
+            PREDICTIONS_TABLE,
+            season=season,
+            week=week,
+            has_model_id=has_model_id,
+        )
+    )
 
 
 st.title("NFL Weekly Picks")
@@ -65,7 +72,8 @@ with st.sidebar:
     st.markdown("**Source**")
     st.code(PREDICTIONS_TABLE, language="sql")
 
-picks = load_picks(season=int(season), week=int(week))
+has_model_id = table_has_column(PREDICTIONS_TABLE, "model_id")
+picks = load_picks(season=int(season), week=int(week), has_model_id=has_model_id)
 if picks.empty:
     st.warning(f"No predictions for season {season}, week {week}.")
     st.stop()

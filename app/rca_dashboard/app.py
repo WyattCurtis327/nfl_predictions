@@ -22,7 +22,7 @@ Use the sidebar to switch pages, or jump directly below.
     """
 )
 
-nav1, nav2 = st.columns(2)
+nav1, nav2, nav3 = st.columns(3)
 
 with nav1:
     st.subheader("Misses & RCA")
@@ -50,6 +50,16 @@ Scatter plot of **net offensive** vs **net defensive** team ratings.
         """
     )
     st.page_link("pages/2_Team_Ratings.py", label="Open Team Ratings", icon="📊")
+
+with nav3:
+    st.subheader("Model Stack")
+    st.markdown(
+        """
+Guide to the multi-model prediction stack — what each model does, weekly workflow,
+rollout phases, and a live accuracy leaderboard when grades exist.
+        """
+    )
+    st.page_link("pages/3_Model_Stack.py", label="Open Model Stack guide", icon="🧩")
 
 st.divider()
 

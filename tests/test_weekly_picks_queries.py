@@ -22,11 +22,27 @@ def test_list_season_weeks_sql_references_table():
     assert "GROUP BY season, week" in sql
 
 
-def test_latest_picks_sql_dedupes_and_filters():
-    sql = latest_picks_sql("nfl.predictions.game_predictions", season=2026, week=1)
+def test_latest_picks_sql_dedupes_and_filters_with_model_id():
+    sql = latest_picks_sql(
+        "nfl.predictions.game_predictions",
+        season=2026,
+        week=1,
+        has_model_id=True,
+    )
     assert "ROW_NUMBER()" in sql
     assert "season = 2026" in sql
     assert "week = 1" in sql
     assert "WHERE rn = 1" in sql
-    assert "model_id" in sql
+    assert "COALESCE(model_id" in sql
     assert "monte_carlo" in sql
+
+
+def test_latest_picks_sql_without_model_id_column():
+    sql = latest_picks_sql(
+        "nfl.predictions.game_predictions",
+        season=2026,
+        week=1,
+        has_model_id=False,
+    )
+    assert "'monte_carlo' AS model_id" in sql
+    assert "COALESCE(model_id" not in sql

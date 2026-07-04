@@ -16,14 +16,25 @@ def list_season_weeks_sql(table: str) -> str:
     """
 
 
+def describe_table_sql(table: str) -> str:
+    return f"DESCRIBE TABLE {table}"
+
+
 def latest_picks_sql(
     table: str,
     *,
     season: int,
     week: int,
     model_id: str = "monte_carlo",
+    has_model_id: bool = True,
 ) -> str:
-    model_filter = f"AND COALESCE(model_id, 'monte_carlo') = '{model_id}'"
+    safe_model = model_id.replace("'", "''")
+    if has_model_id:
+        model_filter = f"AND COALESCE(model_id, 'monte_carlo') = '{safe_model}'"
+        model_select = "model_id,"
+    else:
+        model_filter = ""
+        model_select = "'monte_carlo' AS model_id,"
     return f"""
         WITH ranked AS (
           SELECT
@@ -39,7 +50,7 @@ def latest_picks_sql(
         )
         SELECT
           game_id,
-          model_id,
+          {model_select}
           season,
           week,
           game_type,
