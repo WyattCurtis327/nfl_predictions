@@ -1,0 +1,35 @@
+---
+pid: 10500
+cwd: "c:\Users\wyatt\nfl_predictions"
+command: "Set-Location \"c:\\Users\\wyatt\\nfl_predictions\"; .\\.venv\\Scripts\\python.exe -m pytest tests/ -q 2>&1; python -m build --wheel -o dist -q 2>&1; python scripts/deploy_bundle.py prod 2>&1"
+started_at: 2026-07-04T06:34:34.601Z
+running_for_ms: 15000    
+---
+.......................................                                  [100%]
+39 passed in 0.44s
+WARNING Both NO_COLOR and FORCE_COLOR environment variables are set, disabling color
+python : * Creating isolated environment: venv+pip...
+At line:1 char:101
++ ... ytest tests/ -q 2>&1; python -m build --wheel -o dist -q 2>&1; python ...
++                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (* Creating isol...nt: venv+pip...:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+* Installing packages in isolated environment:
+  - setuptools>=68
+  - wheel
+* Getting build dependencies for wheel...
+* Building wheel...
+Successfully built nfl_predictions-0.1.0-py3-none-any.whl
+python : Building nfl_predictions_wheel...
+At line:1 char:142
++ ... ld --wheel -o dist -q 2>&1; python scripts/deploy_bundle.py prod 2>&1
++                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Building nfl_predictions_wheel...:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Uploading dist/nfl_predictions-0.1.0-py3-none-any.whl...
+Uploading bundle files to /Workspace/Users/wyatt_curtis@hotmail.com/.bundle/nfl_predictions/prod/files...
+Deploying resources...
+Updating deployment state...
+Deployment complete!

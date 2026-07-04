@@ -7,10 +7,12 @@ from nfl_predictions.uc_schema import (
     build_apply_statements,
     column_comment_sql,
     escape_sql_string,
+    filter_schema_files,
     list_schema_files,
     remap_table_catalog,
     remap_table_reference,
     table_comment_sql,
+    write_manifest_from_directory,
 )
 
 
@@ -111,6 +113,54 @@ def test_apply_metadata_skips_missing_columns(tmp_path: Path):
     assert summary.column_comments_applied == 1
     assert summary.column_comments_skipped == 1
     assert len(spark.sql_calls) == 1
+
+
+def test_apply_metadata_skips_missing_table_when_requested():
+    spark = _FakeSpark({})
+    metadata = {
+        "table": "nfl.predictions.prediction_grades",
+        "comment": "",
+        "columns": [{"name": "game_id", "comment": "Game key"}],
+    }
+
+    summary = apply_metadata(
+        spark,
+        metadata,
+        catalog="nfl",
+        skip_missing_tables=True,
+    )
+
+    assert summary.errors == []
+    assert summary.column_comments_applied == 0
+    assert spark.sql_calls == []
+
+
+def test_filter_schema_files_limits_to_one_schema(tmp_path: Path):
+    predictions = tmp_path / "nfl" / "predictions" / "game_predictions.json"
+    teams = tmp_path / "nfl" / "teams" / "teams.json"
+    predictions.parent.mkdir(parents=True)
+    teams.parent.mkdir(parents=True)
+    predictions.write_text("{}", encoding="utf-8")
+    teams.write_text("{}", encoding="utf-8")
+
+    filtered = filter_schema_files(list_schema_files(tmp_path), only_canonical_schema="predictions")
+    assert filtered == [predictions]
+
+
+def test_write_manifest_from_directory(tmp_path: Path):
+    table_path = tmp_path / "nfl" / "predictions" / "game_predictions.json"
+    table_path.parent.mkdir(parents=True)
+    table_path.write_text(
+        json.dumps({"table": "nfl.predictions.game_predictions", "columns": []}),
+        encoding="utf-8",
+    )
+
+    manifest_path = write_manifest_from_directory(tmp_path)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    assert manifest["catalog"] == "nfl"
+    assert manifest["tables"] == ["nfl.predictions.game_predictions"]
+    assert manifest["files"] == ["nfl/predictions/game_predictions.json"]
 
 
 def test_list_schema_files_excludes_manifest(tmp_path: Path):

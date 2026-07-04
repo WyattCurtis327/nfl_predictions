@@ -46,3 +46,16 @@ resources:
               schedules_schema: ${var.schedules_schema}
               predictions_schema: ${var.predictions_schema}
               mlflow_experiment: ${var.mlflow_experiment}
+
+        - task_key: apply_predictions_column_descriptions
+          environment_key: nfl_env
+          depends_on:
+            - task_key: predict_upcoming_week
+            - task_key: grade_elapsed_week
+          notebook_task:
+            notebook_path: ../notebooks/apply_uc_column_descriptions.py
+            base_parameters:
+              catalog: ${var.catalog}
+              predictions_schema: ${var.predictions_schema}
+              only_schema: predictions
+              skip_missing_tables: "true"

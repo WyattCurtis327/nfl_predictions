@@ -1,31 +1,31 @@
 {
   "catalog": "nfl",
   "tables": [
-    "nfl.teams.teams",
-    "nfl.schedules.games",
-    "nfl.pbp.play_by_play",
-    "nfl.rosters.rosters",
-    "nfl.players.players",
-    "nfl.players.player_roles",
     "nfl.odds.game_odds",
-    "nfl.odds.odds_lines",
     "nfl.odds.game_odds_latest",
     "nfl.odds.odds_ingest_gaps",
+    "nfl.odds.odds_lines",
+    "nfl.pbp.play_by_play",
+    "nfl.players.player_roles",
+    "nfl.players.players",
     "nfl.predictions.game_predictions",
-    "nfl.predictions.prediction_grades"
+    "nfl.predictions.prediction_grades",
+    "nfl.rosters.rosters",
+    "nfl.schedules.games",
+    "nfl.teams.teams"
   ],
   "files": [
-    "nfl/teams/teams.json",
-    "nfl/schedules/games.json",
-    "nfl/pbp/play_by_play.json",
-    "nfl/rosters/rosters.json",
-    "nfl/players/players.json",
-    "nfl/players/player_roles.json",
     "nfl/odds/game_odds.json",
-    "nfl/odds/odds_lines.json",
     "nfl/odds/game_odds_latest.json",
     "nfl/odds/odds_ingest_gaps.json",
+    "nfl/odds/odds_lines.json",
+    "nfl/pbp/play_by_play.json",
+    "nfl/players/player_roles.json",
+    "nfl/players/players.json",
     "nfl/predictions/game_predictions.json",
-    "nfl/predictions/prediction_grades.json"
+    "nfl/predictions/prediction_grades.json",
+    "nfl/rosters/rosters.json",
+    "nfl/schedules/games.json",
+    "nfl/teams/teams.json"
   ]
 }

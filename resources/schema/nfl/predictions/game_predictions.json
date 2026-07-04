@@ -1,22 +1,222 @@
 {
   "table": "nfl.predictions.game_predictions",
-  "comment": "Append-only log of Monte Carlo spread and total picks per game.",
+  "comment": "",
   "columns": [
-    {"name": "prediction_id", "type": "string", "nullable": true, "comment": "Unique id: prediction_run_id plus game_id."},
-    {"name": "prediction_run_id", "type": "string", "nullable": true, "comment": "UUID grouping one predict notebook execution."},
-    {"name": "predicted_at", "type": "string", "nullable": true, "comment": "UTC timestamp when picks were generated."},
-    {"name": "game_id", "type": "string", "nullable": true, "comment": "nflverse game identifier."},
-    {"name": "season", "type": "bigint", "nullable": true, "comment": "Schedule season for the predicted game."},
-    {"name": "week", "type": "bigint", "nullable": true, "comment": "Schedule week for the predicted game."},
-    {"name": "game_type", "type": "string", "nullable": true, "comment": "REG, WC, DIV, CON, or SB."},
-    {"name": "spread_pick", "type": "string", "nullable": true, "comment": "Team abbreviation picked ATS."},
-    {"name": "spread_confidence", "type": "double", "nullable": true, "comment": "Simulated cover probability for spread_pick."},
-    {"name": "total_pick", "type": "string", "nullable": true, "comment": "OVER or UNDER."},
-    {"name": "total_confidence", "type": "double", "nullable": true, "comment": "Simulated probability for total_pick."},
-    {"name": "proj_home_score", "type": "double", "nullable": true, "comment": "Projected home score after market blend."},
-    {"name": "proj_away_score", "type": "double", "nullable": true, "comment": "Projected away score after market blend."},
-    {"name": "proj_total", "type": "double", "nullable": true, "comment": "Projected combined points."},
-    {"name": "ingested_at", "type": "timestamp", "nullable": true, "comment": "Row ingestion timestamp."},
-    {"name": "_source_file", "type": "string", "nullable": true, "comment": "Lineage string for the predict run."}
+    {
+      "name": "game_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the specific game for which predictions are being made, allowing easy reference across various analyses and reports."
+    },
+    {
+      "name": "week",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Represents the week of the NFL season, providing context for when the game is scheduled."
+    },
+    {
+      "name": "game_type",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the type of game, such as regular season or playoff, which can influence predictions and analysis."
+    },
+    {
+      "name": "gameday",
+      "type": "string",
+      "nullable": true,
+      "comment": "The day of the week on which the game is played, useful for scheduling and historical comparisons."
+    },
+    {
+      "name": "kickoff_et",
+      "type": "string",
+      "nullable": true,
+      "comment": "Specifies the kickoff time in Eastern Time, critical for both audience engagement and logistical planning."
+    },
+    {
+      "name": "away_abbr",
+      "type": "string",
+      "nullable": true,
+      "comment": "Abbreviation of the away team's name, facilitating quick identification in reports and analyses."
+    },
+    {
+      "name": "home_abbr",
+      "type": "string",
+      "nullable": true,
+      "comment": "Abbreviation of the home team's name, allowing for streamlined references in various contexts."
+    },
+    {
+      "name": "away_spread",
+      "type": "double",
+      "nullable": true,
+      "comment": "The point spread for the away team, reflecting their expected performance relative to the home team."
+    },
+    {
+      "name": "home_spread",
+      "type": "double",
+      "nullable": true,
+      "comment": "The point spread for the home team, indicating how much they are favored to win against the away team."
+    },
+    {
+      "name": "total_line",
+      "type": "double",
+      "nullable": true,
+      "comment": "The total points projected to be scored in the game, combining both teams' anticipated scoring."
+    },
+    {
+      "name": "bookmaker",
+      "type": "string",
+      "nullable": true,
+      "comment": "The entity setting the betting lines, providing context for the reliability and source of the predictions."
+    },
+    {
+      "name": "proj_away_score",
+      "type": "double",
+      "nullable": true,
+      "comment": "The projected score for the away team, based on statistical analysis and past performance metrics."
+    },
+    {
+      "name": "proj_home_score",
+      "type": "double",
+      "nullable": true,
+      "comment": "The projected score for the home team, derived from various predictive models and analysis."
+    },
+    {
+      "name": "proj_total",
+      "type": "double",
+      "nullable": true,
+      "comment": "The total projected score combining both teams' predicted scores, essential for understanding game expectations."
+    },
+    {
+      "name": "away_cover_pct",
+      "type": "double",
+      "nullable": true,
+      "comment": "The percentage of times the away team has covered the spread in past games, which can inform betting decisions."
+    },
+    {
+      "name": "home_cover_pct",
+      "type": "double",
+      "nullable": true,
+      "comment": "The percentage of times the home team has covered the spread in previous matchups, useful for evaluating performance."
+    },
+    {
+      "name": "over_pct",
+      "type": "double",
+      "nullable": true,
+      "comment": "Percentage of simulations where the total points scored exceeds the total line, indicating potential for high-scoring outcomes."
+    },
+    {
+      "name": "under_pct",
+      "type": "double",
+      "nullable": true,
+      "comment": "Percentage of simulations where the total points scored is below the total line, suggesting potential for low-scoring games."
+    },
+    {
+      "name": "spread_pick",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the predicted pick for the point spread, serving as a recommendation for bettors."
+    },
+    {
+      "name": "spread_side",
+      "type": "string",
+      "nullable": true,
+      "comment": "Specifies which side of the spread is favored in the predictions, guiding betting strategies."
+    },
+    {
+      "name": "spread_confidence",
+      "type": "double",
+      "nullable": true,
+      "comment": "Quantifies the confidence level in the spread prediction, helping to assess the reliability of the pick."
+    },
+    {
+      "name": "total_pick",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the predicted outcome for the total points scored in the game, guiding decisions on over/under betting."
+    },
+    {
+      "name": "total_confidence",
+      "type": "double",
+      "nullable": true,
+      "comment": "Measures the confidence in the total points prediction, providing insight into the strength of the forecast."
+    },
+    {
+      "name": "n_simulations",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "The number of simulations run to generate the predictions, reflecting the robustness of the analysis."
+    },
+    {
+      "name": "prediction_run_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "A unique identifier for the specific run of the prediction model, useful for tracking iterations and improvements."
+    },
+    {
+      "name": "prediction_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for each individual prediction, ensuring traceability and uniqueness in the dataset."
+    },
+    {
+      "name": "season",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Indicates the specific NFL season year, contextualizing the game and its predictions within that timeframe."
+    },
+    {
+      "name": "pbp_season",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Represents the season for play-by-play data, useful for detailed analysis and comparisons with predictions."
+    },
+    {
+      "name": "predicted_at",
+      "type": "string",
+      "nullable": true,
+      "comment": "Timestamp indicating when the predictions were made, important for understanding the temporal context of the analysis."
+    },
+    {
+      "name": "mlflow_run_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifier related to the MLflow tracking process, useful for linking predictions to experimentation and model management."
+    },
+    {
+      "name": "market_blend",
+      "type": "double",
+      "nullable": true,
+      "comment": "Reflects the blending of different market predictions, providing a comprehensive view of betting expectations."
+    },
+    {
+      "name": "pick_threshold",
+      "type": "double",
+      "nullable": true,
+      "comment": "The threshold value used to differentiate between strong and weak picks, assisting in decision-making for bets."
+    },
+    {
+      "name": "home_field_advantage",
+      "type": "double",
+      "nullable": true,
+      "comment": "Quantifies the advantage associated with playing at home, an important factor in game predictions."
+    },
+    {
+      "name": "random_seed",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Used for generating simulations, ensuring reproducibility and consistency in the prediction models."
+    },
+    {
+      "name": "ingested_at",
+      "type": "timestamp",
+      "nullable": true,
+      "comment": "Timestamp indicating when the data was ingested into the system, helpful for tracking data currency and updates."
+    },
+    {
+      "name": "_source_file",
+      "type": "string",
+      "nullable": true,
+      "comment": "The filename of the source data from which these predictions were derived, useful for data lineage and traceability."
+    }
   ]
 }

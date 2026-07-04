@@ -14,11 +14,13 @@ from nfl_predictions.uc_paths import (
     DEFAULT_ODDS_SCHEMA,
     DEFAULT_PBP_SCHEMA,
     DEFAULT_PLAYERS_SCHEMA,
+    DEFAULT_PREDICTIONS_SCHEMA,
     DEFAULT_ROSTERS_SCHEMA,
     DEFAULT_SCHEDULES_SCHEMA,
     DEFAULT_TEAMS_SCHEMA,
     UcPaths,
 )
+from nfl_predictions.uc_schema import write_manifest_from_directory
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "resources" / "schema"
@@ -100,25 +102,33 @@ def pull_tables(
 ) -> list[Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     written: list[Path] = []
+    failures: list[str] = []
 
     for full_name in tables:
-        metadata = _normalize_table_metadata(full_name, _fetch_table(full_name, profile))
+        try:
+            metadata = _normalize_table_metadata(full_name, _fetch_table(full_name, profile))
+        except RuntimeError as exc:
+            failures.append(f"{full_name}: {exc}")
+            print(f"Skipped {full_name}: {exc}", file=sys.stderr)
+            continue
+
         path = _output_path(output_dir, full_name)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
         written.append(path)
         commented = sum(1 for col in metadata["columns"] if col["comment"])
-        print(f"Wrote {path.relative_to(REPO_ROOT)} ({commented}/{len(metadata['columns'])} column comments)")
+        print(
+            f"Wrote {path.relative_to(REPO_ROOT)} "
+            f"({commented}/{len(metadata['columns'])} column comments)"
+        )
 
-    manifest = {
-        "catalog": tables[0].split(".", 1)[0] if tables else paths.catalog,
-        "tables": [table for table in tables],
-        "files": [str(path.relative_to(output_dir)).replace("\\", "/") for path in written],
-    }
-    manifest_path = output_dir / "manifest.json"
-    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    manifest_path = write_manifest_from_directory(output_dir)
     written.append(manifest_path)
     print(f"Wrote {manifest_path.relative_to(REPO_ROOT)}")
+
+    if failures and not written:
+        raise RuntimeError("\n".join(failures))
+
     return written
 
 
@@ -128,7 +138,7 @@ def main() -> int:
         "--output-dir",
         type=Path,
         default=DEFAULT_OUTPUT_DIR,
-        help="Directory for pulled schema YAML files",
+        help="Directory for pulled schema JSON files",
     )
     parser.add_argument(
         "--table",
@@ -144,6 +154,12 @@ def main() -> int:
     parser.add_argument("--rosters-schema", default=DEFAULT_ROSTERS_SCHEMA)
     parser.add_argument("--players-schema", default=DEFAULT_PLAYERS_SCHEMA)
     parser.add_argument("--odds-schema", default=DEFAULT_ODDS_SCHEMA)
+    parser.add_argument("--predictions-schema", default=DEFAULT_PREDICTIONS_SCHEMA)
+    parser.add_argument(
+        "--include-predictions",
+        action="store_true",
+        help="Include prediction tables when using default table list",
+    )
     args = parser.parse_args()
 
     profile = _profile(args.profile)
@@ -155,8 +171,14 @@ def main() -> int:
         rosters=args.rosters_schema,
         players=args.players_schema,
         odds=args.odds_schema,
+        predictions=args.predictions_schema,
     )
-    tables = args.tables or paths.bootstrap_tables()
+    if args.tables:
+        tables = args.tables
+    elif args.include_predictions:
+        tables = paths.metadata_tables()
+    else:
+        tables = paths.bootstrap_tables()
 
     try:
         pull_tables(tables, output_dir=args.output_dir, profile=profile)

@@ -101,6 +101,7 @@ def apply_metadata(
     catalog: str,
     schema_map: dict[str, str] | None = None,
     only_existing_columns: bool = True,
+    skip_missing_tables: bool = False,
 ) -> ApplySummary:
     """Apply table and column comments for one metadata document."""
     table_name = remap_table_reference(metadata["table"], catalog=catalog, schema_map=schema_map)
@@ -110,6 +111,8 @@ def apply_metadata(
         existing_columns = {field.name for field in spark.table(table_name).schema.fields}
     elif spark.catalog.tableExists(table_name):
         existing_columns = None
+    elif skip_missing_tables:
+        return summary
     else:
         summary.errors.append(f"table not found: {table_name}")
         return summary
@@ -140,6 +143,49 @@ def apply_metadata(
     return summary
 
 
+def filter_schema_files(
+    files: list[Path],
+    *,
+    only_canonical_schema: str | None = None,
+) -> list[Path]:
+    """Keep metadata files under ``nfl/<schema>/`` when filtering."""
+    if not only_canonical_schema:
+        return files
+    needle = f"/nfl/{only_canonical_schema}/"
+    return [
+        path
+        for path in files
+        if needle in path.as_posix().lower()
+    ]
+
+
+def write_manifest_from_directory(schema_dir: Path | str) -> Path:
+    """Rebuild manifest.json from all metadata files in a schema directory."""
+    root = Path(schema_dir)
+    files = list_schema_files(root)
+    tables: list[str] = []
+    rel_files: list[str] = []
+    catalog = DEFAULT_CATALOG
+
+    for path in files:
+        metadata = load_metadata_file(path)
+        table_name = metadata.get("table")
+        if table_name:
+            tables.append(table_name)
+            if "." in table_name:
+                catalog = table_name.split(".", 1)[0]
+        rel_files.append(path.relative_to(root).as_posix())
+
+    manifest = {
+        "catalog": catalog,
+        "tables": tables,
+        "files": rel_files,
+    }
+    manifest_path = root / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    return manifest_path
+
+
 def apply_schema_directory(
     spark,
     schema_dir: Path | str,
@@ -147,6 +193,8 @@ def apply_schema_directory(
     catalog: str = DEFAULT_CATALOG,
     schema_map: dict[str, str] | None = None,
     paths: UcPaths | None = None,
+    only_canonical_schema: str | None = None,
+    skip_missing_tables: bool = False,
 ) -> list[ApplySummary]:
     """Apply all schema metadata JSON files under a directory."""
     root = Path(schema_dir)
@@ -154,7 +202,7 @@ def apply_schema_directory(
     resolved_catalog = paths.catalog if paths else catalog
     resolved_schema_map = paths.schema_map() if paths else schema_map
 
-    for path in list_schema_files(root):
+    for path in filter_schema_files(list_schema_files(root), only_canonical_schema=only_canonical_schema):
         metadata = load_metadata_file(path)
         summaries.append(
             apply_metadata(
@@ -162,6 +210,7 @@ def apply_schema_directory(
                 metadata,
                 catalog=resolved_catalog,
                 schema_map=resolved_schema_map,
+                skip_missing_tables=skip_missing_tables,
             )
         )
 

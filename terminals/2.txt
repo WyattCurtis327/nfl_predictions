@@ -1,0 +1,21 @@
+---
+pid: 9040
+cwd: "c:\Users\wyatt\nfl_predictions"
+command: "Set-Location \"c:\\Users\\wyatt\\nfl_predictions\"; python scripts/deploy_bundle.py prod 2>&1"
+started_at: 2026-07-04T06:25:04.628Z
+running_for_ms: 585006   
+---
+python : Building nfl_predictions_wheel...
+At line:1 char:48
++ ... ers\wyatt\nfl_predictions"; python scripts/deploy_bundle.py prod 2>&1
++                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Building nfl_predictions_wheel...:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Uploading dist/nfl_predictions-0.1.0-py3-none-any.whl...
+Uploading bundle files to /Workspace/Users/wyatt_curtis@hotmail.com/.bundle/nfl_predictions/prod/files...
+Deploying resources...
+Updating deployment state...
+Deployment complete!
+Synced notify_email=wyatt_curtis@hotmail.com
+Updated C:\Users\wyatt\nfl_predictions\.databricks\.databricks.env

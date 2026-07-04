@@ -96,6 +96,15 @@ class UcPaths:
             self.odds_ingest_gaps_table(),
         ]
 
+    def prediction_tables(self) -> list[str]:
+        return [
+            self.game_predictions_table(),
+            self.prediction_grades_table(),
+        ]
+
+    def metadata_tables(self) -> list[str]:
+        return [*self.bootstrap_tables(), *self.prediction_tables()]
+
 
 def bootstrap_tables_for_catalog(catalog: str = DEFAULT_CATALOG, **schemas: str) -> list[str]:
     return UcPaths(catalog=catalog, **schemas).bootstrap_tables()

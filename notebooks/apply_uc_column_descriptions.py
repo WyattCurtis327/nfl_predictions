@@ -10,6 +10,7 @@ from nfl_predictions.uc_paths import (
     DEFAULT_ODDS_SCHEMA,
     DEFAULT_PBP_SCHEMA,
     DEFAULT_PLAYERS_SCHEMA,
+    DEFAULT_PREDICTIONS_SCHEMA,
     DEFAULT_ROSTERS_SCHEMA,
     DEFAULT_SCHEDULES_SCHEMA,
     DEFAULT_TEAMS_SCHEMA,
@@ -23,6 +24,9 @@ dbutils.widgets.text("pbp_schema", DEFAULT_PBP_SCHEMA, "PBP schema")
 dbutils.widgets.text("rosters_schema", DEFAULT_ROSTERS_SCHEMA, "Rosters schema")
 dbutils.widgets.text("players_schema", DEFAULT_PLAYERS_SCHEMA, "Players schema")
 dbutils.widgets.text("odds_schema", DEFAULT_ODDS_SCHEMA, "Odds schema")
+dbutils.widgets.text("predictions_schema", DEFAULT_PREDICTIONS_SCHEMA, "Predictions schema")
+dbutils.widgets.text("only_schema", "", "Apply only this canonical schema (e.g. predictions)")
+dbutils.widgets.dropdown("skip_missing_tables", "false", ["true", "false"], "Skip tables that do not exist")
 dbutils.widgets.text("schema_dir", "", "Workspace path to resources/schema")
 
 paths = UcPaths(
@@ -33,7 +37,10 @@ paths = UcPaths(
     rosters=dbutils.widgets.get("rosters_schema"),
     players=dbutils.widgets.get("players_schema"),
     odds=dbutils.widgets.get("odds_schema"),
+    predictions=dbutils.widgets.get("predictions_schema"),
 )
+only_schema = dbutils.widgets.get("only_schema").strip() or None
+skip_missing_tables = dbutils.widgets.get("skip_missing_tables").lower() == "true"
 schema_dir = dbutils.widgets.get("schema_dir").strip()
 
 # COMMAND ----------
@@ -69,7 +76,13 @@ print(f"Tables: {len(schema_files)}")
 
 # COMMAND ----------
 
-summaries = apply_schema_directory(spark, schema_dir, paths=paths)
+summaries = apply_schema_directory(
+    spark,
+    schema_dir,
+    paths=paths,
+    only_canonical_schema=only_schema,
+    skip_missing_tables=skip_missing_tables,
+)
 
 rows = []
 for summary in summaries:
