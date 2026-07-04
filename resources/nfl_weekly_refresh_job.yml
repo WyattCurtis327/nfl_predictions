@@ -1,0 +1,131 @@
+resources:
+  jobs:
+    nfl_weekly_refresh:
+      name: nfl_weekly_refresh
+      description: >
+        Wednesday data refresh: current-season PBP volume download, schedule and
+        roster patch, PBP reload, player rebuild, live Odds API ingest, and
+        validation gate.
+      schedule:
+        quartz_cron_expression: "0 0 8 ? * WED"
+        timezone_id: America/New_York
+        pause_status: PAUSED
+      email_notifications:
+        on_failure:
+          - ${var.notify_email}
+      environments:
+        - environment_key: nfl_env
+          spec:
+            environment_version: "4"
+            dependencies:
+              - pandas>=2.0.0
+              - pyarrow>=14.0.0
+              - requests>=2.31.0
+              - numpy>=1.26.0
+              - ../dist/nfl_predictions-0.1.0-py3-none-any.whl
+      tasks:
+        - task_key: download_pbp
+          environment_key: nfl_env
+          notebook_task:
+            notebook_path: ../notebooks/download_pbp_to_volume.py
+            base_parameters:
+              catalog: ${var.catalog}
+              pbp_schema: ${var.pbp_schema}
+              pbp_seasons: ${var.current_pbp_season}
+              pbp_volume: /Volumes/${var.catalog}/${var.pbp_schema}/raw
+              skip_unavailable_seasons: "true"
+
+        - task_key: ingest_schedules
+          environment_key: nfl_env
+          notebook_task:
+            notebook_path: ../notebooks/ingest_schedules.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schedules_schema: ${var.schedules_schema}
+              schedule_seasons: ${var.schedule_seasons}
+
+        - task_key: ingest_rosters
+          environment_key: nfl_env
+          notebook_task:
+            notebook_path: ../notebooks/ingest_rosters.py
+            base_parameters:
+              catalog: ${var.catalog}
+              rosters_schema: ${var.rosters_schema}
+              roster_season: ${var.roster_season}
+
+        - task_key: load_pbp
+          environment_key: nfl_env
+          depends_on:
+            - task_key: download_pbp
+            - task_key: ingest_schedules
+          notebook_task:
+            notebook_path: ../notebooks/load_pbp_from_volume.py
+            base_parameters:
+              catalog: ${var.catalog}
+              pbp_schema: ${var.pbp_schema}
+              schedules_schema: ${var.schedules_schema}
+              pbp_seasons: ${var.schedule_seasons}
+              pbp_volume: /Volumes/${var.catalog}/${var.pbp_schema}/raw
+              skip_missing_volume: "true"
+
+        - task_key: ingest_odds_api
+          environment_key: nfl_env
+          depends_on:
+            - task_key: ingest_schedules
+          notebook_task:
+            notebook_path: ../notebooks/ingest_odds_api.py
+            base_parameters:
+              catalog: ${var.catalog}
+              odds_schema: ${var.odds_schema}
+              schedules_schema: ${var.schedules_schema}
+              season: ${var.schedule_season}
+              target_week: ""
+              preferred_bookmaker: ${var.preferred_bookmaker}
+              min_match_rate: ${var.min_match_rate}
+
+        - task_key: build_players
+          environment_key: nfl_env
+          depends_on:
+            - task_key: load_pbp
+            - task_key: ingest_rosters
+          notebook_task:
+            notebook_path: ../notebooks/build_players.py
+            base_parameters:
+              catalog: ${var.catalog}
+              players_schema: ${var.players_schema}
+              rosters_schema: ${var.rosters_schema}
+              pbp_schema: ${var.pbp_schema}
+
+        - task_key: apply_refresh_column_descriptions
+          environment_key: nfl_env
+          depends_on:
+            - task_key: build_players
+            - task_key: ingest_odds_api
+          notebook_task:
+            notebook_path: ../notebooks/apply_uc_column_descriptions.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schedules_schema: ${var.schedules_schema}
+              pbp_schema: ${var.pbp_schema}
+              rosters_schema: ${var.rosters_schema}
+              players_schema: ${var.players_schema}
+              odds_schema: ${var.odds_schema}
+              skip_missing_tables: "true"
+
+        - task_key: validate_weekly_refresh
+          environment_key: nfl_env
+          depends_on:
+            - task_key: apply_refresh_column_descriptions
+          notebook_task:
+            notebook_path: ../notebooks/validate_weekly_refresh.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schedules_schema: ${var.schedules_schema}
+              pbp_schema: ${var.pbp_schema}
+              rosters_schema: ${var.rosters_schema}
+              players_schema: ${var.players_schema}
+              odds_schema: ${var.odds_schema}
+              schedule_season: ${var.schedule_season}
+              current_pbp_season: ${var.current_pbp_season}
+              preferred_bookmaker: ${var.preferred_bookmaker}
+              min_match_rate: ${var.min_match_rate}

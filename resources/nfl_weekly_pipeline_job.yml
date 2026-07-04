@@ -1,0 +1,24 @@
+resources:
+  jobs:
+    nfl_weekly_pipeline:
+      name: nfl_weekly_pipeline
+      description: >
+        Full Wednesday sequence: data refresh, then predictions and grading.
+        Run manually before enabling the paused Wednesday schedule.
+      schedule:
+        quartz_cron_expression: "0 0 8 ? * WED"
+        timezone_id: America/New_York
+        pause_status: PAUSED
+      email_notifications:
+        on_failure:
+          - ${var.notify_email}
+      tasks:
+        - task_key: weekly_refresh
+          run_job_task:
+            job_id: ${resources.jobs.nfl_weekly_refresh.id}
+
+        - task_key: weekly_predictions
+          depends_on:
+            - task_key: weekly_refresh
+          run_job_task:
+            job_id: ${resources.jobs.nfl_weekly_predictions.id}

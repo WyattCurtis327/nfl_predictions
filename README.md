@@ -65,9 +65,30 @@ api_key = dbutils.secrets.get(scope="nfl", key="odds_api_key")
 ## Jobs
 
 - `nfl_bootstrap` — one-time data load (teams → schedules → nflverse odds → PBP → rosters → players → validate)
-- `nfl_annual_refresh` — Feb 15 refresh (PR3)
-- `nfl_weekly_refresh` — Wednesday data refresh (PR3)
-- `nfl_weekly_predictions` — predict + grade (PR4)
+- `nfl_weekly_refresh` — Wednesday data refresh (PBP → schedules → rosters → odds API → players → validate)
+- `nfl_weekly_predictions` — live odds ingest → predict → grade → UC descriptions
+- `nfl_weekly_pipeline` — runs `nfl_weekly_refresh`, then `nfl_weekly_predictions` (paused Wed 8 AM ET schedule)
+- `nfl_annual_refresh` — Feb 15 refresh (planned)
+
+### Weekly refresh waves
+
+1. **Parallel:** `download_pbp` (current season), `ingest_schedules`, `ingest_rosters`
+2. **Parallel:** `load_pbp`, `ingest_odds_api` (needs schedules)
+3. **Serial:** `build_players` → `apply_refresh_column_descriptions` → `validate_weekly_refresh`
+
+Before running odds ingest on Databricks, stage lines locally:
+
+```powershell
+python scripts/stage_odds.py
+python scripts/deploy_bundle.py prod
+databricks bundle run nfl_weekly_refresh -t prod --profile <your-profile>
+```
+
+For the full Wednesday sequence (refresh + predictions):
+
+```powershell
+databricks bundle run nfl_weekly_pipeline -t prod --profile <your-profile>
+```
 
 ### Bootstrap waves
 

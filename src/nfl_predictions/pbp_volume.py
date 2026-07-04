@@ -14,6 +14,21 @@ from nfl_predictions.nflverse_data import (
 )
 
 
+def is_missing_volume_path_error(exc: Exception) -> bool:
+    message = str(exc).lower()
+    return any(
+        token in message
+        for token in (
+            "path does not exist",
+            "path_not_found",
+            "cannot find",
+            "not found",
+            "no such file",
+            "doesn't exist",
+        )
+    )
+
+
 def read_volume_parquet(spark, path: str):
     """Read parquet from a UC Volume path.
 
@@ -21,20 +36,11 @@ def read_volume_parquet(spark, path: str):
     so existence is inferred from the Spark read attempt.
     """
     try:
-        return spark.read.parquet(path)
+        df = spark.read.parquet(path)
+        df.limit(1).count()
+        return df
     except Exception as exc:
-        message = str(exc).lower()
-        if any(
-            token in message
-            for token in (
-                "path does not exist",
-                "path_not_found",
-                "cannot find",
-                "not found",
-                "no such file",
-                "doesn't exist",
-            )
-        ):
+        if is_missing_volume_path_error(exc):
             raise FileNotFoundError(f"Missing volume file: {path}") from exc
         raise
 
@@ -63,18 +69,38 @@ def download_pbp_seasons_to_volume(
     volume: str,
     *,
     regular_season_only: bool = False,
-) -> list[str]:
-    """Download multiple seasons; raises on first unavailable season."""
-    paths: list[str] = []
+    skip_unavailable: bool = False,
+) -> tuple[list[dict[str, object]], list[int]]:
+    """Download multiple seasons to a UC Volume.
+
+    Returns written file metadata and seasons skipped because nflverse has not
+    published PBP yet (only when ``skip_unavailable`` is True).
+    """
+    results: list[dict[str, object]] = []
+    skipped: list[int] = []
+
     for season in seasons:
-        paths.append(
-            download_pbp_season_to_volume(
+        try:
+            dest = download_pbp_season_to_volume(
                 season,
                 volume,
                 regular_season_only=regular_season_only,
             )
+        except PbpNotAvailableError:
+            if not skip_unavailable:
+                raise
+            skipped.append(season)
+            continue
+
+        results.append(
+            {
+                "season": season,
+                "path": dest,
+                "source": NFLVERSE_PBP_URL.format(season=season),
+            }
         )
-    return paths
+
+    return results, skipped
 
 
 def parse_pbp_seasons(value: str) -> list[int]:

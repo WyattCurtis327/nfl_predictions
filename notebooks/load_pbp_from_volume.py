@@ -13,6 +13,12 @@ dbutils.widgets.text("pbp_schema", DEFAULT_PBP_SCHEMA, "PBP schema")
 dbutils.widgets.text("schedules_schema", DEFAULT_SCHEDULES_SCHEMA, "Schedules schema")
 dbutils.widgets.text("pbp_seasons", "2024,2025", "Comma-separated seasons")
 dbutils.widgets.text("pbp_volume", "", "UC Volume path")
+dbutils.widgets.dropdown(
+    "skip_missing_volume",
+    "false",
+    ["true", "false"],
+    "Skip seasons missing from the UC Volume",
+)
 
 paths = UcPaths(
     catalog=dbutils.widgets.get("catalog"),
@@ -40,6 +46,8 @@ seasons = parse_season_list(pbp_seasons_raw)
 if not seasons:
     raise ValueError("pbp_seasons must list at least one season")
 
+skip_missing_volume = dbutils.widgets.get("skip_missing_volume").lower() == "true"
+
 if not spark.catalog.tableExists(games_table):
     raise RuntimeError(f"Schedule table required before PBP load: {games_table}")
 
@@ -54,9 +62,17 @@ schedule_df = (
 )
 
 season_frames = []
+skipped_seasons: list[int] = []
 for season in seasons:
     source_path = pbp_parquet_path(pbp_volume, season)
-    pbp_df = read_volume_parquet(spark, source_path)
+    try:
+        pbp_df = read_volume_parquet(spark, source_path)
+    except FileNotFoundError:
+        if skip_missing_volume:
+            skipped_seasons.append(season)
+            print(f"Season {season}: skipped (missing volume file {source_path})")
+            continue
+        raise
     if "season_type" in pbp_df.columns:
         pbp_df = pbp_df.filter(F.col("season_type") != "PRE")
 
@@ -71,6 +87,9 @@ for season in seasons:
     row_count = pbp_df.count()
     print(f"Season {season}: {row_count:,} plays after schedule join")
     season_frames.append(pbp_df)
+
+if skipped_seasons:
+    print(f"Skipped missing volume seasons: {skipped_seasons}")
 
 if not season_frames:
     raise RuntimeError("No PBP seasons loaded")
