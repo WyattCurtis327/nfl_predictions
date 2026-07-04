@@ -108,6 +108,8 @@ The `dev` extra installs `databricks-connect` for local notebook debugging again
 python scripts/test_databricks_connect.py
 ```
 
+**Auto-connect on workspace open.** `.vscode/settings.json` points Python at `.venv` and loads `.env` (profile, host, and `DATABRICKS_SERVERLESS_COMPUTE_ID=auto`). A folder-open task runs `python scripts/sync_bundle_env.py`, which syncs those values into `.databricks/.databricks.env` and `.databricks/bundle/prod/vscode.overrides.json`, and clears stale `DATABRICKS_CLUSTER_ID`. Reload the window once after cloning; when prompted to allow automatic tasks, choose **Allow**. The Databricks extension should then attach to **Serverless** using your `.env` profile on startup (sign in via the extension if prompted).
+
 **Clear stale `DATABRICKS_CLUSTER_ID`.** If you previously used cluster-based Connect, that variable may still be set in Windows **User** environment variables. The VS Code extension sets `DATABRICKS_SERVERLESS_COMPUTE_ID=auto` in `.databricks/.databricks.env`; having both variables set breaks Connect. Remove `DATABRICKS_CLUSTER_ID` from System Properties → Environment Variables → User (not from `.env` — this project does not use it). Bundle deploy already ignores it in production mode, but VS Code Connect does not.
 
 ### The Odds API secret
