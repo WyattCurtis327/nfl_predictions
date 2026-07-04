@@ -8,6 +8,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 ENV_FILE = REPO_ROOT / ".env"
+BUNDLE_FILE = REPO_ROOT / "databricks.yml"
 VSCODE_ENV_FILE = REPO_ROOT / ".databricks" / ".databricks.env"
 
 # VS Code writes these for its metadata-service auth proxy; they break CLI Connect.
@@ -63,8 +64,27 @@ def _profile() -> str:
     return ""
 
 
+def _bundle_workspace_host() -> str:
+    if not BUNDLE_FILE.exists():
+        return ""
+    for raw_line in BUNDLE_FILE.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if line.startswith("host:"):
+            return line.split(":", 1)[1].strip()
+    return ""
+
+
 def main() -> int:
     _load_project_env()
+
+    bundle_host = _bundle_workspace_host()
+    if not bundle_host or not bundle_host.startswith("https://"):
+        print(
+            "ERROR: databricks.yml is missing targets.prod.workspace.host.",
+            file=sys.stderr,
+        )
+        print("Run: python scripts/sync_bundle_env.py", file=sys.stderr)
+        return 1
 
     cluster_id = os.environ.get("DATABRICKS_CLUSTER_ID", "").strip()
     serverless_id = os.environ.get("DATABRICKS_SERVERLESS_COMPUTE_ID", "").strip()

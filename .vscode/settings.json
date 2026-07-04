@@ -2,6 +2,7 @@
   "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
   "python.terminal.activateEnvironment": true,
   "python.envFile": "${workspaceFolder}/.env",
+  "python.useEnvironmentsExtension": true,
   "terminal.integrated.env.windows": {
     "DATABRICKS_CLUSTER_ID": null,
     "DATABRICKS_HOST": null,
@@ -13,4 +14,5 @@
   "databricks.bundle.remoteStateRefreshInterval": 60,
   "jupyter.interactiveWindow.cellMarker.codeRegex": "^# COMMAND ----------|^# Databricks notebook source|^(#\\s*%%|#\\s*\\<codecell\\>|#\\s*In\\[\\d*?\\]|#\\s*In\\[ \\])",
   "jupyter.interactiveWindow.cellMarker.default": "# COMMAND ----------"
+  
 }

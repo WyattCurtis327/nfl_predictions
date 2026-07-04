@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 ENV_FILE = REPO_ROOT / ".env"
+BUNDLE_FILE = REPO_ROOT / "databricks.yml"
 VSCODE_ENV_FILE = REPO_ROOT / ".databricks" / ".databricks.env"
 DEFAULT_BUNDLE_TARGET = "prod"
 STALE_SUBSTRINGS = (
@@ -58,6 +60,38 @@ def _workspace_host(profile: str) -> str:
     if not host.startswith(("http://", "https://")):
         host = f"https://{host}"
     return host.rstrip("/") + "/"
+
+
+def _sync_databricks_yml_host(host: str) -> None:
+    """Keep workspace.host in databricks.yml aligned with the CLI profile.
+
+    The VS Code extension parses bundle YAML directly and throws
+    'Invalid host name' when workspace.host is missing.
+    """
+    if not host or not BUNDLE_FILE.exists():
+        return
+
+    normalized = host.rstrip("/")
+    text = BUNDLE_FILE.read_text(encoding="utf-8")
+    host_line = f"      host: {normalized}"
+
+    if re.search(r"^      host: ", text, flags=re.MULTILINE):
+        updated = re.sub(
+            r"^      host: .*$",
+            host_line,
+            text,
+            count=1,
+            flags=re.MULTILINE,
+        )
+    else:
+        updated = text.replace(
+            "    workspace:\n      root_path:",
+            f"    workspace:\n{host_line}\n      root_path:",
+            1,
+        )
+
+    if updated != text:
+        BUNDLE_FILE.write_text(updated, encoding="utf-8")
 
 
 def _parse_env_file(path: Path) -> dict[str, str]:
@@ -209,6 +243,7 @@ def sync_from_env_file(env_path: Path = ENV_FILE) -> None:
 
     _upsert_env_file(ENV_FILE, connect_updates)
     _upsert_vscode_env(vscode_updates)
+    _sync_databricks_yml_host(host)
     _sync_vscode_overrides(profile)
     _sync_bundle_var_overrides(email)
 
@@ -220,8 +255,12 @@ def sync_from_env_file(env_path: Path = ENV_FILE) -> None:
         print(f"Synced notify_email={email}")
     else:
         print("No DATABRICKS_EMAIL_ACCOUNT set in .env")
+    if host:
+        print(f"Synced workspace host={host.rstrip('/')}")
     print(f"Updated {ENV_FILE}")
     print(f"Updated {VSCODE_ENV_FILE}")
+    if host and BUNDLE_FILE.exists():
+        print(f"Updated {BUNDLE_FILE}")
     print(f"Updated {_vscode_overrides_path()}")
     if email:
         print(f"Updated {_bundle_var_overrides_path()}")
