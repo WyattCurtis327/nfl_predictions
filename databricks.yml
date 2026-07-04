@@ -1,5 +1,6 @@
 bundle:
   name: nfl_predictions
+  engine: direct
 
 include:
   - resources/*.yml
@@ -14,6 +15,7 @@ artifacts:
 sync:
   include:
     - src/**
+    - src/*.geniespace.json
     - notebooks/**
     - staging/**
     - resources/**
@@ -94,6 +96,9 @@ variables:
   pick_threshold:
     description: Minimum confidence to highlight a spread/total pick
     default: "0.55"
+  sql_warehouse_id:
+    description: SQL warehouse ID for Genie space queries
+    default: "abae422499df211c"
 targets:
   dev:
     mode: development

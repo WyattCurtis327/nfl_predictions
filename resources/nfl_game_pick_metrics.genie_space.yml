@@ -1,0 +1,11 @@
+resources:
+  genie_spaces:
+    nfl_game_pick_metrics:
+      title: NFL Pick Metrics
+      description: >
+        Ask natural-language questions about graded NFL prediction accuracy
+        (ATS spread picks and over/under totals) from the game_pick_metrics
+        metric view.
+      warehouse_id: ${var.sql_warehouse_id}
+      parent_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+      file_path: ../src/nfl_game_pick_metrics.geniespace.json
