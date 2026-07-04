@@ -1,9 +1,9 @@
 resources:
   apps:
-    nfl_weekly_picks:
-      name: nfl-weekly-picks
-      description: Read-only dashboard for weekly NFL picks and missed-pick root-cause analysis.
-      source_code_path: ../app/weekly_picks
+    nfl_rca_dashboard:
+      name: nfl-rca-dashboard
+      description: Root-cause analysis dashboard for missed NFL spread and total picks.
+      source_code_path: ../app/rca_dashboard
       lifecycle:
         started: true
       config:
@@ -20,16 +20,10 @@ resources:
             value: "false"
       resources:
         - name: sql-warehouse
-          description: SQL warehouse for querying game_predictions
+          description: SQL warehouse for RCA queries
           sql_warehouse:
             id: ${var.sql_warehouse_id}
             permission: CAN_USE
-        - name: predictions-table
-          description: Latest Monte Carlo picks per game
-          uc_securable:
-            securable_type: TABLE
-            securable_full_name: ${var.catalog}.${var.predictions_schema}.game_predictions
-            permission: SELECT
         - name: prediction-grades-table
           description: Graded pick outcomes
           uc_securable:
@@ -37,13 +31,13 @@ resources:
             securable_full_name: ${var.catalog}.${var.predictions_schema}.prediction_grades
             permission: SELECT
         - name: prediction-rca-table
-          description: Deterministic RCA for missed picks
+          description: Deterministic RCA rows
           uc_securable:
             securable_type: TABLE
             securable_full_name: ${var.catalog}.${var.predictions_schema}.prediction_rca
             permission: SELECT
         - name: pick-miss-rca-view
-          description: Joined misses and RCA for the app and Genie
+          description: Joined misses and RCA
           uc_securable:
             securable_type: TABLE
             securable_full_name: ${var.catalog}.${var.predictions_schema}.pick_miss_rca

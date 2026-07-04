@@ -203,6 +203,16 @@ def _profile_row(profiles: pd.DataFrame, team: str) -> pd.Series:
     return hit.iloc[0]
 
 
+def profile_snapshot(profiles: pd.DataFrame, team: str) -> dict[str, float | int]:
+    """Return per-team scoring profile fields stored on prediction rows."""
+    row = _profile_row(profiles, team)
+    return {
+        "games": int(row["games"]),
+        "points_for_mean": round(float(row["points_for_mean"]), 2),
+        "points_against_mean": round(float(row["points_against_mean"]), 2),
+    }
+
+
 def expected_matchup_scores(
     home_team: str,
     away_team: str,
@@ -385,6 +395,9 @@ def simulate_weekly_picks(
             profiles,
             home_field_advantage=cfg.home_field_advantage,
         )
+        pbp_home_mu, pbp_away_mu = home_mu, away_mu
+        home_profile = profile_snapshot(profiles, str(home_abbr))
+        away_profile = profile_snapshot(profiles, str(away_abbr))
         game_id = getattr(game, "game_id", None)
         total_line = _safe_float(getattr(game, "total_line", None))
         home_mu, away_mu, home_nfelo, away_nfelo, nfelo_home_line = (
@@ -399,6 +412,7 @@ def simulate_weekly_picks(
                 total_line=total_line,
             )
         )
+        nfelo_home_mu, nfelo_away_mu = home_mu, away_mu
         home_mu, away_mu = calibrate_expected_scores_to_market(
             home_mu,
             away_mu,
@@ -406,6 +420,7 @@ def simulate_weekly_picks(
             total_line=total_line,
             market_blend=cfg.market_blend,
         )
+        market_home_mu, market_away_mu = home_mu, away_mu
         sim = simulate_game_outcomes(
             home_mu,
             away_mu,
@@ -446,6 +461,18 @@ def simulate_weekly_picks(
                 "nfelo_home_rating": home_nfelo,
                 "nfelo_away_rating": away_nfelo,
                 "nfelo_home_line": nfelo_home_line,
+                "pbp_proj_home": round(pbp_home_mu, 2),
+                "pbp_proj_away": round(pbp_away_mu, 2),
+                "nfelo_proj_home": round(nfelo_home_mu, 2),
+                "nfelo_proj_away": round(nfelo_away_mu, 2),
+                "market_proj_home": round(market_home_mu, 2),
+                "market_proj_away": round(market_away_mu, 2),
+                "home_profile_games": home_profile["games"],
+                "home_profile_pf_mean": home_profile["points_for_mean"],
+                "home_profile_pa_mean": home_profile["points_against_mean"],
+                "away_profile_games": away_profile["games"],
+                "away_profile_pf_mean": away_profile["points_for_mean"],
+                "away_profile_pa_mean": away_profile["points_against_mean"],
                 "proj_away_score": round(sim["proj_away_score"], 2),
                 "proj_home_score": round(sim["proj_home_score"], 2),
                 "proj_total": round(sim["proj_total"], 2),
@@ -627,6 +654,25 @@ def _total_pick_correct(total_pick: str | None, total_result: str) -> bool | Non
 
 
 GRADE_LINE_COLS = ("away_spread", "home_spread", "total_line")
+GRADE_CONTEXT_COLS = (
+    "pbp_season",
+    "home_field_advantage",
+    "pbp_proj_home",
+    "pbp_proj_away",
+    "nfelo_proj_home",
+    "nfelo_proj_away",
+    "market_proj_home",
+    "market_proj_away",
+    "home_profile_games",
+    "home_profile_pf_mean",
+    "home_profile_pa_mean",
+    "away_profile_games",
+    "away_profile_pf_mean",
+    "away_profile_pa_mean",
+    "nfelo_home_rating",
+    "nfelo_away_rating",
+    "nfelo_home_line",
+)
 _GRADE_RESULT_COLS = (
     "game_id",
     "home_score",
@@ -749,6 +795,11 @@ def grade_predictions(
                 "market_blend": getattr(row, "market_blend", None),
                 "nfelo_blend": getattr(row, "nfelo_blend", None),
                 "graded_at": graded_at,
+                **{
+                    column: getattr(row, column, None)
+                    for column in GRADE_CONTEXT_COLS
+                    if hasattr(row, column)
+                },
             }
         )
 

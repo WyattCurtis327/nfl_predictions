@@ -12,6 +12,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SQL_DIR = ROOT / "resources" / "sql"
 GRADES_TABLE_SQL = SQL_DIR / "create_prediction_grades_table.sql"
+RCA_TABLE_SQL = SQL_DIR / "create_prediction_rca_table.sql"
+PICK_MISS_RCA_VIEW_SQL = SQL_DIR / "create_vw_pick_miss_rca.sql"
 METRIC_VIEW_SQL = SQL_DIR / "create_mv_game_pick_metrics.sql"
 DEFAULT_CATALOG = "nfl"
 DEFAULT_PREDICTIONS_SCHEMA = "predictions"
@@ -86,7 +88,7 @@ def deploy_metric_view(
     catalog: str = DEFAULT_CATALOG,
     predictions_schema: str = DEFAULT_PREDICTIONS_SCHEMA,
 ) -> None:
-    for path in (GRADES_TABLE_SQL, METRIC_VIEW_SQL):
+    for path in (GRADES_TABLE_SQL, RCA_TABLE_SQL, PICK_MISS_RCA_VIEW_SQL, METRIC_VIEW_SQL):
         if not path.exists():
             raise SystemExit(f"Missing SQL file: {path}")
 
@@ -103,6 +105,20 @@ def deploy_metric_view(
     )
     print(f"Ensured {catalog}.{predictions_schema}.prediction_grades exists")
     print(f"statement_id: {grades_response.get('statement_id')}")
+
+    rca_response = _execute_sql(
+        _render_sql(RCA_TABLE_SQL, catalog=catalog, predictions_schema=predictions_schema),
+        label="prediction_rca table create",
+    )
+    print(f"Ensured {catalog}.{predictions_schema}.prediction_rca exists")
+    print(f"statement_id: {rca_response.get('statement_id')}")
+
+    pick_miss_response = _execute_sql(
+        _render_sql(PICK_MISS_RCA_VIEW_SQL, catalog=catalog, predictions_schema=predictions_schema),
+        label="pick_miss_rca view deploy",
+    )
+    print(f"Deployed {catalog}.{predictions_schema}.pick_miss_rca")
+    print(f"statement_id: {pick_miss_response.get('statement_id')}")
 
     view_response = _execute_sql(
         _render_sql(METRIC_VIEW_SQL, catalog=catalog, predictions_schema=predictions_schema),

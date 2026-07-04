@@ -1,0 +1,99 @@
+{
+  "version": 2,
+  "config": {
+    "sample_questions": [
+      {
+        "id": "d1e2f3a4b5c6789012345678abcdef01",
+        "question": ["Why did we miss our spread pick in week 7 of 2025?"]
+      },
+      {
+        "id": "e2f3a4b5c6789012345678abcdef0123",
+        "question": ["What are the most common root causes for missed picks this season?"]
+      },
+      {
+        "id": "f3a4b5c6789012345678abcdef012345",
+        "question": ["Which missed games had turnover-driven root causes?"]
+      }
+    ]
+  },
+  "data_sources": {
+    "tables": [
+      {
+        "identifier": "nfl.predictions.pick_miss_rca",
+        "description": [
+          "Missed NFL spread and total picks joined to deterministic root-cause analysis.",
+          "Each row is one wrong pick with primary_cause, projection decomposition, and cause_summary JSON."
+        ]
+      }
+    ]
+  },
+  "instructions": {
+    "text_instructions": [
+      {
+        "id": "01f1b37c378e1c9100000000000000c1",
+        "content": [
+          "Answer questions about why NFL model picks missed using pick_miss_rca.",
+          "primary_cause is the top deterministic label (e.g. pbp_profile_miss, market_calibration, turnover_variance).",
+          "cause_summary is JSON with ranked causes; parse it when users want detailed explanations.",
+          "miss_types is comma-separated: spread, total, or both.",
+          "Compare pbp_proj vs nfelo_proj vs market_proj vs actual scores to explain projection drift.",
+          "Team abbreviations are three letters (e.g. KC, SF, NE)."
+        ]
+      }
+    ],
+    "example_question_sqls": [
+      {
+        "id": "01f1821116d912db00000000000000c1",
+        "question": ["What are the most common root causes for missed picks in 2025?"],
+        "sql": [
+          "SELECT\n",
+          "  primary_cause,\n",
+          "  COUNT(*) AS misses\n",
+          "FROM nfl.predictions.pick_miss_rca\n",
+          "WHERE season = 2025 AND game_type = 'REG'\n",
+          "GROUP BY primary_cause\n",
+          "ORDER BY misses DESC"
+        ]
+      },
+      {
+        "id": "01f199751a3a1df300000000000000c2",
+        "question": ["Show missed spread picks for week 7 of 2025 with root causes"],
+        "sql": [
+          "SELECT\n",
+          "  game_id,\n",
+          "  away_abbr,\n",
+          "  home_abbr,\n",
+          "  spread_pick,\n",
+          "  spread_confidence,\n",
+          "  primary_cause,\n",
+          "  miss_types,\n",
+          "  cause_summary\n",
+          "FROM nfl.predictions.pick_miss_rca\n",
+          "WHERE season = 2025 AND week = 7\n",
+          "  AND miss_types LIKE '%spread%'\n",
+          "ORDER BY spread_confidence DESC"
+        ]
+      },
+      {
+        "id": "01f199751a3a1df300000000000000c3",
+        "question": ["Which missed games had turnover-driven root causes?"],
+        "sql": [
+          "SELECT\n",
+          "  season,\n",
+          "  week,\n",
+          "  away_abbr,\n",
+          "  home_abbr,\n",
+          "  primary_cause,\n",
+          "  game_home_turnovers,\n",
+          "  game_away_turnovers,\n",
+          "  cause_summary\n",
+          "FROM nfl.predictions.pick_miss_rca\n",
+          "WHERE primary_cause = 'turnover_variance'\n",
+          "   OR game_home_turnovers >= 3\n",
+          "   OR game_away_turnovers >= 3\n",
+          "ORDER BY season DESC, week DESC"
+        ]
+      }
+    ]
+  }
+}

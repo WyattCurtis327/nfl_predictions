@@ -6,6 +6,7 @@ from nfl_predictions.simulation import (
     compute_team_scoring_profiles,
     expected_matchup_scores,
     list_reg_weeks_with_odds,
+    profile_snapshot,
     simulate_game_outcomes,
     simulate_weekly_picks,
 )
@@ -40,6 +41,13 @@ def test_compute_team_scoring_profiles_from_pbp():
     phi = profiles[profiles["team"] == "PHI"].iloc[0]
     assert phi["games"] == 2
     assert phi["points_for_mean"] > 0
+
+
+def test_profile_snapshot_rounds_means():
+    profiles = compute_team_scoring_profiles(_sample_pbp())
+    snap = profile_snapshot(profiles, "PHI")
+    assert snap["games"] == 2
+    assert snap["points_for_mean"] > 0
 
 
 def test_calibrate_expected_scores_blends_market():
@@ -114,6 +122,9 @@ def test_simulate_weekly_picks_returns_recommendations():
     )
     assert len(picks) == 1
     assert picks.iloc[0]["spread_pick"] in {"PHI", "KC"}
+    assert picks.iloc[0]["home_profile_games"] >= 1
+    assert picks.iloc[0]["pbp_proj_home"] is not None
+    assert picks.iloc[0]["market_proj_home"] is not None
     assert picks.iloc[0]["total_pick"] in {"OVER", "UNDER"}
 
 

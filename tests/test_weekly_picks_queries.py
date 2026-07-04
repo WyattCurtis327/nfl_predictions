@@ -1,9 +1,15 @@
-import sys
+import importlib.util
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app" / "weekly_picks"))
+_QUERIES_PATH = Path(__file__).resolve().parents[1] / "app" / "weekly_picks" / "queries.py"
+_spec = importlib.util.spec_from_file_location("weekly_picks_queries_mod", _QUERIES_PATH)
+_mod = importlib.util.module_from_spec(_spec)
+assert _spec.loader is not None
+_spec.loader.exec_module(_mod)
 
-from queries import latest_picks_sql, list_season_weeks_sql, predictions_table
+latest_picks_sql = _mod.latest_picks_sql
+list_season_weeks_sql = _mod.list_season_weeks_sql
+predictions_table = _mod.predictions_table
 
 
 def test_predictions_table():

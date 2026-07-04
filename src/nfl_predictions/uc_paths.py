@@ -73,6 +73,12 @@ class UcPaths:
     def prediction_grades_table(self) -> str:
         return self.table(self.predictions, "prediction_grades")
 
+    def prediction_rca_table(self) -> str:
+        return self.table(self.predictions, "prediction_rca")
+
+    def pick_miss_rca_view(self) -> str:
+        return self.table(self.predictions, "pick_miss_rca")
+
     def game_pick_metrics_view(self) -> str:
         return self.table(self.predictions, "game_pick_metrics")
 
@@ -106,6 +112,7 @@ class UcPaths:
         return [
             self.game_predictions_table(),
             self.prediction_grades_table(),
+            self.prediction_rca_table(),
         ]
 
     def metadata_tables(self) -> list[str]:

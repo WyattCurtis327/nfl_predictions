@@ -1,0 +1,10 @@
+resources:
+  genie_spaces:
+    nfl_pick_miss_rca:
+      title: NFL Pick Miss RCA
+      description: >
+        Ask why spread or total picks missed. Sources graded misses joined
+        to deterministic root-cause analysis from pick_miss_rca.
+      warehouse_id: ${var.sql_warehouse_id}
+      parent_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+      file_path: ../src/nfl_pick_miss_rca.geniespace.json

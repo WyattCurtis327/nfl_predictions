@@ -20,6 +20,7 @@ dbutils.widgets.text("season", "", "Season to grade (blank = auto-detect)")
 dbutils.widgets.text("target_week", "", "Week to grade (blank = latest completed)")
 dbutils.widgets.text("mlflow_experiment", "/Shared/nfl_predictions", "MLflow experiment path")
 dbutils.widgets.dropdown("log_grades", "true", ["true", "false"], "Append grades to Delta")
+dbutils.widgets.dropdown("log_rca", "true", ["true", "false"], "Analyze missed picks and append RCA")
 
 paths = UcPaths(
     catalog=dbutils.widgets.get("catalog"),
@@ -30,13 +31,18 @@ season_raw = dbutils.widgets.get("season").strip()
 target_week_raw = dbutils.widgets.get("target_week").strip()
 mlflow_experiment = dbutils.widgets.get("mlflow_experiment").strip()
 log_grades = dbutils.widgets.get("log_grades").lower() == "true"
+log_rca = dbutils.widgets.get("log_rca").lower() == "true"
 
 predictions_table = paths.game_predictions_table()
 grades_table = paths.prediction_grades_table()
+rca_table = paths.prediction_rca_table()
+pbp_table = paths.pbp_table()
 schedule_table = paths.schedules_games_table()
 
 print(f"Predictions: {predictions_table}")
 print(f"Grades:      {grades_table}")
+print(f"RCA:         {rca_table}")
+print(f"PBP:         {pbp_table}")
 print(f"Schedule:    {schedule_table}")
 
 # COMMAND ----------
@@ -167,3 +173,62 @@ else:
 
     print(f"Appended {len(graded)} grades to {grades_table}")
     print(f"grading_run_id: {grading_run_id}")
+
+# COMMAND ----------
+
+from nfl_predictions.nfelo import nfelo_ratings_lookup, select_nfelo_ratings
+from nfl_predictions.prediction_rca import (
+    analyze_missed_grades,
+    filter_missed_grades,
+    new_rca_run_id,
+    prepare_rca_log,
+)
+
+missed = filter_missed_grades(graded)
+if missed.empty:
+    print("No missed picks to analyze.")
+elif not log_rca:
+    print("log_rca=false; skipped RCA write")
+else:
+    pbp_pdf = spark.table(pbp_table).toPandas() if spark.catalog.tableExists(pbp_table) else pd.DataFrame()
+
+    game_ids = set(missed["game_id"].dropna().astype(str))
+    game_pbp_by_id: dict[str, pd.DataFrame] = {}
+    if not pbp_pdf.empty and "game_id" in pbp_pdf.columns:
+        game_rows = pbp_pdf[pbp_pdf["game_id"].astype(str).isin(game_ids)]
+        for game_id, frame in game_rows.groupby("game_id"):
+            game_pbp_by_id[str(game_id)] = frame.reset_index(drop=True)
+
+    nfelo_games = pd.DataFrame()
+    nfelo_lookup: dict[str, float] = {}
+    ratings_table = paths.nfelo_ratings_table()
+    games_table = paths.nfelo_games_table()
+    if spark.catalog.tableExists(ratings_table):
+        nfelo_lookup = nfelo_ratings_lookup(
+            select_nfelo_ratings(
+                spark.table(ratings_table).toPandas(),
+                season=season,
+                week=target_week,
+            )
+        )
+    if spark.catalog.tableExists(games_table):
+        nfelo_games = spark.table(games_table).toPandas()
+
+    rca_reports = analyze_missed_grades(
+        missed,
+        pbp=pbp_pdf,
+        game_pbp_by_id=game_pbp_by_id,
+        nfelo_games=nfelo_games,
+        nfelo_lookup=nfelo_lookup,
+        current_pbp_season=season,
+    )
+    rca_run_id = new_rca_run_id()
+    rca_log = prepare_rca_log(
+        rca_reports,
+        rca_run_id=rca_run_id,
+        grading_run_id=grading_run_id,
+    )
+    append_delta_table(spark, rca_log, rca_table)
+    print(f"Appended {len(rca_log)} RCA rows to {rca_table}")
+    print(f"rca_run_id: {rca_run_id}")
+    display(spark.createDataFrame(rca_log))
