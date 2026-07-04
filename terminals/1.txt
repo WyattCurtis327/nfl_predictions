@@ -1,7 +1,0 @@
----
-pid: 0
-cwd: "c:\Users\wyatt\nfl_predictions"
-command: "databricks bundle run nfl_bootstrap -t prod --profile wyatts_databricks 2>&1"
-started_at: 2026-07-04T05:52:10.528Z
-running_for_ms: 0        
----

@@ -27,3 +27,4 @@ desktop.ini
 htmlcov/
 
 .grok/config.toml
+terminals/
