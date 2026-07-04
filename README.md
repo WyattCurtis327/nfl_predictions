@@ -100,6 +100,16 @@ Run `sync_bundle_env.py` before VS Code deploy too — it removes stale `BUNDLE_
 
 Configure Databricks auth once with `databricks auth login --profile <name>`. The bundle uses that profile for workspace host and credentials — nothing sensitive belongs in `databricks.yml`.
 
+### Databricks Connect (VS Code)
+
+The `dev` extra installs `databricks-connect` for local notebook debugging against serverless compute. After `pip install -e ".[dev]"`, verify the session:
+
+```powershell
+python scripts/test_databricks_connect.py
+```
+
+**Clear stale `DATABRICKS_CLUSTER_ID`.** If you previously used cluster-based Connect, that variable may still be set in Windows **User** environment variables. The VS Code extension sets `DATABRICKS_SERVERLESS_COMPUTE_ID=auto` in `.databricks/.databricks.env`; having both variables set breaks Connect. Remove `DATABRICKS_CLUSTER_ID` from System Properties → Environment Variables → User (not from `.env` — this project does not use it). Bundle deploy already ignores it in production mode, but VS Code Connect does not.
+
 ### The Odds API secret
 
 Required for live weekly odds (not needed for bootstrap — historical odds come from nflverse):
@@ -126,6 +136,7 @@ api_key = dbutils.secrets.get(scope="nfl", key="odds_api_key")
 | `DATABRICKS_EMAIL_ACCOUNT` | Job failure notification email |
 | `ODDS_API_KEY` | The Odds API key for `scripts/stage_odds.py` |
 | `BUNDLE_VAR_notify_email` | Set automatically by `sync_bundle_env.py` for VS Code deploy |
+| `DATABRICKS_CLUSTER_ID` | **Do not set** — conflicts with VS Code serverless Connect; remove from Windows user env if present |
 
 ## Unity Catalog
 
