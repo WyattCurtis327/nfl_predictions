@@ -80,7 +80,6 @@ def _sync_databricks_yml_host(host: str) -> None:
             r"^      host: .*$",
             host_line,
             text,
-            count=1,
             flags=re.MULTILINE,
         )
     else:
