@@ -22,7 +22,7 @@ resources:
               - pyarrow>=14.0.0
               - requests>=2.31.0
               - numpy>=1.26.0
-              - ${artifacts.nfl_predictions_wheel}
+              - ../dist/*.whl
       tasks:
         - task_key: 00_download_pbp
           environment_key: nfl_env

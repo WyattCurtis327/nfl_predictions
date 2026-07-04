@@ -18,7 +18,7 @@ resources:
               - pyarrow>=14.0.0
               - numpy>=1.26.0
               - mlflow>=2.14.0
-              - ${artifacts.nfl_predictions_wheel}
+              - ../dist/*.whl
       tasks:
         - task_key: 00_predict_upcoming_week
           environment_key: nfl_env
