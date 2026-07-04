@@ -5,6 +5,14 @@ from __future__ import annotations
 import pandas as pd
 
 
+def _nullable_object_is_boolean(series: pd.Series) -> bool:
+    """True when an object column only contains bool values and nulls."""
+    non_null = series.dropna()
+    if non_null.empty:
+        return False
+    return bool(non_null.map(type).eq(bool).all())
+
+
 def prepare_pandas_for_spark(pdf: pd.DataFrame) -> pd.DataFrame:
     """Coerce ambiguous pandas dtypes so Spark Connect can infer a schema."""
     frame = pdf.copy()
@@ -13,6 +21,10 @@ def prepare_pandas_for_spark(pdf: pd.DataFrame) -> pd.DataFrame:
         series = frame[column]
         if series.isna().all():
             frame[column] = series.astype("string")
+        elif pd.api.types.is_bool_dtype(series.dtype):
+            frame[column] = series.astype("boolean")
+        elif series.dtype == object and _nullable_object_is_boolean(series):
+            frame[column] = series.astype("boolean")
         elif series.dtype == object:
             frame[column] = series.astype("string")
         elif pd.api.types.is_datetime64_any_dtype(series.dtype):

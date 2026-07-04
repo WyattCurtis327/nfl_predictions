@@ -1,0 +1,44 @@
+resources:
+  jobs:
+    nfl_backtest:
+      name: nfl_backtest
+      description: >
+        Replay REG-season predictions using prior-year PBP and grade against
+        actual outcomes. Default: 2025 season with 2024 PBP profiles.
+      email_notifications:
+        on_failure:
+          - ${var.notify_email}
+      environments:
+        - environment_key: nfl_env
+          spec:
+            environment_version: "4"
+            dependencies:
+              - pandas>=2.0.0
+              - pyarrow>=14.0.0
+              - numpy>=1.26.0
+              - mlflow>=2.14.0
+              - ../dist/*.whl
+      tasks:
+        - task_key: 00_backtest_season
+          environment_key: nfl_env
+          notebook_task:
+            notebook_path: ../notebooks/55_backtest_season.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schedules_schema: ${var.schedules_schema}
+              pbp_schema: ${var.pbp_schema}
+              odds_schema: ${var.odds_schema}
+              predictions_schema: ${var.predictions_schema}
+              teams_schema: ${var.teams_schema}
+              season: "2025"
+              pbp_season: "2024"
+              current_pbp_season: "2026"
+              start_week: "1"
+              end_week: "18"
+              preferred_bookmaker: nflverse
+              n_simulations: ${var.n_simulations}
+              market_blend: ${var.market_blend}
+              nfelo_blend: ${var.nfelo_blend}
+              use_nfelo: "true"
+              pick_threshold: ${var.pick_threshold}
+              mlflow_experiment: ${var.mlflow_experiment}

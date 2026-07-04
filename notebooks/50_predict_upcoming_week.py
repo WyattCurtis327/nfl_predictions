@@ -12,6 +12,7 @@ from nfl_predictions.uc_paths import (
     DEFAULT_PBP_SCHEMA,
     DEFAULT_PREDICTIONS_SCHEMA,
     DEFAULT_SCHEDULES_SCHEMA,
+    DEFAULT_TEAMS_SCHEMA,
     UcPaths,
 )
 
@@ -20,12 +21,15 @@ dbutils.widgets.text("schedules_schema", DEFAULT_SCHEDULES_SCHEMA, "Schedules sc
 dbutils.widgets.text("pbp_schema", DEFAULT_PBP_SCHEMA, "PBP schema")
 dbutils.widgets.text("odds_schema", DEFAULT_ODDS_SCHEMA, "Odds schema")
 dbutils.widgets.text("predictions_schema", DEFAULT_PREDICTIONS_SCHEMA, "Predictions schema")
+dbutils.widgets.text("teams_schema", DEFAULT_TEAMS_SCHEMA, "Teams schema")
 dbutils.widgets.text("season", "2026", "Schedule / odds season")
 dbutils.widgets.text("pbp_season", "2025", "Prior-season PBP analytics")
 dbutils.widgets.text("current_pbp_season", "2026", "In-season PBP analytics")
 dbutils.widgets.text("target_week", "", "Week to simulate (blank = next unplayed)")
 dbutils.widgets.text("n_simulations", "10000", "Monte Carlo simulations per game")
 dbutils.widgets.text("market_blend", "0.35", "Weight given to market lines (0-1)")
+dbutils.widgets.text("nfelo_blend", "0.30", "Weight given to nfelo ratings (0-1)")
+dbutils.widgets.dropdown("use_nfelo", "true", ["true", "false"], "Blend nfelo power ratings")
 dbutils.widgets.text("pick_threshold", "0.55", "Min confidence to highlight a pick")
 dbutils.widgets.text("preferred_bookmaker", "draftkings", "Preferred bookmaker for odds")
 dbutils.widgets.text("mlflow_experiment", "/Shared/nfl_predictions", "MLflow experiment path")
@@ -37,6 +41,7 @@ paths = UcPaths(
     pbp=dbutils.widgets.get("pbp_schema"),
     odds=dbutils.widgets.get("odds_schema"),
     predictions=dbutils.widgets.get("predictions_schema"),
+    teams=dbutils.widgets.get("teams_schema"),
 )
 season = int(dbutils.widgets.get("season"))
 pbp_season = int(dbutils.widgets.get("pbp_season"))
@@ -44,6 +49,8 @@ current_pbp_season = int(dbutils.widgets.get("current_pbp_season"))
 target_week_raw = dbutils.widgets.get("target_week").strip()
 n_simulations = int(dbutils.widgets.get("n_simulations"))
 market_blend = float(dbutils.widgets.get("market_blend"))
+nfelo_blend = float(dbutils.widgets.get("nfelo_blend"))
+use_nfelo = dbutils.widgets.get("use_nfelo").lower() == "true"
 pick_threshold = float(dbutils.widgets.get("pick_threshold"))
 preferred_bookmaker = dbutils.widgets.get("preferred_bookmaker").strip()
 mlflow_experiment = dbutils.widgets.get("mlflow_experiment").strip()
@@ -61,7 +68,10 @@ print(f"Predictions:  {predictions_table}")
 
 # COMMAND ----------
 
+import pandas as pd
+
 from nfl_predictions.metadata import stamp_dataframe
+from nfl_predictions.nfelo import select_nfelo_ratings
 from nfl_predictions.simulation import (
     SimulationConfig,
     combine_pbp_seasons,
@@ -107,11 +117,27 @@ profiles = compute_team_scoring_profiles(pbp_pdf)
 config = SimulationConfig(
     n_simulations=n_simulations,
     market_blend=market_blend,
+    nfelo_blend=nfelo_blend if use_nfelo else 0.0,
     pick_threshold=pick_threshold,
 )
 
+nfelo_ratings = pd.DataFrame()
+nfelo_games = pd.DataFrame()
+if use_nfelo:
+    ratings_table = paths.nfelo_ratings_table()
+    games_table = paths.nfelo_games_table()
+    if spark.catalog.tableExists(ratings_table):
+        nfelo_ratings = select_nfelo_ratings(
+            spark.table(ratings_table).toPandas(),
+            season=season,
+            week=target_week,
+        )
+    if spark.catalog.tableExists(games_table):
+        nfelo_games = spark.table(games_table).toPandas()
+
 print(f"Simulating season {season} week {target_week} with {n_simulations:,} runs per game")
 print(f"Team scoring profiles: {len(profiles)} teams")
+print(f"nfelo ratings: {len(nfelo_ratings)} teams (blend={config.nfelo_blend})")
 
 # COMMAND ----------
 
@@ -121,6 +147,8 @@ picks = simulate_weekly_picks(
     week=target_week,
     schedule=schedule_pdf,
     config=config,
+    nfelo_ratings=nfelo_ratings,
+    nfelo_games=nfelo_games,
 )
 
 if picks.empty:
@@ -164,6 +192,7 @@ else:
                 "current_pbp_season": current_pbp_season,
                 "n_simulations": n_simulations,
                 "market_blend": market_blend,
+                "nfelo_blend": config.nfelo_blend,
                 "pick_threshold": pick_threshold,
                 "prediction_run_id": prediction_run_id,
             }

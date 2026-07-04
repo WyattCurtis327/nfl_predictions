@@ -36,6 +36,8 @@ Write-Host "Syncing Databricks Connect env..."
 if (-not $SkipStageOdds) {
     Write-Host "Staging live odds..."
     & $python (Join-Path $Root "scripts\stage_odds.py")
+    Write-Host "Staging nfelo ratings..."
+    & $python (Join-Path $Root "scripts\stage_nfelo.py")
 }
 
 Write-Host "Building wheel..."

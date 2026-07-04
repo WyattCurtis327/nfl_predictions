@@ -86,9 +86,50 @@ def test_grade_predictions_marks_correct_picks():
     assert graded.iloc[0]["total_correct"] == False  # noqa: E712
     assert graded.iloc[0]["actual_total_result"] == "under"
 
+    assert graded.iloc[0]["game_type"] is None
+    assert graded.iloc[0]["nfelo_blend"] == 0.30
     metrics = summarize_prediction_accuracy(graded)
     assert metrics["spread_accuracy"] == 0.0
     assert metrics["total_accuracy"] == 0.0
+
+
+def test_grade_predictions_keeps_schedule_game_type():
+    predictions = prepare_prediction_log(
+        pd.DataFrame(
+            [
+                {
+                    "game_id": "2025_01_NE_SEA",
+                    "week": 1,
+                    "game_type": "PRE",
+                    "away_abbr": "NE",
+                    "home_abbr": "SEA",
+                    "spread_pick": "NE",
+                    "total_pick": "OVER",
+                }
+            ]
+        ),
+        season=2025,
+        pbp_season=2024,
+        prediction_run_id="run-1",
+    )
+    schedule = prepare_schedule_for_grading(
+        pd.DataFrame(
+            [
+                {
+                    "game_id": "2025_01_NE_SEA",
+                    "game_type": "REG",
+                    "home_team": "SEA",
+                    "away_team": "NE",
+                    "home_score": 24.0,
+                    "away_score": 20.0,
+                    "spread_line": 3.5,
+                    "total_line": 44.5,
+                }
+            ]
+        )
+    )
+    graded = grade_predictions(predictions, schedule)
+    assert graded.iloc[0]["game_type"] == "REG"
 
 
 def test_select_latest_prediction_run():

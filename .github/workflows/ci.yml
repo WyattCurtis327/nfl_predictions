@@ -30,6 +30,16 @@ jobs:
       - name: Validate bundle config (syntax)
         run: |
           grep -q 'name: nfl_predictions' databricks.yml
-          grep -q '\${artifacts.nfl_predictions_wheel}' resources/nfl_bootstrap_job.yml
+          grep -q '../dist/\*\.whl' resources/nfl_bootstrap_job.yml
           grep -q 'host:' databricks.yml
           test -f resources/nfl_annual_refresh_job.yml
+          test -f resources/nfl_backtest_job.yml
+          test -f notebooks/22_ingest_nfelo_ratings.py
+
+      - name: Install Databricks CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+          echo "$HOME/.databricks/bin" >> "$GITHUB_PATH"
+
+      - name: Validate bundle schema
+        run: databricks bundle validate -t prod

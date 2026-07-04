@@ -14,6 +14,7 @@ from nfl_predictions.nflverse_data import GAME_TYPES_REG_PLAYOFF
 
 DEFAULT_HOME_FIELD_ADVANTAGE = 2.5
 DEFAULT_MARKET_BLEND = 0.35
+DEFAULT_NFELO_BLEND = 0.30
 DEFAULT_PICK_THRESHOLD = 0.55
 DEFAULT_SIMULATIONS = 10_000
 
@@ -39,6 +40,7 @@ class SimulationConfig:
     n_simulations: int = DEFAULT_SIMULATIONS
     home_field_advantage: float = DEFAULT_HOME_FIELD_ADVANTAGE
     market_blend: float = DEFAULT_MARKET_BLEND
+    nfelo_blend: float = DEFAULT_NFELO_BLEND
     pick_threshold: float = DEFAULT_PICK_THRESHOLD
     random_seed: int | None = 42
 
@@ -335,9 +337,20 @@ def simulate_weekly_picks(
     week: int,
     schedule: pd.DataFrame | None = None,
     config: SimulationConfig | None = None,
+    include_completed: bool = False,
+    nfelo_ratings: pd.DataFrame | None = None,
+    nfelo_games: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """Simulate every odds row in a week and return spread/total recommendations."""
+    from nfl_predictions.nfelo import (
+        apply_nfelo_to_matchup_scores,
+        nfelo_games_lookup,
+        nfelo_ratings_lookup,
+    )
+
     cfg = config or SimulationConfig()
+    nfelo_lookup = nfelo_ratings_lookup(nfelo_ratings) if nfelo_ratings is not None else {}
+    nfelo_game_lookup = nfelo_games_lookup(nfelo_games) if nfelo_games is not None else {}
     if odds_games.empty:
         return pd.DataFrame()
 
@@ -347,8 +360,10 @@ def simulate_weekly_picks(
     if games.empty:
         return pd.DataFrame()
 
-    if schedule is not None and {"game_id", "home_score", "away_score"}.issubset(
-        schedule.columns
+    if (
+        not include_completed
+        and schedule is not None
+        and {"game_id", "home_score", "away_score"}.issubset(schedule.columns)
     ):
         unplayed = schedule[schedule["home_score"].isna() & schedule["away_score"].isna()]
         games = games.merge(
@@ -370,11 +385,25 @@ def simulate_weekly_picks(
             profiles,
             home_field_advantage=cfg.home_field_advantage,
         )
+        game_id = getattr(game, "game_id", None)
+        total_line = _safe_float(getattr(game, "total_line", None))
+        home_mu, away_mu, home_nfelo, away_nfelo, nfelo_home_line = (
+            apply_nfelo_to_matchup_scores(
+                home_mu,
+                away_mu,
+                home_team=str(home_abbr),
+                away_team=str(away_abbr),
+                nfelo_lookup=nfelo_lookup,
+                nfelo_game=nfelo_game_lookup.get(str(game_id)) if game_id else None,
+                nfelo_blend=cfg.nfelo_blend,
+                total_line=total_line,
+            )
+        )
         home_mu, away_mu = calibrate_expected_scores_to_market(
             home_mu,
             away_mu,
             home_spread=_safe_float(getattr(game, "home_spread", None)),
-            total_line=_safe_float(getattr(game, "total_line", None)),
+            total_line=total_line,
             market_blend=cfg.market_blend,
         )
         sim = simulate_game_outcomes(
@@ -414,6 +443,9 @@ def simulate_weekly_picks(
                 "home_spread": getattr(game, "home_spread", None),
                 "total_line": getattr(game, "total_line", None),
                 "bookmaker": getattr(game, "bookmaker", None),
+                "nfelo_home_rating": home_nfelo,
+                "nfelo_away_rating": away_nfelo,
+                "nfelo_home_line": nfelo_home_line,
                 "proj_away_score": round(sim["proj_away_score"], 2),
                 "proj_home_score": round(sim["proj_home_score"], 2),
                 "proj_total": round(sim["proj_total"], 2),
@@ -540,6 +572,7 @@ def prepare_prediction_log(
     logged["predicted_at"] = stamped.isoformat()
     logged["mlflow_run_id"] = mlflow_run_id
     logged["market_blend"] = cfg.market_blend
+    logged["nfelo_blend"] = cfg.nfelo_blend
     logged["pick_threshold"] = cfg.pick_threshold
     logged["home_field_advantage"] = cfg.home_field_advantage
     logged["random_seed"] = cfg.random_seed
@@ -620,9 +653,11 @@ def grade_predictions(
 
     result_cols = [col for col in _GRADE_RESULT_COLS if col in schedule.columns]
     results = schedule[result_cols].dropna(subset=["home_score", "away_score"])
-    preds = predictions.drop(
-        columns=[col for col in GRADE_LINE_COLS if col in predictions.columns]
-    )
+    drop_from_preds = [col for col in GRADE_LINE_COLS if col in predictions.columns]
+    for col in ("game_type", "gameday"):
+        if col in predictions.columns and col in results.columns:
+            drop_from_preds.append(col)
+    preds = predictions.drop(columns=drop_from_preds)
     merged = preds.merge(results, on="game_id", how="inner")
     if merged.empty:
         return pd.DataFrame()
@@ -711,6 +746,8 @@ def grade_predictions(
                     getattr(row, "proj_home_score", None), home_score
                 ),
                 "total_error": _round_score(getattr(row, "proj_total", None), actual_total),
+                "market_blend": getattr(row, "market_blend", None),
+                "nfelo_blend": getattr(row, "nfelo_blend", None),
                 "graded_at": graded_at,
             }
         )
@@ -765,6 +802,31 @@ def select_latest_predictions_per_game(predictions: pd.DataFrame) -> pd.DataFram
         .drop_duplicates(subset=["game_id"], keep="last")
         .reset_index(drop=True)
     )
+
+
+def list_reg_weeks_with_odds(
+    odds: pd.DataFrame,
+    schedule: pd.DataFrame,
+    *,
+    season: int,
+    start_week: int = 1,
+    end_week: int = 18,
+) -> list[int]:
+    """Return sorted REG weeks that have both schedule games and odds rows."""
+    if odds.empty or schedule.empty or "week" not in odds.columns:
+        return []
+
+    sched = filter_schedule_game_types(schedule, game_types=("REG",))
+    sched = sched[sched["season"] == season]
+    sched_weeks = set(sched["week"].dropna().astype(int))
+
+    odds_season = odds.copy()
+    if "season" in odds_season.columns:
+        odds_season = odds_season[odds_season["season"] == season]
+    odds_weeks = set(odds_season["week"].dropna().astype(int))
+
+    weeks = sorted(sched_weeks & odds_weeks)
+    return [week for week in weeks if start_week <= week <= end_week]
 
 
 def summarize_prediction_accuracy(graded: pd.DataFrame) -> dict[str, float]:

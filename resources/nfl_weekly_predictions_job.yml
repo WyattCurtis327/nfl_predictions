@@ -30,6 +30,7 @@ resources:
               pbp_schema: ${var.pbp_schema}
               odds_schema: ${var.odds_schema}
               predictions_schema: ${var.predictions_schema}
+              teams_schema: ${var.teams_schema}
               season: ${var.schedule_season}
               pbp_season: ${var.pbp_season}
               current_pbp_season: ${var.current_pbp_season}
@@ -37,6 +38,8 @@ resources:
               preferred_bookmaker: ${var.preferred_bookmaker}
               n_simulations: ${var.n_simulations}
               market_blend: ${var.market_blend}
+              nfelo_blend: ${var.nfelo_blend}
+              use_nfelo: "true"
               pick_threshold: ${var.pick_threshold}
               mlflow_experiment: ${var.mlflow_experiment}
 

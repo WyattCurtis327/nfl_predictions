@@ -34,6 +34,12 @@ class UcPaths:
     def teams_table(self) -> str:
         return self.table(self.teams, "teams")
 
+    def nfelo_ratings_table(self) -> str:
+        return self.table(self.teams, "nfelo_ratings")
+
+    def nfelo_games_table(self) -> str:
+        return self.table(self.teams, "nfelo_games")
+
     def schedules_games_table(self) -> str:
         return self.table(self.schedules, "games")
 

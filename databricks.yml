@@ -88,6 +88,9 @@ variables:
   market_blend:
     description: Weight given to market lines in simulation (0-1)
     default: "0.35"
+  nfelo_blend:
+    description: Weight given to nfelo power ratings before market blend (0-1)
+    default: "0.30"
   pick_threshold:
     description: Minimum confidence to highlight a spread/total pick
     default: "0.55"

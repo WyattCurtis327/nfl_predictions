@@ -68,7 +68,19 @@ resources:
               pbp_volume: /Volumes/${var.catalog}/${var.pbp_schema}/raw
               skip_missing_volume: "true"
 
-        - task_key: 04_ingest_odds_api
+        - task_key: 04_ingest_nfelo_ratings
+          environment_key: nfl_env
+          depends_on:
+            - task_key: 01_ingest_schedules
+          notebook_task:
+            notebook_path: ../notebooks/22_ingest_nfelo_ratings.py
+            base_parameters:
+              catalog: ${var.catalog}
+              teams_schema: ${var.teams_schema}
+              schedule_season: ${var.schedule_season}
+              fetch_games: "true"
+
+        - task_key: 05_ingest_odds_api
           environment_key: nfl_env
           depends_on:
             - task_key: 01_ingest_schedules
@@ -83,7 +95,7 @@ resources:
               preferred_bookmaker: ${var.preferred_bookmaker}
               min_match_rate: ${var.min_match_rate}
 
-        - task_key: 05_build_players
+        - task_key: 06_build_players
           environment_key: nfl_env
           depends_on:
             - task_key: 03_load_pbp
@@ -96,11 +108,12 @@ resources:
               rosters_schema: ${var.rosters_schema}
               pbp_schema: ${var.pbp_schema}
 
-        - task_key: 06_apply_refresh_column_descriptions
+        - task_key: 07_apply_refresh_column_descriptions
           environment_key: nfl_env
           depends_on:
-            - task_key: 05_build_players
-            - task_key: 04_ingest_odds_api
+            - task_key: 06_build_players
+            - task_key: 05_ingest_odds_api
+            - task_key: 04_ingest_nfelo_ratings
           notebook_task:
             notebook_path: ../notebooks/80_apply_uc_column_descriptions.py
             base_parameters:
@@ -112,10 +125,10 @@ resources:
               odds_schema: ${var.odds_schema}
               skip_missing_tables: "true"
 
-        - task_key: 07_validate_weekly_refresh
+        - task_key: 08_validate_weekly_refresh
           environment_key: nfl_env
           depends_on:
-            - task_key: 06_apply_refresh_column_descriptions
+            - task_key: 07_apply_refresh_column_descriptions
           notebook_task:
             notebook_path: ../notebooks/91_validate_weekly_refresh.py
             base_parameters:

@@ -35,5 +35,7 @@ CREATE TABLE IF NOT EXISTS {catalog}.{predictions_schema}.prediction_grades (
   away_score_error DOUBLE,
   home_score_error DOUBLE,
   total_error DOUBLE,
+  market_blend DOUBLE,
+  nfelo_blend DOUBLE,
   graded_at STRING
 ) USING DELTA
