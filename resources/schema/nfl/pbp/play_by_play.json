@@ -1,0 +1,2256 @@
+{
+  "table": "nfl.pbp.play_by_play",
+  "comment": "",
+  "columns": [
+    {
+      "name": "game_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the game, linking all related plays to a specific match."
+    },
+    {
+      "name": "play_id",
+      "type": "double",
+      "nullable": true,
+      "comment": "Unique identifier for each specific play within a game, crucial for play tracking and analysis."
+    },
+    {
+      "name": "old_game_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Represents the previous game identifier if the current game was played with an updated identifier."
+    },
+    {
+      "name": "home_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "Name of the team designated as the home team for the game, important for determining venue effects."
+    },
+    {
+      "name": "away_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "Name of the team designated as the away team for the game, which can affect fan support and team performance."
+    },
+    {
+      "name": "season_type",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the type of season, such as regular season or playoffs, providing context for the game's significance."
+    },
+    {
+      "name": "week",
+      "type": "int",
+      "nullable": true,
+      "comment": "Number indicating the week of the season during which the game is played, helpful for understanding season progression."
+    },
+    {
+      "name": "posteam",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team that is currently on offense during the play, essential for analyzing team performance."
+    },
+    {
+      "name": "posteam_type",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates whether the offense team is the home or away team, providing additional context for analysis."
+    },
+    {
+      "name": "defteam",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team that is currently on defense for the play, important for defensive strategy analysis."
+    },
+    {
+      "name": "side_of_field",
+      "type": "string",
+      "nullable": true,
+      "comment": "Specifies which side of the field the play is occurring on, aiding in field position evaluations."
+    },
+    {
+      "name": "yardline_100",
+      "type": "double",
+      "nullable": true,
+      "comment": "The distance in yards from the opponent's end zone, indicating where the play begins on the field."
+    },
+    {
+      "name": "game_date",
+      "type": "string",
+      "nullable": true,
+      "comment": "The date on which the game took place, useful for historical context and timelines."
+    },
+    {
+      "name": "quarter_seconds_remaining",
+      "type": "double",
+      "nullable": true,
+      "comment": "The number of seconds left in the current quarter of the game, critical for late-game strategies."
+    },
+    {
+      "name": "half_seconds_remaining",
+      "type": "double",
+      "nullable": true,
+      "comment": "The total seconds remaining in the current half of the game, providing context for strategies based on time."
+    },
+    {
+      "name": "game_seconds_remaining",
+      "type": "double",
+      "nullable": true,
+      "comment": "Remaining seconds in the game, vital for understanding time management during critical plays."
+    },
+    {
+      "name": "game_half",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates whether the current status of the game is in the first or second half, useful for strategy adjustments."
+    },
+    {
+      "name": "quarter_end",
+      "type": "double",
+      "nullable": true,
+      "comment": "Time point at which the quarter ends, useful for play statistics and evaluations."
+    },
+    {
+      "name": "drive",
+      "type": "double",
+      "nullable": true,
+      "comment": "Identifies the current drive number within the game, important for tracking offensive series."
+    },
+    {
+      "name": "sp",
+      "type": "double",
+      "nullable": true,
+      "comment": "Special play indicator to denote specific types of plays that may not follow standard rules."
+    },
+    {
+      "name": "qtr",
+      "type": "double",
+      "nullable": true,
+      "comment": "Number of the current quarter in which the play is occurring, essential for contextualizing statistics."
+    },
+    {
+      "name": "down",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the current down during a play, crucial for understanding play strategies and possibilities."
+    },
+    {
+      "name": "goal_to_go",
+      "type": "int",
+      "nullable": true,
+      "comment": "Indicates whether the offense has a goal to go situation, which affects play decision-making."
+    },
+    {
+      "name": "time",
+      "type": "string",
+      "nullable": true,
+      "comment": "Represents the game clock time at which the play occurred, useful for matching plays to specific moments."
+    },
+    {
+      "name": "yrdln",
+      "type": "string",
+      "nullable": true,
+      "comment": "Yard line indicating where the play starts, important for field position assessments."
+    },
+    {
+      "name": "ydstogo",
+      "type": "double",
+      "nullable": true,
+      "comment": "The number of yards the offensive team needs to gain for a first down, crucial for play-calling."
+    },
+    {
+      "name": "ydsnet",
+      "type": "double",
+      "nullable": true,
+      "comment": "The net yards gained on the play, providing direct insight into the effectiveness of the play run."
+    },
+    {
+      "name": "desc",
+      "type": "string",
+      "nullable": true,
+      "comment": "Description of the play, offering narrative context for understanding the play's significance and execution."
+    },
+    {
+      "name": "play_type",
+      "type": "string",
+      "nullable": true,
+      "comment": "Categorizes the type of play being run, useful for statistical analysis and comparison."
+    },
+    {
+      "name": "yards_gained",
+      "type": "double",
+      "nullable": true,
+      "comment": "Number of yards gained as a direct result of the play, essential for player and team evaluation."
+    },
+    {
+      "name": "shotgun",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates whether the play was run from a shotgun formation, relevant for analyzing offensive strategies."
+    },
+    {
+      "name": "no_huddle",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicator of whether the offense ran a no-huddle play, important for pacing and strategy analysis."
+    },
+    {
+      "name": "qb_dropback",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates whether the quarterback dropped back during the play, relevant for pass attempts."
+    },
+    {
+      "name": "qb_kneel",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates if the quarterback performed a kneel play, often used to run out the clock."
+    },
+    {
+      "name": "qb_spike",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates if the quarterback spiked the ball to stop the clock, commonly used in late-game scenarios."
+    },
+    {
+      "name": "qb_scramble",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates whether the quarterback scrambled out of the pocket, highlighting mobile quarterback dynamics."
+    },
+    {
+      "name": "pass_length",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the length of the pass play, important for evaluating quarterback performance."
+    },
+    {
+      "name": "pass_location",
+      "type": "string",
+      "nullable": true,
+      "comment": "Specifies where the pass was aimed, helping to assess receiver effectiveness and defensive coverage."
+    },
+    {
+      "name": "air_yards",
+      "type": "double",
+      "nullable": true,
+      "comment": "Measures the distance the ball traveled in the air before reaching the receiver, relevant for evaluating passing effectiveness."
+    },
+    {
+      "name": "yards_after_catch",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the yards gained by the receiver after making a catch, crucial for assessing offensive capabilities."
+    },
+    {
+      "name": "run_location",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the location on the field where a running play took place, important for understanding offensive diversity."
+    },
+    {
+      "name": "run_gap",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the gap the running back targeted during the play, useful for analyzing rushing strategies."
+    },
+    {
+      "name": "field_goal_result",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the outcome of field goal attempts, significant for special teams analysis."
+    },
+    {
+      "name": "kick_distance",
+      "type": "double",
+      "nullable": true,
+      "comment": "The distance of a kick attempt, giving insight into the difficulty and success rate of field goals."
+    },
+    {
+      "name": "extra_point_result",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the success or failure of the extra point attempt following a touchdown, important for scoring analysis."
+    },
+    {
+      "name": "two_point_conv_result",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the outcome of a two-point conversion attempt, critical for evaluating scoring strategies."
+    },
+    {
+      "name": "home_timeouts_remaining",
+      "type": "double",
+      "nullable": true,
+      "comment": "Number of timeouts left for the home team, relevant for strategic late-game decisions."
+    },
+    {
+      "name": "away_timeouts_remaining",
+      "type": "double",
+      "nullable": true,
+      "comment": "Number of timeouts left for the away team, useful for analyzing strategic options."
+    },
+    {
+      "name": "timeout",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates whether a timeout was called during the play, important for understanding game tempo."
+    },
+    {
+      "name": "timeout_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "Names the team that called the timeout, relevant for strategic analysis and game flow."
+    },
+    {
+      "name": "td_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates which team scored the touchdown during the play."
+    },
+    {
+      "name": "td_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player who scored the touchdown."
+    },
+    {
+      "name": "td_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "A unique identifier for the player who made the touchdown."
+    },
+    {
+      "name": "posteam_timeouts_remaining",
+      "type": "double",
+      "nullable": true,
+      "comment": "Shows the number of timeouts remaining for the offensive team at this point in the game."
+    },
+    {
+      "name": "defteam_timeouts_remaining",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the number of timeouts remaining for the defensive team."
+    },
+    {
+      "name": "total_home_score",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the cumulative score for the home team throughout the game up to this point."
+    },
+    {
+      "name": "total_away_score",
+      "type": "double",
+      "nullable": true,
+      "comment": "Shows the cumulative score for the away team during the game up to this point."
+    },
+    {
+      "name": "posteam_score",
+      "type": "double",
+      "nullable": true,
+      "comment": "The score achieved by the offensive team as a result of the play."
+    },
+    {
+      "name": "defteam_score",
+      "type": "double",
+      "nullable": true,
+      "comment": "The score achieved by the defensive team in relation to this play, if applicable."
+    },
+    {
+      "name": "score_differential",
+      "type": "double",
+      "nullable": true,
+      "comment": "Calculates the difference between the scores of the two teams, highlighting the leading team's advantage."
+    },
+    {
+      "name": "posteam_score_post",
+      "type": "double",
+      "nullable": true,
+      "comment": "Displays the offensive team's score after the completion of the play."
+    },
+    {
+      "name": "defteam_score_post",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the defensive team's score after the play, if applicable."
+    },
+    {
+      "name": "score_differential_post",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the score differential after the play has concluded."
+    },
+    {
+      "name": "no_score_prob",
+      "type": "double",
+      "nullable": true,
+      "comment": "Estimates the probability that no score will occur on the current drive."
+    },
+    {
+      "name": "opp_fg_prob",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the probability that the opposing team will successfully kick a field goal."
+    },
+    {
+      "name": "opp_safety_prob",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the probability that the opposing team will score a safety."
+    },
+    {
+      "name": "opp_td_prob",
+      "type": "double",
+      "nullable": true,
+      "comment": "Estimates the likelihood of the opposing team scoring a touchdown."
+    },
+    {
+      "name": "fg_prob",
+      "type": "double",
+      "nullable": true,
+      "comment": "Shows the probability of successfully making a field goal on the current drive."
+    },
+    {
+      "name": "safety_prob",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the probability of scoring a safety on this particular play."
+    },
+    {
+      "name": "td_prob",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the likelihood of scoring a touchdown on this play."
+    },
+    {
+      "name": "extra_point_prob",
+      "type": "double",
+      "nullable": true,
+      "comment": "Estimates the probability of successfully scoring an extra point following a touchdown."
+    },
+    {
+      "name": "two_point_conversion_prob",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the probability of successfully executing a two-point conversion after a touchdown."
+    },
+    {
+      "name": "ep",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the expected points from the current play based on various factors."
+    },
+    {
+      "name": "epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Calculates the expected points added as a result of the current play, showing its impact on scoring."
+    },
+    {
+      "name": "total_home_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "The total expected points added for the home team throughout the game to this point."
+    },
+    {
+      "name": "total_away_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "The total expected points added for the away team during the game to this point."
+    },
+    {
+      "name": "total_home_rush_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the expected points added from rushing plays by the home team up to this point."
+    },
+    {
+      "name": "total_away_rush_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Shows the expected points added from rushing plays by the away team throughout the game."
+    },
+    {
+      "name": "total_home_pass_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the expected points added from passing plays by the home team to this point."
+    },
+    {
+      "name": "total_away_pass_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the expected points added from passing plays by the away team throughout the game."
+    },
+    {
+      "name": "air_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Calculates the expected points added from air yards on the current play."
+    },
+    {
+      "name": "yac_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the expected points added from yards after the catch on this particular play."
+    },
+    {
+      "name": "comp_air_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Shows the expected points added from completed air yards on the current play."
+    },
+    {
+      "name": "comp_yac_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the expected points added from completed yards after the catch on this play."
+    },
+    {
+      "name": "total_home_comp_air_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "The total expected points added from completed air yards for the home team throughout the game."
+    },
+    {
+      "name": "total_away_comp_air_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "The total expected points added from completed air yards for the away team during the game."
+    },
+    {
+      "name": "total_home_comp_yac_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the total expected points added from completed yards after the catch for the home team."
+    },
+    {
+      "name": "total_away_comp_yac_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the total expected points added from completed yards after the catch for the away team."
+    },
+    {
+      "name": "total_home_raw_air_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Shows the raw expected points added from all air yards for the home team throughout the game."
+    },
+    {
+      "name": "total_away_raw_air_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the raw expected points added from all air yards for the away team during the game."
+    },
+    {
+      "name": "total_home_raw_yac_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the raw expected points added from all yards after the catch for the home team."
+    },
+    {
+      "name": "total_away_raw_yac_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the raw expected points added from all yards after the catch for the away team."
+    },
+    {
+      "name": "wp",
+      "type": "double",
+      "nullable": true,
+      "comment": "Calculates the win probability for the offensive team at the current moment in the game."
+    },
+    {
+      "name": "def_wp",
+      "type": "double",
+      "nullable": true,
+      "comment": "Shows the win probability for the defensive team at this point of the game."
+    },
+    {
+      "name": "home_wp",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the win probability for the home team based on the current game context."
+    },
+    {
+      "name": "away_wp",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the win probability for the away team based on the current situation in the game."
+    },
+    {
+      "name": "wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Calculates the change in win probability as a result of the current play."
+    },
+    {
+      "name": "vegas_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Shows the Vegas line-based win probability added from the play, considering betting odds."
+    },
+    {
+      "name": "vegas_home_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the Vegas line-based win probability specific to the home team following the play."
+    },
+    {
+      "name": "home_wp_post",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the updated win probability for the home team after the play has concluded."
+    },
+    {
+      "name": "away_wp_post",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the win probability for the away team after the current play has been executed."
+    },
+    {
+      "name": "vegas_wp",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the win probability estimated by Las Vegas odds for the current point in the game."
+    },
+    {
+      "name": "vegas_home_wp",
+      "type": "double",
+      "nullable": true,
+      "comment": "Shows the win probability for the home team based on Las Vegas betting lines at this moment in the game."
+    },
+    {
+      "name": "total_home_rush_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Calculates the total win probability added by all rushing plays made by the home team throughout the game."
+    },
+    {
+      "name": "total_away_rush_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Measures the total win probability contributed by the away team's rushing plays throughout the course of the game."
+    },
+    {
+      "name": "total_home_pass_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Reflects the total win probability gained from passing plays executed by the home team during the game."
+    },
+    {
+      "name": "total_away_pass_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Summarizes the total win probability generated by passing plays performed by the away team in the game."
+    },
+    {
+      "name": "air_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the win probability added from air yards gained on passing plays during the game."
+    },
+    {
+      "name": "yac_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Quantifies the win probability gained from yards after catch on completed passes during the game."
+    },
+    {
+      "name": "comp_air_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Tracks the win probability contributed by completed passes that resulted in air yards."
+    },
+    {
+      "name": "comp_yac_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Measures the win probability yielded from completed passes that resulted in yards after the catch."
+    },
+    {
+      "name": "total_home_comp_air_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Calculates the total win probability from all completed passes that resulted in air yards for the home team."
+    },
+    {
+      "name": "total_away_comp_air_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Tracks the total win probability from all completed passes that resulted in air yards for the away team."
+    },
+    {
+      "name": "total_home_comp_yac_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Summarizes the total win probability from completed passes for the home team that resulted in yards after catch."
+    },
+    {
+      "name": "total_away_comp_yac_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Measures the total win probability from completed passes for the away team that resulted in yards after catch."
+    },
+    {
+      "name": "total_home_raw_air_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Reflects the total win probability based purely on raw air yardage for all passes completed by the home team."
+    },
+    {
+      "name": "total_away_raw_air_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the total win probability based on raw air yardage from all completed passes by the away team."
+    },
+    {
+      "name": "total_home_raw_yac_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Calculates the total win probability based on raw yards after catch from all completed passes by the home team."
+    },
+    {
+      "name": "total_away_raw_yac_wpa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Measures the total win probability from raw yards after catch from all completed passes by the away team."
+    },
+    {
+      "name": "punt_blocked",
+      "type": "double",
+      "nullable": true,
+      "comment": "Counts the number of punts that were blocked during the game."
+    },
+    {
+      "name": "first_down_rush",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the total number of first downs gained by rushing attempts."
+    },
+    {
+      "name": "first_down_pass",
+      "type": "double",
+      "nullable": true,
+      "comment": "Logs the total number of first downs gained by passing attempts."
+    },
+    {
+      "name": "first_down_penalty",
+      "type": "double",
+      "nullable": true,
+      "comment": "Tracks the total number of first downs awarded via penalties."
+    },
+    {
+      "name": "third_down_converted",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the number of times the team converted third down attempts into first downs."
+    },
+    {
+      "name": "third_down_failed",
+      "type": "double",
+      "nullable": true,
+      "comment": "Counts the instances where the team failed to convert a third down attempt."
+    },
+    {
+      "name": "fourth_down_converted",
+      "type": "double",
+      "nullable": true,
+      "comment": "Measures the number of successful conversions on fourth down attempts."
+    },
+    {
+      "name": "fourth_down_failed",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the instances where the team was unable to convert a fourth down attempt."
+    },
+    {
+      "name": "incomplete_pass",
+      "type": "double",
+      "nullable": true,
+      "comment": "Counts the total number of passing attempts that were not completed."
+    },
+    {
+      "name": "touchback",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the number of touchbacks that occurred during the game."
+    },
+    {
+      "name": "interception",
+      "type": "double",
+      "nullable": true,
+      "comment": "Tracks the number of interceptions thrown by the offense during the game."
+    },
+    {
+      "name": "punt_inside_twenty",
+      "type": "double",
+      "nullable": true,
+      "comment": "Counts the number of punts that were downed inside the opponent's 20-yard line."
+    },
+    {
+      "name": "punt_in_endzone",
+      "type": "double",
+      "nullable": true,
+      "comment": "Measures the number of punts that were kicked into the end zone."
+    },
+    {
+      "name": "punt_out_of_bounds",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the number of times a punt went out of bounds."
+    },
+    {
+      "name": "punt_downed",
+      "type": "double",
+      "nullable": true,
+      "comment": "Tracks the number of punts that were downed by the kicking team without a return."
+    },
+    {
+      "name": "punt_fair_catch",
+      "type": "double",
+      "nullable": true,
+      "comment": "Counts the total number of fair catches called by the receiving team on punts."
+    },
+    {
+      "name": "kickoff_inside_twenty",
+      "type": "double",
+      "nullable": true,
+      "comment": "Measures the number of kickoffs that were downed inside the opponent's 20-yard line."
+    },
+    {
+      "name": "kickoff_in_endzone",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the number of kickoffs that reached the end zone."
+    },
+    {
+      "name": "kickoff_out_of_bounds",
+      "type": "double",
+      "nullable": true,
+      "comment": "Tracks the number of kickoffs that went out of bounds."
+    },
+    {
+      "name": "kickoff_downed",
+      "type": "double",
+      "nullable": true,
+      "comment": "Counts the total number of kickoffs that were downed by the kicking team."
+    },
+    {
+      "name": "kickoff_fair_catch",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the number of fair catches made by the receiving team on kickoffs."
+    },
+    {
+      "name": "fumble_forced",
+      "type": "double",
+      "nullable": true,
+      "comment": "Counts the number of fumbles that were forced by the defense."
+    },
+    {
+      "name": "fumble_not_forced",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the number of fumbles that occurred without being forced by the defense."
+    },
+    {
+      "name": "fumble_out_of_bounds",
+      "type": "double",
+      "nullable": true,
+      "comment": "Tracks the number of fumbles that went out of bounds."
+    },
+    {
+      "name": "solo_tackle",
+      "type": "double",
+      "nullable": true,
+      "comment": "Measures the number of solo tackles made by defensive players during the game."
+    },
+    {
+      "name": "safety",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the number of safeties scored during the game."
+    },
+    {
+      "name": "penalty",
+      "type": "double",
+      "nullable": true,
+      "comment": "Tracks the total number of penalties called during the game."
+    },
+    {
+      "name": "tackled_for_loss",
+      "type": "double",
+      "nullable": true,
+      "comment": "Counts the number of plays where a ball carrier was tackled for a loss of yards."
+    },
+    {
+      "name": "fumble_lost",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the number of fumbles that resulted in a change of possession."
+    },
+    {
+      "name": "own_kickoff_recovery",
+      "type": "double",
+      "nullable": true,
+      "comment": "Counts the number of times the kicking team recovered their own kickoff."
+    },
+    {
+      "name": "own_kickoff_recovery_td",
+      "type": "double",
+      "nullable": true,
+      "comment": "Measures the number of touchdowns scored following a recovery of the kicking team's own kickoff."
+    },
+    {
+      "name": "qb_hit",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the number of times the quarterback was hit during a play, reflecting pressure on the passer."
+    },
+    {
+      "name": "rush_attempt",
+      "type": "double",
+      "nullable": true,
+      "comment": "Counts the total attempts made by the offense to run the ball during a play."
+    },
+    {
+      "name": "pass_attempt",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the total number of attempts made by the offense to pass the ball."
+    },
+    {
+      "name": "sack",
+      "type": "double",
+      "nullable": true,
+      "comment": "Identifies the number of times the quarterback was sacked, resulting in a loss of yardage."
+    },
+    {
+      "name": "touchdown",
+      "type": "double",
+      "nullable": true,
+      "comment": "Tracks the total touchdowns scored by the team on a given play."
+    },
+    {
+      "name": "pass_touchdown",
+      "type": "double",
+      "nullable": true,
+      "comment": "Details the number of touchdowns that were scored specifically via passing plays."
+    },
+    {
+      "name": "rush_touchdown",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the number of touchdowns that were scored as a result of rushing plays."
+    },
+    {
+      "name": "return_touchdown",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the total number of touchdowns scored by return actions, such as kick or punt returns."
+    },
+    {
+      "name": "extra_point_attempt",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the total number of attempts made to score an extra point following a touchdown."
+    },
+    {
+      "name": "two_point_attempt",
+      "type": "double",
+      "nullable": true,
+      "comment": "Counts the number of attempts for a two-point conversion following a touchdown."
+    },
+    {
+      "name": "field_goal_attempt",
+      "type": "double",
+      "nullable": true,
+      "comment": "Tracks the number of attempts made to score a field goal during the game."
+    },
+    {
+      "name": "kickoff_attempt",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates each instance of a kickoff in the game, representing teams' attempts to start plays."
+    },
+    {
+      "name": "punt_attempt",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the total number of attempts made to execute a punt during the game."
+    },
+    {
+      "name": "fumble",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the number of fumbles that occurred during plays, whether by the offense or defense."
+    },
+    {
+      "name": "complete_pass",
+      "type": "double",
+      "nullable": true,
+      "comment": "Tracks the total number of successful passing completions made by the quarterback."
+    },
+    {
+      "name": "assist_tackle",
+      "type": "double",
+      "nullable": true,
+      "comment": "Counts the number of tackles where a player assisted in bringing down the ball carrier."
+    },
+    {
+      "name": "lateral_reception",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records instances of receptions made on lateral passes, which can affect offensive strategies."
+    },
+    {
+      "name": "lateral_rush",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the number of rush attempts made via lateral plays during the game."
+    },
+    {
+      "name": "lateral_return",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the returns that were initiated by lateral passes, providing insight into play execution."
+    },
+    {
+      "name": "lateral_recovery",
+      "type": "double",
+      "nullable": true,
+      "comment": "Tracks the number of times a player recovered the ball after a lateral play."
+    },
+    {
+      "name": "passer_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who made the pass during a play."
+    },
+    {
+      "name": "passer_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Displays the name of the player who executed the pass."
+    },
+    {
+      "name": "passing_yards",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the total yards gained by passing plays during a specific instance."
+    },
+    {
+      "name": "receiver_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who caught the pass during a play."
+    },
+    {
+      "name": "receiver_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Shows the name of the player who received the pass."
+    },
+    {
+      "name": "receiving_yards",
+      "type": "double",
+      "nullable": true,
+      "comment": "Tracks the total yards gained by the receiving player on a play."
+    },
+    {
+      "name": "rusher_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who carried the ball during a rushing play."
+    },
+    {
+      "name": "rusher_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Displays the name of the player responsible for the rushing attempt."
+    },
+    {
+      "name": "rushing_yards",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the total yards gained during rushing plays."
+    },
+    {
+      "name": "lateral_receiver_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who received a lateral pass during a play."
+    },
+    {
+      "name": "lateral_receiver_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Shows the name of the player who executed the lateral pass reception."
+    },
+    {
+      "name": "lateral_receiving_yards",
+      "type": "double",
+      "nullable": true,
+      "comment": "Tracks the total yards gained by the player receiving a lateral pass."
+    },
+    {
+      "name": "lateral_rusher_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who rushed after a lateral pass."
+    },
+    {
+      "name": "lateral_rusher_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Displays the name of the player who rushed following a lateral play."
+    },
+    {
+      "name": "lateral_rushing_yards",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the total yards gained from lateral rushing attempts."
+    },
+    {
+      "name": "lateral_sack_player_id",
+      "type": "int",
+      "nullable": true,
+      "comment": "Identifies the player responsible for a sack occurring during a lateral play."
+    },
+    {
+      "name": "lateral_sack_player_name",
+      "type": "int",
+      "nullable": true,
+      "comment": "Shows the name of the player who recorded the sack in a lateral scenario."
+    },
+    {
+      "name": "interception_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who intercepted a pass during the game."
+    },
+    {
+      "name": "interception_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Displays the name of the player who made the interception."
+    },
+    {
+      "name": "lateral_interception_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who intercepted a lateral pass."
+    },
+    {
+      "name": "lateral_interception_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Shows the name of the player who executed the interception on a lateral play."
+    },
+    {
+      "name": "punt_returner_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who returned a punt."
+    },
+    {
+      "name": "punt_returner_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Displays the name of the player who executed a punt return."
+    },
+    {
+      "name": "lateral_punt_returner_player_id",
+      "type": "int",
+      "nullable": true,
+      "comment": "Identifier for the player who returned a punt following a lateral play."
+    },
+    {
+      "name": "lateral_punt_returner_player_name",
+      "type": "int",
+      "nullable": true,
+      "comment": "Shows the name of the player involved in a lateral punt return."
+    },
+    {
+      "name": "kickoff_returner_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Displays the name of the player who returned a kickoff."
+    },
+    {
+      "name": "kickoff_returner_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who executed a kickoff return."
+    },
+    {
+      "name": "lateral_kickoff_returner_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifier for the player who returned a kickoff after a lateral play."
+    },
+    {
+      "name": "lateral_kickoff_returner_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Shows the name of the player involved in a lateral kickoff return."
+    },
+    {
+      "name": "punter_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who executed a punt."
+    },
+    {
+      "name": "punter_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player who is designated to punt the football during a play."
+    },
+    {
+      "name": "kicker_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player responsible for kicking field goals or extra points."
+    },
+    {
+      "name": "kicker_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "A unique identifier for the player who executes kicks during the game."
+    },
+    {
+      "name": "own_kickoff_recovery_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier for the player who recovers the kickoff for their own team."
+    },
+    {
+      "name": "own_kickoff_recovery_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player who successfully recovers their own team's kickoff."
+    },
+    {
+      "name": "blocked_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier for the player who blocked a kick or pass during the play."
+    },
+    {
+      "name": "blocked_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player who managed to block a kick or pass attempt."
+    },
+    {
+      "name": "tackle_for_loss_1_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier for the player who made the first tackle resulting in a loss of yards."
+    },
+    {
+      "name": "tackle_for_loss_1_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player who achieved the first tackle resulting in a loss for the offense."
+    },
+    {
+      "name": "tackle_for_loss_2_player_id",
+      "type": "int",
+      "nullable": true,
+      "comment": "The identifier for the second player involved in making a tackle that resulted in a loss."
+    },
+    {
+      "name": "tackle_for_loss_2_player_name",
+      "type": "int",
+      "nullable": true,
+      "comment": "The name of the second player who contributed to a tackle resulting in a loss of yards."
+    },
+    {
+      "name": "qb_hit_1_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier of the player who made the first hit on the quarterback during the play."
+    },
+    {
+      "name": "qb_hit_1_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player who delivered the first hit to the quarterback."
+    },
+    {
+      "name": "qb_hit_2_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier of the second player who hit the quarterback during the play."
+    },
+    {
+      "name": "qb_hit_2_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player who made the second hit on the quarterback."
+    },
+    {
+      "name": "forced_fumble_player_1_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team affiliation of the player who forced a fumble on the play."
+    },
+    {
+      "name": "forced_fumble_player_1_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier for the player who caused a fumble."
+    },
+    {
+      "name": "forced_fumble_player_1_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player responsible for forcing a fumble."
+    },
+    {
+      "name": "forced_fumble_player_2_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team affiliation of the second player who contributed to the forced fumble."
+    },
+    {
+      "name": "forced_fumble_player_2_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier for the second player involved in forcing a fumble."
+    },
+    {
+      "name": "forced_fumble_player_2_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the second player who contributed to the forced fumble."
+    },
+    {
+      "name": "solo_tackle_1_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team that the player who made the first solo tackle belongs to."
+    },
+    {
+      "name": "solo_tackle_2_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team that the player who made the second solo tackle belongs to."
+    },
+    {
+      "name": "solo_tackle_1_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier for the player who made the first solo tackle."
+    },
+    {
+      "name": "solo_tackle_2_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier for the player who made the second solo tackle."
+    },
+    {
+      "name": "solo_tackle_1_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player who performed the first solo tackle."
+    },
+    {
+      "name": "solo_tackle_2_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player who executed the second solo tackle."
+    },
+    {
+      "name": "assist_tackle_1_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier of the player who assisted in the first tackle."
+    },
+    {
+      "name": "assist_tackle_1_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player who contributed to the first tackle made with assistance."
+    },
+    {
+      "name": "assist_tackle_1_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team affiliation of the player who assisted in the first tackle."
+    },
+    {
+      "name": "assist_tackle_2_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier for the second player who provided assistance on a tackle."
+    },
+    {
+      "name": "assist_tackle_2_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the second player who assisted in a tackle."
+    },
+    {
+      "name": "assist_tackle_2_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team affiliation of the player who assisted in the second tackle."
+    },
+    {
+      "name": "assist_tackle_3_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier for the third player involved in assisting on a tackle."
+    },
+    {
+      "name": "assist_tackle_3_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the third player who provided assistance on a tackle."
+    },
+    {
+      "name": "assist_tackle_3_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team affiliation for the player who assisted in the third tackle."
+    },
+    {
+      "name": "assist_tackle_4_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier for the fourth player who contributed to an assist on a tackle."
+    },
+    {
+      "name": "assist_tackle_4_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the fourth player who assisted in making a tackle."
+    },
+    {
+      "name": "assist_tackle_4_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team affiliation of the player who assisted in the fourth tackle."
+    },
+    {
+      "name": "tackle_with_assist",
+      "type": "double",
+      "nullable": true,
+      "comment": "The total number of tackles made that included assists from other players."
+    },
+    {
+      "name": "tackle_with_assist_1_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier of the player involved in the first tackle with assistance."
+    },
+    {
+      "name": "tackle_with_assist_1_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the first player who was part of a tackle with assistance."
+    },
+    {
+      "name": "tackle_with_assist_1_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team affiliation of the player involved in the first assisted tackle."
+    },
+    {
+      "name": "tackle_with_assist_2_player_id",
+      "type": "int",
+      "nullable": true,
+      "comment": "The identifier of the second player involved in a tackle with assistance."
+    },
+    {
+      "name": "tackle_with_assist_2_player_name",
+      "type": "int",
+      "nullable": true,
+      "comment": "The name of the second player who participated in a tackle with assistance."
+    },
+    {
+      "name": "tackle_with_assist_2_team",
+      "type": "int",
+      "nullable": true,
+      "comment": "The team affiliation of the second player involved in an assisted tackle."
+    },
+    {
+      "name": "pass_defense_1_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier for the player who made the first pass defense attempt."
+    },
+    {
+      "name": "pass_defense_1_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player who successfully defended against a pass."
+    },
+    {
+      "name": "pass_defense_2_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier for the player who made the second pass defense attempt."
+    },
+    {
+      "name": "pass_defense_2_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player who contributed to the second pass defense."
+    },
+    {
+      "name": "fumbled_1_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team that is responsible for the first fumble occurring during the play."
+    },
+    {
+      "name": "fumbled_1_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who fumbled the ball first."
+    },
+    {
+      "name": "fumbled_1_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Name of the player who committed the first fumble."
+    },
+    {
+      "name": "fumbled_2_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player involved in the second fumble, if applicable."
+    },
+    {
+      "name": "fumbled_2_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Name of the player who committed the second fumble during the play."
+    },
+    {
+      "name": "fumbled_2_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team associated with the player related to the second fumble, if it occurred."
+    },
+    {
+      "name": "fumble_recovery_1_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team that recovered the first fumble."
+    },
+    {
+      "name": "fumble_recovery_1_yards",
+      "type": "double",
+      "nullable": true,
+      "comment": "The yardage gained by the team on the recovery of the first fumble."
+    },
+    {
+      "name": "fumble_recovery_1_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who recovered the first fumble."
+    },
+    {
+      "name": "fumble_recovery_1_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Name of the player who successfully recovered the first fumble."
+    },
+    {
+      "name": "fumble_recovery_2_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team that recovered the second fumble, if applicable."
+    },
+    {
+      "name": "fumble_recovery_2_yards",
+      "type": "double",
+      "nullable": true,
+      "comment": "The yardage gained by the team on the recovery of the second fumble."
+    },
+    {
+      "name": "fumble_recovery_2_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who recovered the second fumble, if applicable."
+    },
+    {
+      "name": "fumble_recovery_2_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Name of the player who successfully recovered the second fumble, if it occurred."
+    },
+    {
+      "name": "sack_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who recorded the sack."
+    },
+    {
+      "name": "sack_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Name of the player who made the sack on the quarterback."
+    },
+    {
+      "name": "half_sack_1_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the first player credited with a half sack."
+    },
+    {
+      "name": "half_sack_1_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Name of the first player credited with a half sack."
+    },
+    {
+      "name": "half_sack_2_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the second player credited with a half sack."
+    },
+    {
+      "name": "half_sack_2_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Name of the second player credited with a half sack."
+    },
+    {
+      "name": "return_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team that has possession of the ball during a return play."
+    },
+    {
+      "name": "return_yards",
+      "type": "double",
+      "nullable": true,
+      "comment": "The number of yards gained on the return play."
+    },
+    {
+      "name": "penalty_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team that committed a penalty during the play."
+    },
+    {
+      "name": "penalty_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who was flagged for the penalty."
+    },
+    {
+      "name": "penalty_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Name of the player who committed the penalty."
+    },
+    {
+      "name": "penalty_yards",
+      "type": "double",
+      "nullable": true,
+      "comment": "The number of yards assessed as a penalty against the penalized team."
+    },
+    {
+      "name": "replay_or_challenge",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates whether the play was subject to a replay review or challenge."
+    },
+    {
+      "name": "replay_or_challenge_result",
+      "type": "string",
+      "nullable": true,
+      "comment": "Outcome of the replay review or challenge, indicating if it was upheld or reversed."
+    },
+    {
+      "name": "penalty_type",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the type of penalty that occurred during the play."
+    },
+    {
+      "name": "defensive_two_point_attempt",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates whether the defense attempted a two-point conversion after a touchdown."
+    },
+    {
+      "name": "defensive_two_point_conv",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates successful conversion or failure on the defensive two-point attempt."
+    },
+    {
+      "name": "defensive_extra_point_attempt",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates whether the defense attempted to prevent an extra point following a touchdown."
+    },
+    {
+      "name": "defensive_extra_point_conv",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates whether the defense succeeded in stopping the extra point attempt."
+    },
+    {
+      "name": "safety_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Name of the player who scored a safety, if applicable."
+    },
+    {
+      "name": "safety_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player who scored a safety."
+    },
+    {
+      "name": "season",
+      "type": "int",
+      "nullable": true,
+      "comment": "Represents the NFL season associated with the plays recorded in this table."
+    },
+    {
+      "name": "cp",
+      "type": "double",
+      "nullable": true,
+      "comment": "Completion percentage during the specified play or sequence."
+    },
+    {
+      "name": "cpoe",
+      "type": "double",
+      "nullable": true,
+      "comment": "Completion percentage over expected, indicating efficiency relative to expectations."
+    },
+    {
+      "name": "series",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the series number during the game, tracking offensive sequences."
+    },
+    {
+      "name": "series_success",
+      "type": "double",
+      "nullable": true,
+      "comment": "Marks whether the series ended successfully or not, based on the outcome."
+    },
+    {
+      "name": "series_result",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the overall result of the play series, such as a touchdown or turn over."
+    },
+    {
+      "name": "order_sequence",
+      "type": "double",
+      "nullable": true,
+      "comment": "The sequence number of the play within the game."
+    },
+    {
+      "name": "start_time",
+      "type": "string",
+      "nullable": true,
+      "comment": "The timestamp indicating when the play started."
+    },
+    {
+      "name": "time_of_day",
+      "type": "string",
+      "nullable": true,
+      "comment": "The time of day when the play took place."
+    },
+    {
+      "name": "stadium",
+      "type": "string",
+      "nullable": true,
+      "comment": "The stadium where the game is being played."
+    },
+    {
+      "name": "weather",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the weather conditions during the game."
+    },
+    {
+      "name": "nfl_api_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier used for API references related to NFL plays."
+    },
+    {
+      "name": "play_clock",
+      "type": "string",
+      "nullable": true,
+      "comment": "The remaining time on the play clock before the snap."
+    },
+    {
+      "name": "play_deleted",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates whether the play has been flagged as deleted for any reason."
+    },
+    {
+      "name": "play_type_nfl",
+      "type": "string",
+      "nullable": true,
+      "comment": "The specific type of play occurring, as classified by the NFL."
+    },
+    {
+      "name": "special_teams_play",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates whether the play is a special teams play, which includes kickoffs, punts, and field goals."
+    },
+    {
+      "name": "st_play_type",
+      "type": "int",
+      "nullable": true,
+      "comment": "Represents the type of special teams play executed during the game."
+    },
+    {
+      "name": "end_clock_time",
+      "type": "string",
+      "nullable": true,
+      "comment": "Details the remaining clock time when the play ended, usually formatted in game time."
+    },
+    {
+      "name": "end_yard_line",
+      "type": "int",
+      "nullable": true,
+      "comment": "Shows the yard line where the play concluded, indicating the position on the field."
+    },
+    {
+      "name": "fixed_drive",
+      "type": "double",
+      "nullable": true,
+      "comment": "Identifies the fixed drive number associated with a series of plays leading to a drive result."
+    },
+    {
+      "name": "fixed_drive_result",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the outcome of the fixed drive, such as whether a touchdown, field goal, or turnover occurred."
+    },
+    {
+      "name": "drive_real_start_time",
+      "type": "string",
+      "nullable": true,
+      "comment": "Records the actual time when the drive commenced, providing context to the timing of plays."
+    },
+    {
+      "name": "drive_play_count",
+      "type": "double",
+      "nullable": true,
+      "comment": "Counts the total number of plays that occurred during the drive."
+    },
+    {
+      "name": "drive_time_of_possession",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the total duration the offensive team possessed the ball during the drive."
+    },
+    {
+      "name": "drive_first_downs",
+      "type": "double",
+      "nullable": true,
+      "comment": "Quantifies the number of first downs achieved during the drive, reflecting its effectiveness."
+    },
+    {
+      "name": "drive_inside20",
+      "type": "double",
+      "nullable": true,
+      "comment": "Denotes whether the drive reached inside the opponent's 20-yard line, which is often critical for scoring."
+    },
+    {
+      "name": "drive_ended_with_score",
+      "type": "double",
+      "nullable": true,
+      "comment": "Marks whether the drive concluded with a scoring play."
+    },
+    {
+      "name": "drive_quarter_start",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the quarter in which the drive began, helping to analyze performance by phase."
+    },
+    {
+      "name": "drive_quarter_end",
+      "type": "double",
+      "nullable": true,
+      "comment": "Identifies the quarter when the drive concluded, useful for end-of-game analysis."
+    },
+    {
+      "name": "drive_yards_penalized",
+      "type": "double",
+      "nullable": true,
+      "comment": "Reflects the total yards lost to penalties during the course of the drive."
+    },
+    {
+      "name": "drive_start_transition",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the transition events at the start of the drive, such as kickoffs or turnovers."
+    },
+    {
+      "name": "drive_end_transition",
+      "type": "string",
+      "nullable": true,
+      "comment": "Details the transition events at the end of the drive, for example, the scoring play or turnover."
+    },
+    {
+      "name": "drive_game_clock_start",
+      "type": "string",
+      "nullable": true,
+      "comment": "Notes the game clock time when the drive began, allowing for analysis of late-game situations."
+    },
+    {
+      "name": "drive_game_clock_end",
+      "type": "string",
+      "nullable": true,
+      "comment": "Records the game clock time when the drive ended, providing context to the duration of drive."
+    },
+    {
+      "name": "drive_start_yard_line",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the yard line where the drive started, crucial for understanding field position strategy."
+    },
+    {
+      "name": "drive_end_yard_line",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the yard line where the drive finished, which can affect overall game statistics."
+    },
+    {
+      "name": "drive_play_id_started",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the play ID associated with the start of the drive, linking it to the play-by-play data."
+    },
+    {
+      "name": "drive_play_id_ended",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the play ID corresponding to the end of the drive, aiding in tracking play sequences."
+    },
+    {
+      "name": "away_score",
+      "type": "int",
+      "nullable": true,
+      "comment": "Shows the score for the away team at the time of the drive, critical for understanding game dynamics."
+    },
+    {
+      "name": "home_score",
+      "type": "int",
+      "nullable": true,
+      "comment": "Displays the score for the home team during the drive, which helps evaluate performance impact."
+    },
+    {
+      "name": "location",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the location where the game is played, essential for context regarding home field advantage."
+    },
+    {
+      "name": "result",
+      "type": "int",
+      "nullable": true,
+      "comment": "Categorizes the result of the drive, such as a score or turnover, impacting further game analysis."
+    },
+    {
+      "name": "total",
+      "type": "int",
+      "nullable": true,
+      "comment": "Indicates the cumulative score across both teams, reflecting their combined performance."
+    },
+    {
+      "name": "spread_line",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the betting line established for the game, indicating expectations prior to the matchup."
+    },
+    {
+      "name": "total_line",
+      "type": "double",
+      "nullable": true,
+      "comment": "Shows the total points projected for the game, which helps in analyzing overall game outcomes."
+    },
+    {
+      "name": "div_game",
+      "type": "int",
+      "nullable": true,
+      "comment": "Indicates whether the game is a division matchup, which often carries added significance in standings."
+    },
+    {
+      "name": "roof",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the roofing conditions of the stadium, providing insight into game day factors."
+    },
+    {
+      "name": "surface",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the playing surface type, such as turf or grass, which can affect gameplay."
+    },
+    {
+      "name": "temp",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the temperature at the game, influencing player performance and game strategy."
+    },
+    {
+      "name": "wind",
+      "type": "double",
+      "nullable": true,
+      "comment": "Captures wind conditions during the game, which can have a major impact on passing and kicking."
+    },
+    {
+      "name": "home_coach",
+      "type": "string",
+      "nullable": true,
+      "comment": "Names the head coach of the home team, important for understanding coaching strategies."
+    },
+    {
+      "name": "away_coach",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the head coach of the away team, providing context to the opposing strategies."
+    },
+    {
+      "name": "stadium_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Links to the unique identifier for the stadium where the game took place."
+    },
+    {
+      "name": "game_stadium",
+      "type": "string",
+      "nullable": true,
+      "comment": "Specifies the name of the stadium, crucial for identifying the location of the game."
+    },
+    {
+      "name": "aborted_play",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates whether a play was aborted, highlighting irregularities in game execution."
+    },
+    {
+      "name": "success",
+      "type": "double",
+      "nullable": true,
+      "comment": "Denotes the success rate of the play, useful for analyzing efficiency and effectiveness."
+    },
+    {
+      "name": "passer",
+      "type": "string",
+      "nullable": true,
+      "comment": "Names the player who threw the pass during the play, key for analysis of quarterback performance."
+    },
+    {
+      "name": "passer_jersey_number",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the jersey number of the passer, aiding in player identification during plays."
+    },
+    {
+      "name": "rusher",
+      "type": "string",
+      "nullable": true,
+      "comment": "Names the player who carried the ball on a rushing play, important for evaluating rushing strategies."
+    },
+    {
+      "name": "rusher_jersey_number",
+      "type": "double",
+      "nullable": true,
+      "comment": "Captures the jersey number of the rusher, which is essential for quick identification."
+    },
+    {
+      "name": "receiver",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the player who received a pass during the play, critical for evaluating receiving stats."
+    },
+    {
+      "name": "receiver_jersey_number",
+      "type": "double",
+      "nullable": true,
+      "comment": "Records the jersey number of the receiver, facilitating player recognition."
+    },
+    {
+      "name": "pass",
+      "type": "double",
+      "nullable": true,
+      "comment": "Quantifies the effectiveness of passing plays during the drive."
+    },
+    {
+      "name": "rush",
+      "type": "double",
+      "nullable": true,
+      "comment": "Reflects the effectiveness of rushing plays performed in the drive."
+    },
+    {
+      "name": "first_down",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the number of first downs achieved, showcasing the drive's success in moving the chains."
+    },
+    {
+      "name": "special",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates any special circumstances or situations pertaining to the play being logged, impacting its classification."
+    },
+    {
+      "name": "play",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the unique identifier for the specific play within the context of the game."
+    },
+    {
+      "name": "passer_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the player who is responsible for throwing the pass during the play."
+    },
+    {
+      "name": "rusher_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the player who is carrying the ball during a rushing play."
+    },
+    {
+      "name": "receiver_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the player intended to receive the pass from the passer in the play."
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the play being executed, providing a descriptive context to the action taken."
+    },
+    {
+      "name": "jersey_number",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the jersey number of the player involved in the play, aiding in player identification."
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "nullable": true,
+      "comment": "A unique identifier for each entry in the play-by-play log, ensuring distinct tracking of events."
+    },
+    {
+      "name": "fantasy_player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the player as recognized in fantasy football contexts, relevant for fantasy sports analysis."
+    },
+    {
+      "name": "fantasy_player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "A unique identifier associated with the player for fantasy football purposes."
+    },
+    {
+      "name": "fantasy",
+      "type": "string",
+      "nullable": true,
+      "comment": "Categorization or description of the player's fantasy impact or classification based on the play."
+    },
+    {
+      "name": "fantasy_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "A specific identifier linked to the player's fantasy status, useful for tracking performance in fantasy leagues."
+    },
+    {
+      "name": "out_of_bounds",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates whether the play resulted in the player being out of bounds, impacting the outcome and statistics recorded."
+    },
+    {
+      "name": "home_opening_kickoff",
+      "type": "double",
+      "nullable": true,
+      "comment": "Signifies whether the given play is the opening kickoff for the home team, which may have specific implications."
+    },
+    {
+      "name": "qb_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Evaluates the expected points added by the quarterback on the play, contributing to overall performance metrics."
+    },
+    {
+      "name": "xyac_epa",
+      "type": "double",
+      "nullable": true,
+      "comment": "Assesses the expected points added based on yards after catch (YAC) metrics, crucial for analyzing play effectiveness."
+    },
+    {
+      "name": "xyac_mean_yardage",
+      "type": "double",
+      "nullable": true,
+      "comment": "Calculates the average yardage gained from yards after catch for players involved in the play."
+    },
+    {
+      "name": "xyac_median_yardage",
+      "type": "double",
+      "nullable": true,
+      "comment": "Provides the median yardage gained from yards after catch, offering insight into typical performance levels."
+    },
+    {
+      "name": "xyac_success",
+      "type": "double",
+      "nullable": true,
+      "comment": "Measures whether the play was considered successful based on yards after catch metrics."
+    },
+    {
+      "name": "xyac_fd",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates first downs achieved as a result of the yards after catch, critical for assessing play outcomes."
+    },
+    {
+      "name": "xpass",
+      "type": "double",
+      "nullable": true,
+      "comment": "Evaluates the effectiveness and distance of the pass thrown during the play, contributing to overall passing statistics."
+    },
+    {
+      "name": "pass_oe",
+      "type": "double",
+      "nullable": true,
+      "comment": "Denotes whether the pass was considered on target or with optimal execution, relevant for quarterback assessments."
+    },
+    {
+      "name": "game_type",
+      "type": "string",
+      "nullable": true,
+      "comment": "Classifies the type of game being played, providing context such as regular season, playoffs, or other classifications."
+    },
+    {
+      "name": "ingested_at",
+      "type": "timestamp",
+      "nullable": true,
+      "comment": "Records the timestamp indicating when the data was added to the system, useful for data tracking and auditing."
+    },
+    {
+      "name": "_source_file",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the source file from which the data was ingested, providing traceability and context for data origin."
+    }
+  ]
+}

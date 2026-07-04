@@ -1,0 +1,90 @@
+{
+  "table": "nfl.players.players",
+  "comment": "",
+  "columns": [
+    {
+      "name": "player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "A unique identifier assigned to each player, used for tracking and referencing player data across various systems."
+    },
+    {
+      "name": "gsis_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The official Game Statistics and Information System identifier for the player, facilitating access to detailed statistics and game-related data."
+    },
+    {
+      "name": "full_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The complete name of the player, as recognized in official records and media articles."
+    },
+    {
+      "name": "player_label",
+      "type": "string",
+      "nullable": true,
+      "comment": "A label assigned to the player, which may include nicknames or abbreviations for easier reference in various contexts."
+    },
+    {
+      "name": "name_collision",
+      "type": "boolean",
+      "nullable": true,
+      "comment": "Indicates whether there are multiple players with similar names, which may necessitate additional context to distinguish between them."
+    },
+    {
+      "name": "team",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the team the player is currently associated with, providing context for their position and activities within the league."
+    },
+    {
+      "name": "position",
+      "type": "string",
+      "nullable": true,
+      "comment": "Specifies the playing position of the player, such as quarterback or wide receiver, relevant for understanding their role on the team."
+    },
+    {
+      "name": "jersey_number",
+      "type": "double",
+      "nullable": true,
+      "comment": "The number worn by the player on their jersey, used for identification during games and broadcasts."
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "nullable": true,
+      "comment": "Reflects the current status of the player, such as active, injured, or retired, impacting their availability for games."
+    },
+    {
+      "name": "espn_id",
+      "type": "double",
+      "nullable": true,
+      "comment": "A unique identifier for the player used by ESPN, allowing for integration with ESPN's stats, articles, and other resources."
+    },
+    {
+      "name": "season",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Represents the NFL season in which the player's data is recorded, aiding in tracking performance and historical comparisons."
+    },
+    {
+      "name": "week",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Indicates the specific week of the NFL season relevant to the player's data, useful for analyzing weekly performance metrics."
+    },
+    {
+      "name": "ingested_at",
+      "type": "timestamp",
+      "nullable": true,
+      "comment": "The timestamp indicating when the player's data was captured or ingested into the database, essential for data management and integrity."
+    },
+    {
+      "name": "_source_file",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the source file from which the player's data was derived, providing traceability for data origins."
+    }
+  ]
+}

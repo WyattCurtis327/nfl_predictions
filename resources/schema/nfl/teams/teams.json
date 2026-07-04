@@ -1,0 +1,126 @@
+{
+  "table": "nfl.teams.teams",
+  "comment": "",
+  "columns": [
+    {
+      "name": "season",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Represents the NFL season for which the team data is relevant, typically denoted by the year."
+    },
+    {
+      "name": "team",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the name of the team in the NFL."
+    },
+    {
+      "name": "nfl",
+      "type": "string",
+      "nullable": true,
+      "comment": "Refers to the official NFL designation for the team."
+    },
+    {
+      "name": "nfl_team_id",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "A unique identifier assigned to each team within the NFL for reference purposes."
+    },
+    {
+      "name": "espn",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the team's name as recognized by ESPN."
+    },
+    {
+      "name": "pfr",
+      "type": "string",
+      "nullable": true,
+      "comment": "Represents the team's name as recorded on Pro Football Reference."
+    },
+    {
+      "name": "pff",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the team's performance grade according to Pro Football Focus metrics."
+    },
+    {
+      "name": "pfflabel",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the label associated with the team in Pro Football Focus analytics."
+    },
+    {
+      "name": "fo",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the team's name in Football Outsiders' metrics and analysis."
+    },
+    {
+      "name": "full",
+      "type": "string",
+      "nullable": true,
+      "comment": "Contains the full name of the team including any prefixes or suffixes."
+    },
+    {
+      "name": "location",
+      "type": "string",
+      "nullable": true,
+      "comment": "Specifies the geographical location or city associated with the team."
+    },
+    {
+      "name": "short_location",
+      "type": "string",
+      "nullable": true,
+      "comment": "Provides a shortened version of the team's location or city name."
+    },
+    {
+      "name": "nickname",
+      "type": "string",
+      "nullable": true,
+      "comment": "Represents the commonly used nickname of the team."
+    },
+    {
+      "name": "hyphenated",
+      "type": "string",
+      "nullable": true,
+      "comment": "Shows the hyphenated version of the team name, if applicable."
+    },
+    {
+      "name": "sbr",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Contains a unique identifier used by Sports Betting Ratings for the team."
+    },
+    {
+      "name": "sbr_wins",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the number of wins attributed to the team as recorded by Sports Betting Ratings."
+    },
+    {
+      "name": "sbr_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Specifies the name used for the team in Sports Betting Ratings."
+    },
+    {
+      "name": "draft_kings",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the team's designation as recognized by DraftKings."
+    },
+    {
+      "name": "ingested_at",
+      "type": "timestamp",
+      "nullable": true,
+      "comment": "Records the timestamp when the team data was ingested into the database."
+    },
+    {
+      "name": "_source_file",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the source file from which the team data was originally extracted."
+    }
+  ]
+}

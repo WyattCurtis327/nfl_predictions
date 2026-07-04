@@ -1,0 +1,82 @@
+bundle:
+  name: nfl_predictions
+
+include:
+  - resources/*.yml
+
+artifacts:
+  nfl_predictions_wheel:
+    type: whl
+    build: python -m pip install -q build && python -m build --wheel -o dist
+    path: .
+
+sync:
+  include:
+    - src/**
+    - notebooks/**
+    - staging/**
+    - resources/**
+  exclude:
+    - .venv/**
+    - dist/**
+    - __pycache__/**
+    - .git/**
+
+variables:
+  catalog:
+    description: Unity Catalog name
+    default: nfl
+  teams_schema:
+    description: Unity Catalog schema for team reference data
+    default: teams
+  schedules_schema:
+    description: Unity Catalog schema for schedule and game metadata
+    default: schedules
+  pbp_schema:
+    description: Unity Catalog schema for play-by-play tables
+    default: pbp
+  rosters_schema:
+    description: Unity Catalog schema for roster snapshots
+    default: rosters
+  players_schema:
+    description: Unity Catalog schema for player dimensions
+    default: players
+  odds_schema:
+    description: Unity Catalog schema for odds tables
+    default: odds
+  pbp_seasons:
+    description: Comma-separated PBP seasons for bootstrap backfill
+    default: "2024,2025"
+  roster_season:
+    description: Current roster season
+    default: "2026"
+  schedule_season:
+    description: Schedule year for weekly patch
+    default: "2026"
+  schedule_seasons:
+    description: Comma-separated seasons to merge at bootstrap/annual
+    default: "2024,2025,2026"
+  pbp_season:
+    description: Prior completed season for annual PBP refresh
+    default: "2025"
+  current_pbp_season:
+    description: Active season for weekly PBP append
+    default: "2026"
+  pbp_volume:
+    description: UC Volume path for raw PBP parquet files (/Volumes/{catalog}/{pbp_schema}/raw)
+    default: /Volumes/nfl/pbp/raw
+  min_match_rate:
+    description: Minimum odds game_id match rate
+    default: "0.9"
+  preferred_bookmaker:
+    description: Primary bookmaker for latest odds and metrics
+    default: draftkings
+  notify_email:
+    description: Job failure notification email (set via sync_bundle_env.py or BUNDLE_VAR_notify_email)
+    default: ""
+targets:
+  prod:
+    mode: production
+    default: true
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

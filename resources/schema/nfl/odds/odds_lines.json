@@ -1,0 +1,78 @@
+{
+  "table": "nfl.odds.odds_lines",
+  "comment": "",
+  "columns": [
+    {
+      "name": "game_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the unique game for which the odds are provided, linking it to specific events in the NFL schedule."
+    },
+    {
+      "name": "season",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Represents the NFL season during which the game takes place, allowing for historical comparisons and trend analysis."
+    },
+    {
+      "name": "week",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Indicates the week of the NFL season, which helps in analyzing performance across different phases of the season."
+    },
+    {
+      "name": "game_type",
+      "type": "string",
+      "nullable": true,
+      "comment": "Specifies the type of game, such as regular season, playoffs, or preseason, providing context on the stakes of the odds."
+    },
+    {
+      "name": "market",
+      "type": "string",
+      "nullable": true,
+      "comment": "Refers to the betting market, which indicates the type of bet available, such as point spread or moneyline, influencing betting strategies."
+    },
+    {
+      "name": "side",
+      "type": "string",
+      "nullable": true,
+      "comment": "Denotes the team or option that the odds are favoring in a betting scenario, essential for understanding market sentiment."
+    },
+    {
+      "name": "line",
+      "type": "double",
+      "nullable": true,
+      "comment": "Displays the point spread or betting line set for the game, which is crucial for calculating potential outcomes."
+    },
+    {
+      "name": "price",
+      "type": "double",
+      "nullable": true,
+      "comment": "Reflects the odds or payout associated with a bet, offering insight into how likely bookmakers think an event is to occur."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the source of the odds data, which is important for verifying the reliability and accuracy of the information."
+    },
+    {
+      "name": "bookmaker",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the bookmaker offering the odds, which can affect competitiveness and potential profitability for bettors."
+    },
+    {
+      "name": "ingested_at",
+      "type": "timestamp",
+      "nullable": true,
+      "comment": "Records the timestamp when the odds data was added to the database, useful for tracking updates and changes over time."
+    },
+    {
+      "name": "_source_file",
+      "type": "string",
+      "nullable": true,
+      "comment": "Contains the name of the source file from which the odds data was ingested, useful for auditing and data lineage purposes."
+    }
+  ]
+}

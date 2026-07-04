@@ -1,0 +1,66 @@
+{
+  "table": "nfl.odds.odds_ingest_gaps",
+  "comment": "",
+  "columns": [
+    {
+      "name": "game_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Represents the unique identifier for each specific game within the NFL."
+    },
+    {
+      "name": "season",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Indicates the NFL season number, providing context for the year in which the games are played."
+    },
+    {
+      "name": "week",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Denotes the week of the NFL season during which the game occurs, helping to organize the schedule."
+    },
+    {
+      "name": "game_type",
+      "type": "string",
+      "nullable": true,
+      "comment": "Specifies the type of game, such as regular season, playoff, or exhibition, which is crucial for categorization."
+    },
+    {
+      "name": "gameday",
+      "type": "string",
+      "nullable": true,
+      "comment": "Represents the date of the game, allowing for quick reference to when the event takes place."
+    },
+    {
+      "name": "home_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the team that is playing at their home stadium, which can affect game dynamics."
+    },
+    {
+      "name": "away_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the team that is visiting the home team, providing context for rivalry and competition."
+    },
+    {
+      "name": "gap_reason",
+      "type": "string",
+      "nullable": true,
+      "comment": "Explains the reason for any discrepancies or gaps in the data related to the game, which is important for data integrity."
+    },
+    {
+      "name": "ingested_at",
+      "type": "timestamp",
+      "nullable": true,
+      "comment": "Records the timestamp when the data was ingested, useful for tracking data updates and managing data freshness."
+    },
+    {
+      "name": "_source_file",
+      "type": "string",
+      "nullable": true,
+      "comment": "Names the source file from which the data was obtained, facilitating data origin tracking."
+    }
+  ]
+}

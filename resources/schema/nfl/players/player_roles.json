@@ -1,0 +1,72 @@
+{
+  "table": "nfl.players.player_roles",
+  "comment": "",
+  "columns": [
+    {
+      "name": "game_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the unique game within the NFL schedule where the player performed a specific role."
+    },
+    {
+      "name": "play_id",
+      "type": "double",
+      "nullable": true,
+      "comment": "Denotes the specific play within the game, allowing for detailed tracking of player involvement."
+    },
+    {
+      "name": "season",
+      "type": "int",
+      "nullable": true,
+      "comment": "Represents the year of the NFL season in which the game takes place, helping to track performance over different years."
+    },
+    {
+      "name": "season_type",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates whether the season is regular, preseason, or postseason, providing context for the game's significance."
+    },
+    {
+      "name": "week",
+      "type": "int",
+      "nullable": true,
+      "comment": "Specifies the week number of the NFL season during which the game occurred, useful for analyzing player performance trends."
+    },
+    {
+      "name": "game_type",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the nature of the game, such as whether it is a home or away game, which can impact player performance."
+    },
+    {
+      "name": "player_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Unique identifier for the player, allowing for precise tracking of individual contributions across games."
+    },
+    {
+      "name": "player_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "Full name of the player, making it easy to identify the athlete associated with a specific role in each game."
+    },
+    {
+      "name": "role",
+      "type": "string",
+      "nullable": true,
+      "comment": "Details the specific role or position the player fulfilled during the game, crucial for understanding player duties and impact."
+    },
+    {
+      "name": "ingested_at",
+      "type": "timestamp",
+      "nullable": true,
+      "comment": "Records the timestamp of when the data was ingested into the system, important for data versioning and tracking updates."
+    },
+    {
+      "name": "_source_file",
+      "type": "string",
+      "nullable": true,
+      "comment": "References the original source file from which this player role data was extracted, aiding in data provenance and integrity."
+    }
+  ]
+}

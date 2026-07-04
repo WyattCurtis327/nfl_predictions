@@ -1,0 +1,133 @@
+resources:
+  jobs:
+    nfl_bootstrap:
+      name: nfl_bootstrap
+      description: >
+        One-time bootstrap: teams, schedules, PBP backfill, rosters, players,
+        odds, latest odds, and validation gate.
+      email_notifications:
+        on_failure:
+          - ${var.notify_email}
+      environments:
+        - environment_key: nfl_env
+          spec:
+            environment_version: "4"
+            dependencies:
+              - pandas>=2.0.0
+              - pyarrow>=14.0.0
+              - requests>=2.31.0
+              - numpy>=1.26.0
+              - ../dist/nfl_predictions-0.1.0-py3-none-any.whl
+      tasks:
+        # Wave 1 — parallel
+        - task_key: download_pbp
+          environment_key: nfl_env
+          notebook_task:
+            notebook_path: ../notebooks/download_pbp_to_volume.py
+            base_parameters:
+              catalog: ${var.catalog}
+              pbp_schema: ${var.pbp_schema}
+              pbp_seasons: ${var.pbp_seasons}
+              pbp_volume: /Volumes/${var.catalog}/${var.pbp_schema}/raw
+
+        - task_key: ingest_teams
+          environment_key: nfl_env
+          notebook_task:
+            notebook_path: ../notebooks/ingest_teams.py
+            base_parameters:
+              catalog: ${var.catalog}
+              teams_schema: ${var.teams_schema}
+
+        - task_key: ingest_schedules
+          environment_key: nfl_env
+          notebook_task:
+            notebook_path: ../notebooks/ingest_schedules.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schedules_schema: ${var.schedules_schema}
+              schedule_seasons: ${var.schedule_seasons}
+
+        - task_key: ingest_odds
+          environment_key: nfl_env
+          depends_on:
+            - task_key: ingest_schedules
+          notebook_task:
+            notebook_path: ../notebooks/ingest_odds_from_schedules.py
+            base_parameters:
+              catalog: ${var.catalog}
+              odds_schema: ${var.odds_schema}
+              schedules_schema: ${var.schedules_schema}
+
+        # Wave 2 — parallel
+        - task_key: load_pbp
+          environment_key: nfl_env
+          depends_on:
+            - task_key: download_pbp
+            - task_key: ingest_schedules
+          notebook_task:
+            notebook_path: ../notebooks/load_pbp_from_volume.py
+            base_parameters:
+              catalog: ${var.catalog}
+              pbp_schema: ${var.pbp_schema}
+              schedules_schema: ${var.schedules_schema}
+              pbp_seasons: ${var.pbp_seasons}
+              pbp_volume: /Volumes/${var.catalog}/${var.pbp_schema}/raw
+
+        - task_key: ingest_rosters
+          environment_key: nfl_env
+          notebook_task:
+            notebook_path: ../notebooks/ingest_rosters.py
+            base_parameters:
+              catalog: ${var.catalog}
+              rosters_schema: ${var.rosters_schema}
+              roster_season: ${var.roster_season}
+
+        # Wave 3 — serial
+        - task_key: build_players
+          environment_key: nfl_env
+          depends_on:
+            - task_key: load_pbp
+            - task_key: ingest_rosters
+          notebook_task:
+            notebook_path: ../notebooks/build_players.py
+            base_parameters:
+              catalog: ${var.catalog}
+              players_schema: ${var.players_schema}
+              rosters_schema: ${var.rosters_schema}
+              pbp_schema: ${var.pbp_schema}
+
+        - task_key: apply_uc_column_descriptions
+          environment_key: nfl_env
+          depends_on:
+            - task_key: ingest_teams
+            - task_key: ingest_schedules
+            - task_key: ingest_odds
+            - task_key: load_pbp
+            - task_key: ingest_rosters
+            - task_key: build_players
+          notebook_task:
+            notebook_path: ../notebooks/apply_uc_column_descriptions.py
+            base_parameters:
+              catalog: ${var.catalog}
+              teams_schema: ${var.teams_schema}
+              schedules_schema: ${var.schedules_schema}
+              pbp_schema: ${var.pbp_schema}
+              rosters_schema: ${var.rosters_schema}
+              players_schema: ${var.players_schema}
+              odds_schema: ${var.odds_schema}
+
+        - task_key: validate_bootstrap
+          environment_key: nfl_env
+          depends_on:
+            - task_key: apply_uc_column_descriptions
+          notebook_task:
+            notebook_path: ../notebooks/validate_bootstrap.py
+            base_parameters:
+              catalog: ${var.catalog}
+              teams_schema: ${var.teams_schema}
+              schedules_schema: ${var.schedules_schema}
+              pbp_schema: ${var.pbp_schema}
+              rosters_schema: ${var.rosters_schema}
+              players_schema: ${var.players_schema}
+              odds_schema: ${var.odds_schema}
+              min_match_rate: ${var.min_match_rate}

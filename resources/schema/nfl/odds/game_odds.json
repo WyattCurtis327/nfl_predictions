@@ -1,0 +1,120 @@
+{
+  "table": "nfl.odds.game_odds",
+  "comment": "",
+  "columns": [
+    {
+      "name": "game_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The identifier for a specific game, which helps in tracking and referencing the game across various datasets."
+    },
+    {
+      "name": "season",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Represents the NFL season during which the game is played, indicating the year and context within the league's calendar."
+    },
+    {
+      "name": "week",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Indicates the week of the season in which the game occurs, useful for analyzing weekly trends and matchups."
+    },
+    {
+      "name": "game_type",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the type of game being analyzed, such as regular season, playoffs, or other classifications relevant to NFL scheduling."
+    },
+    {
+      "name": "gameday",
+      "type": "string",
+      "nullable": true,
+      "comment": "The date of the game, providing context for when the event takes place and aiding in time-specific analyses."
+    },
+    {
+      "name": "home_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the team playing at home, key for evaluating team performance and fan engagement for home games."
+    },
+    {
+      "name": "away_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the team playing away, essential for assessing the dynamics of matchups and travel impacts on performance."
+    },
+    {
+      "name": "spread_line",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the spread line for the game, representing the predicted point difference between the two teams as set by bookmakers."
+    },
+    {
+      "name": "total_line",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the total points line, which is the combined score expected from both teams, crucial for over/under betting analysis."
+    },
+    {
+      "name": "away_moneyline",
+      "type": "double",
+      "nullable": true,
+      "comment": "The moneyline odds for the away team, reflecting the potential payout for a bet placed on them to win straight up."
+    },
+    {
+      "name": "home_moneyline",
+      "type": "double",
+      "nullable": true,
+      "comment": "The moneyline odds for the home team, indicating the payout potential for bets placed on their victory without a point spread."
+    },
+    {
+      "name": "away_spread_odds",
+      "type": "double",
+      "nullable": true,
+      "comment": "The odds associated with the away team's spread, providing insight into how bookmakers view their likelihood of covering the point spread."
+    },
+    {
+      "name": "home_spread_odds",
+      "type": "double",
+      "nullable": true,
+      "comment": "The odds for the home team's spread, offering an understanding of their expected performance relative to the established point spread."
+    },
+    {
+      "name": "under_odds",
+      "type": "double",
+      "nullable": true,
+      "comment": "Odds for wagering on the total score being under the total line, indicating sentiment regarding lower scoring games."
+    },
+    {
+      "name": "over_odds",
+      "type": "double",
+      "nullable": true,
+      "comment": "Odds for betting on the total score being over the total line, which reflects expectations for higher scoring games."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the source of the odds data, ensuring transparency and traceability for the information provided."
+    },
+    {
+      "name": "bookmaker",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the bookmaker providing the odds, essential for understanding variability and strategies in betting markets."
+    },
+    {
+      "name": "ingested_at",
+      "type": "timestamp",
+      "nullable": true,
+      "comment": "Timestamp indicating when the odds data was collected or recorded, useful for data versioning and historical analysis."
+    },
+    {
+      "name": "_source_file",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the source file from which the data was ingested, aiding in data lineage and quality control processes."
+    }
+  ]
+}

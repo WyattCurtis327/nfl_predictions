@@ -1,0 +1,294 @@
+{
+  "table": "nfl.schedules.games",
+  "comment": "",
+  "columns": [
+    {
+      "name": "game_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "A unique identifier for each game, allowing for easy referencing and data retrieval."
+    },
+    {
+      "name": "season",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Indicates the NFL season during which the game takes place, typically represented by the year."
+    },
+    {
+      "name": "game_type",
+      "type": "string",
+      "nullable": true,
+      "comment": "Specifies the type of game, such as regular season, playoff, or preseason."
+    },
+    {
+      "name": "week",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Represents the specific week of the NFL season in which the game is scheduled."
+    },
+    {
+      "name": "gameday",
+      "type": "string",
+      "nullable": true,
+      "comment": "The date on which the game is played, formatted to indicate proper scheduling."
+    },
+    {
+      "name": "weekday",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the day of the week on which the game occurs."
+    },
+    {
+      "name": "gametime",
+      "type": "string",
+      "nullable": true,
+      "comment": "The scheduled start time of the game, usually in local time."
+    },
+    {
+      "name": "away_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the team that is playing on the visiting side."
+    },
+    {
+      "name": "away_score",
+      "type": "double",
+      "nullable": true,
+      "comment": "The score achieved by the away team during the game."
+    },
+    {
+      "name": "home_team",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the team that is hosting the game."
+    },
+    {
+      "name": "home_score",
+      "type": "double",
+      "nullable": true,
+      "comment": "The score achieved by the home team during the game."
+    },
+    {
+      "name": "location",
+      "type": "string",
+      "nullable": true,
+      "comment": "Specifies the venue or stadium where the game is held."
+    },
+    {
+      "name": "result",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the outcome of the game, typically indicating the winning team's score."
+    },
+    {
+      "name": "total",
+      "type": "double",
+      "nullable": true,
+      "comment": "The total points scored by both teams combined during the game."
+    },
+    {
+      "name": "overtime",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the score or outcome in the event of an overtime period."
+    },
+    {
+      "name": "old_game_id",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Refers to a previously used identifier for the game, useful for historical data tracking."
+    },
+    {
+      "name": "gsis",
+      "type": "double",
+      "nullable": true,
+      "comment": "Provides a unique identifier used by the NFL's Game Statistics and Information System."
+    },
+    {
+      "name": "nfl_detail_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "An identifier used within NFL databases for detailed game information."
+    },
+    {
+      "name": "pfr",
+      "type": "string",
+      "nullable": true,
+      "comment": "Represents the identifier used in Pro Football Reference, a site for historical football statistics."
+    },
+    {
+      "name": "pff",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the performance grades issued by Pro Football Focus based on the game analysis."
+    },
+    {
+      "name": "espn",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents specific metrics or scores provided by ESPN for the game."
+    },
+    {
+      "name": "ftn",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates performance stats or information as tracked in Football-Reference.com."
+    },
+    {
+      "name": "away_rest",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "The amount of rest days the away team has had prior to the game, calculated from their last game."
+    },
+    {
+      "name": "home_rest",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "The number of rest days the home team has had prior to the game, calculated from their last game."
+    },
+    {
+      "name": "away_moneyline",
+      "type": "double",
+      "nullable": true,
+      "comment": "Reflects the betting odds for the away team to win outright."
+    },
+    {
+      "name": "home_moneyline",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the betting odds for the home team to win outright."
+    },
+    {
+      "name": "spread_line",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the point spread set by bookmakers for the game."
+    },
+    {
+      "name": "away_spread_odds",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the odds associated with the away team's performance against the spread."
+    },
+    {
+      "name": "home_spread_odds",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the odds linked to the home team's performance against the spread."
+    },
+    {
+      "name": "total_line",
+      "type": "double",
+      "nullable": true,
+      "comment": "The total amount of points set by bookmakers for both teams combined."
+    },
+    {
+      "name": "under_odds",
+      "type": "double",
+      "nullable": true,
+      "comment": "Odds associated with the betting option for the total points scored to be under the total line."
+    },
+    {
+      "name": "over_odds",
+      "type": "double",
+      "nullable": true,
+      "comment": "Odds related to the betting option for the total points scored to be over the total line."
+    },
+    {
+      "name": "div_game",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Indicates if the game is a divisional matchup, typically affecting playoff implications."
+    },
+    {
+      "name": "roof",
+      "type": "string",
+      "nullable": true,
+      "comment": "Specifies the type of roof at the stadium, which can impact gameplay conditions."
+    },
+    {
+      "name": "surface",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the type of playing surface, such as grass or turf, used in the stadium."
+    },
+    {
+      "name": "temp",
+      "type": "double",
+      "nullable": true,
+      "comment": "Represents the temperature at the time of the game, which can affect player performance."
+    },
+    {
+      "name": "wind",
+      "type": "double",
+      "nullable": true,
+      "comment": "Provides the wind speed during the game, which can also influence gameplay."
+    },
+    {
+      "name": "away_qb_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "References the unique identifier for the starting quarterback of the away team."
+    },
+    {
+      "name": "home_qb_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "References the unique identifier for the starting quarterback of the home team."
+    },
+    {
+      "name": "away_qb_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the starting quarterback for the away team."
+    },
+    {
+      "name": "home_qb_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the starting quarterback for the home team."
+    },
+    {
+      "name": "away_coach",
+      "type": "string",
+      "nullable": true,
+      "comment": "Name of the head coach for the away team during the game."
+    },
+    {
+      "name": "home_coach",
+      "type": "string",
+      "nullable": true,
+      "comment": "Name of the head coach for the home team during the game."
+    },
+    {
+      "name": "referee",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the referee officiating the game, responsible for enforcing rules."
+    },
+    {
+      "name": "stadium_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "A unique identifier for the stadium where the game is played."
+    },
+    {
+      "name": "stadium",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name of the stadium hosting the game."
+    },
+    {
+      "name": "ingested_at",
+      "type": "timestamp",
+      "nullable": true,
+      "comment": "The timestamp indicating when the game data was entered into the system."
+    },
+    {
+      "name": "_source_file",
+      "type": "string",
+      "nullable": true,
+      "comment": "References the source file from which the game data was extracted."
+    }
+  ]
+}

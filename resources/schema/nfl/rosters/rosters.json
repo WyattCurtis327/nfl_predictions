@@ -1,0 +1,234 @@
+{
+  "table": "nfl.rosters.rosters",
+  "comment": "",
+  "columns": [
+    {
+      "name": "season",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Indicates the NFL season for which the roster data is applicable, typically used for sorting and filtering by year."
+    },
+    {
+      "name": "team",
+      "type": "string",
+      "nullable": true,
+      "comment": "Represents the name of the NFL team associated with the player, which helps in identifying team affiliations."
+    },
+    {
+      "name": "position",
+      "type": "string",
+      "nullable": true,
+      "comment": "Specifies the player's position on the football field, providing insight into their role within the team."
+    },
+    {
+      "name": "depth_chart_position",
+      "type": "string",
+      "nullable": true,
+      "comment": "Describes the player's ranking on the team's depth chart, indicating their level of playtime or importance."
+    },
+    {
+      "name": "jersey_number",
+      "type": "double",
+      "nullable": true,
+      "comment": "The number worn by the player during games, which is unique to each player on the same team."
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "nullable": true,
+      "comment": "Reflects the current status of the player, such as active, injured, or retired, which is crucial for team management."
+    },
+    {
+      "name": "full_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The complete name of the player, typically used for official records and game rosters."
+    },
+    {
+      "name": "first_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The player's first name, useful for informal references and identifying players personally."
+    },
+    {
+      "name": "last_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The player's last name, which is essential for official identification and record-keeping."
+    },
+    {
+      "name": "birth_date",
+      "type": "string",
+      "nullable": true,
+      "comment": "The date of birth of the player, important for age-related analyses and tracking player careers."
+    },
+    {
+      "name": "height",
+      "type": "double",
+      "nullable": true,
+      "comment": "The player's height, measured in inches, which can be relevant for performance metrics and scouting reports."
+    },
+    {
+      "name": "weight",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "The player's weight in pounds, an important physical statistic impacting performance evaluation."
+    },
+    {
+      "name": "college",
+      "type": "string",
+      "nullable": true,
+      "comment": "Indicates the college the player attended, useful for understanding their background and scouting history."
+    },
+    {
+      "name": "gsis_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "A unique identifier assigned by the NFL's Game Statistics and Information System, helping in data tracking."
+    },
+    {
+      "name": "espn_id",
+      "type": "double",
+      "nullable": true,
+      "comment": "An identification number used by ESPN to reference the player, facilitating data linking between sources."
+    },
+    {
+      "name": "sportradar_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "A unique identifier for the player in the Sportradar system, useful for data integration and analytics."
+    },
+    {
+      "name": "yahoo_id",
+      "type": "double",
+      "nullable": true,
+      "comment": "The identification number used by Yahoo sports for the player, enhancing data management across platforms."
+    },
+    {
+      "name": "rotowire_id",
+      "type": "double",
+      "nullable": true,
+      "comment": "An ID assigned by Rotowire for tracking player information, making it easier to consolidate stats from multiple sources."
+    },
+    {
+      "name": "pff_id",
+      "type": "double",
+      "nullable": true,
+      "comment": "A unique identifier by Pro Football Focus, valuable for performance analytics and evaluations."
+    },
+    {
+      "name": "pfr_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "The Football Reference unique identifier for each player, essential for linking player historical data."
+    },
+    {
+      "name": "fantasy_data_id",
+      "type": "double",
+      "nullable": true,
+      "comment": "An ID used in fantasy sports data systems, allowing for easier integration with fantasy player statistics."
+    },
+    {
+      "name": "sleeper_id",
+      "type": "double",
+      "nullable": true,
+      "comment": "A unique identifier for the player within the Sleeper fantasy platform, aiding in fantasy management."
+    },
+    {
+      "name": "years_exp",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Represents the number of years the player has been active in the NFL, useful for understanding experience level."
+    },
+    {
+      "name": "headshot_url",
+      "type": "string",
+      "nullable": true,
+      "comment": "A URL linking to the player's headshot, useful for visual representations in rosters and media."
+    },
+    {
+      "name": "ngs_position",
+      "type": "string",
+      "nullable": true,
+      "comment": "The position defined by the Next Gen Stats system, providing additional context to traditional position designations."
+    },
+    {
+      "name": "week",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Denotes the specific week of the NFL season the data corresponds to, important for tracking player performance over time."
+    },
+    {
+      "name": "game_type",
+      "type": "string",
+      "nullable": true,
+      "comment": "Identifies the type of game (e.g., regular season, playoffs) the player is involved in, which is vital for analysis."
+    },
+    {
+      "name": "status_description_abbr",
+      "type": "string",
+      "nullable": true,
+      "comment": "A brief abbreviation describing the player's current status, useful for quick references."
+    },
+    {
+      "name": "football_name",
+      "type": "string",
+      "nullable": true,
+      "comment": "The name used in football contexts, often reflecting the player's identity in promotional materials."
+    },
+    {
+      "name": "esb_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "An identification number used in the ESPN broadcast system, aiding in data connections across different platforms."
+    },
+    {
+      "name": "gsis_it_id",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "An internal ID related to the player's entry in the NFL's Game Statistics and Information System."
+    },
+    {
+      "name": "smart_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "A unique identifier for the player within the system, facilitating easy access to their specific data."
+    },
+    {
+      "name": "entry_year",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "The year the player entered the NFL, important for historical context and career tracking."
+    },
+    {
+      "name": "rookie_year",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "The year the player debuted in the NFL as a rookie, essential for evaluating player development and progress."
+    },
+    {
+      "name": "draft_club",
+      "type": "string",
+      "nullable": true,
+      "comment": "The team that drafted the player, providing insight into their career beginnings and team transitions."
+    },
+    {
+      "name": "draft_number",
+      "type": "double",
+      "nullable": true,
+      "comment": "Indicates the player's draft position number, useful for assessing their perceived potential at the time of drafting."
+    },
+    {
+      "name": "ingested_at",
+      "type": "timestamp",
+      "nullable": true,
+      "comment": "The timestamp signifying when the data was recorded, important for data management and integrity checks."
+    },
+    {
+      "name": "_source_file",
+      "type": "string",
+      "nullable": true,
+      "comment": "References the original source file from which the data was ingested, aiding in tracking data provenance."
+    }
+  ]
+}
