@@ -1,0 +1,82 @@
+resources:
+  jobs:
+    nfl_annual_refresh:
+      name: nfl_annual_refresh
+      description: >
+        Annual offseason refresh: backfill prior-season PBP, merge schedules,
+        reload PBP, rebuild players, and validate. Run each February before
+        the new season bootstrap patch.
+      email_notifications:
+        on_failure:
+          - ${var.notify_email}
+      environments:
+        - environment_key: nfl_env
+          spec:
+            environment_version: "4"
+            dependencies:
+              - pandas>=2.0.0
+              - pyarrow>=14.0.0
+              - requests>=2.31.0
+              - numpy>=1.26.0
+              - ${artifacts.nfl_predictions_wheel}
+      tasks:
+        - task_key: 00_download_pbp
+          environment_key: nfl_env
+          notebook_task:
+            notebook_path: ../notebooks/00_download_pbp_to_volume.py
+            base_parameters:
+              catalog: ${var.catalog}
+              pbp_schema: ${var.pbp_schema}
+              pbp_seasons: ${var.pbp_season}
+              pbp_volume: /Volumes/${var.catalog}/${var.pbp_schema}/raw
+
+        - task_key: 01_ingest_schedules
+          environment_key: nfl_env
+          notebook_task:
+            notebook_path: ../notebooks/11_ingest_schedules.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schedules_schema: ${var.schedules_schema}
+              schedule_seasons: ${var.schedule_seasons}
+
+        - task_key: 02_load_pbp
+          environment_key: nfl_env
+          depends_on:
+            - task_key: 00_download_pbp
+            - task_key: 01_ingest_schedules
+          notebook_task:
+            notebook_path: ../notebooks/30_load_pbp_from_volume.py
+            base_parameters:
+              catalog: ${var.catalog}
+              pbp_schema: ${var.pbp_schema}
+              schedules_schema: ${var.schedules_schema}
+              pbp_seasons: ${var.pbp_season}
+              pbp_volume: /Volumes/${var.catalog}/${var.pbp_schema}/raw
+
+        - task_key: 03_build_players
+          environment_key: nfl_env
+          depends_on:
+            - task_key: 02_load_pbp
+          notebook_task:
+            notebook_path: ../notebooks/40_build_players.py
+            base_parameters:
+              catalog: ${var.catalog}
+              players_schema: ${var.players_schema}
+              rosters_schema: ${var.rosters_schema}
+              pbp_schema: ${var.pbp_schema}
+
+        - task_key: 04_validate_bootstrap
+          environment_key: nfl_env
+          depends_on:
+            - task_key: 03_build_players
+          notebook_task:
+            notebook_path: ../notebooks/90_validate_bootstrap.py
+            base_parameters:
+              catalog: ${var.catalog}
+              teams_schema: ${var.teams_schema}
+              schedules_schema: ${var.schedules_schema}
+              pbp_schema: ${var.pbp_schema}
+              rosters_schema: ${var.rosters_schema}
+              players_schema: ${var.players_schema}
+              odds_schema: ${var.odds_schema}
+              min_match_rate: ${var.min_match_rate}

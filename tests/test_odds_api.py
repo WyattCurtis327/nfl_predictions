@@ -5,6 +5,7 @@ import pandas as pd
 from nfl_predictions.odds_api import (
     assess_schedule_match_rate,
     build_odds_from_api,
+    find_unmapped_team_gaps,
     kickoff_et_date,
     match_game_ids,
     to_game_odds_rows,
@@ -149,3 +150,55 @@ def test_build_odds_from_api_filters_to_target_week():
     stats = assess_schedule_match_rate(schedule, game_odds, min_rate=0.9)
     assert stats["passed"] is True
     assert stats["match_rate"] == 1.0
+
+
+def test_find_unmapped_team_gaps_flags_unknown_names():
+    gaps = find_unmapped_team_gaps(
+        [
+            {
+                "id": "api-unknown",
+                "away_team": "London Monarchs",
+                "home_team": "Kansas City Chiefs",
+                "commence_time": "2026-09-11T00:20:00Z",
+            }
+        ]
+    )
+    assert len(gaps) == 1
+    assert gaps.iloc[0]["gap_reason"] == "unmapped_team_name"
+    assert gaps.iloc[0]["away_team"] == "London Monarchs"
+
+
+def test_to_game_odds_rows_falls_back_to_alternate_bookmaker():
+    schedule = _schedule()
+    odds_games = [
+        {
+            "id": "api-1",
+            "away_team": "Kansas City Chiefs",
+            "home_team": "Philadelphia Eagles",
+            "commence_time": "2026-09-11T00:20:00Z",
+            "bookmakers": [
+                {
+                    "key": "fanduel",
+                    "markets": [
+                        {
+                            "key": "spreads",
+                            "outcomes": [
+                                {"name": "Kansas City Chiefs", "point": 2.5, "price": -110},
+                                {"name": "Philadelphia Eagles", "point": -2.5, "price": -110},
+                            ],
+                        },
+                        {
+                            "key": "totals",
+                            "outcomes": [
+                                {"name": "Over", "point": 47.5, "price": -105},
+                                {"name": "Under", "point": 47.5, "price": -115},
+                            ],
+                        },
+                    ],
+                }
+            ],
+        }
+    ]
+    rows = to_game_odds_rows(odds_games, schedule, preferred_bookmaker="draftkings")
+    assert len(rows) == 1
+    assert rows[0]["bookmaker"] == "fanduel"

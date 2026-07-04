@@ -17,7 +17,7 @@ resources:
               - pyarrow>=14.0.0
               - requests>=2.31.0
               - numpy>=1.26.0
-              - ../dist/nfl_predictions-0.1.0-py3-none-any.whl
+              - ${artifacts.nfl_predictions_wheel}
       tasks:
         # Wave 1 — parallel
         - task_key: 00_download_pbp

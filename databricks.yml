@@ -7,6 +7,7 @@ include:
 artifacts:
   nfl_predictions_wheel:
     type: whl
+    dynamic_version: true
     build: python -m pip install -q build && python -m build --wheel -o dist
     path: .
 
@@ -81,7 +82,21 @@ variables:
   notify_email:
     description: Job failure notification email (set via sync_bundle_env.py or BUNDLE_VAR_notify_email)
     default: ""
+  n_simulations:
+    description: Monte Carlo simulations per game
+    default: "10000"
+  market_blend:
+    description: Weight given to market lines in simulation (0-1)
+    default: "0.35"
+  pick_threshold:
+    description: Minimum confidence to highlight a spread/total pick
+    default: "0.55"
 targets:
+  dev:
+    mode: development
+    workspace:
+      host: https://dbc-89a97ed5-5f7d.cloud.databricks.com
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
   prod:
     mode: production
     default: true

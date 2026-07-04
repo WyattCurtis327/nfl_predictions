@@ -19,14 +19,15 @@ Last updated: July 2026.
 | Full Wednesday pipeline | Done (`nfl_weekly_pipeline`) |
 | `prediction_grades` | Table created (empty until first completed week) |
 | `game_pick_metrics` view | Deployed — populates after grading runs |
-| `nfl_annual_refresh` | Not built |
+| `nfl_annual_refresh` | Job defined — run each February (`nfl_annual_refresh`) |
+| CI | GitHub Actions — pytest + wheel build on push/PR |
 
 ### Odds sources
 
 | Source | When | Bookmaker | Notebook |
 |--------|------|-----------|----------|
 | nflverse closing lines | Bootstrap / historical | `nflverse` | `20_ingest_odds_from_schedules` |
-| The Odds API (live) | Weekly refresh + predictions | `draftkings` (default) | `21_ingest_odds_api` |
+| The Odds API (live) | Weekly refresh (`nfl_weekly_pipeline` runs ingest once) | `draftkings` (default, with bookmaker fallback) | `21_ingest_odds_api` |
 
 Live odds are staged locally (`scripts/stage_odds.py` → `staging/odds_latest.json`) because Databricks serverless cannot always reach The Odds API directly.
 
@@ -40,14 +41,12 @@ Use this section to pick up where you left off.
 2. **Optional** — unpause the Wednesday 8 AM ET schedule on `nfl_weekly_pipeline` when you want automation.
 
 ```powershell
-python scripts/stage_odds.py
-python scripts/deploy_bundle.py prod
-databricks bundle run nfl_weekly_pipeline -t prod --profile <your-profile>
+powershell -ExecutionPolicy Bypass -File scripts/weekly_run.ps1 -Profile <your-profile>
 ```
 
 ### After Week 1 games complete
 
-1. Re-run `nfl_weekly_pipeline` — `02_grade_elapsed_week` creates `prediction_grades`.
+1. Re-run `nfl_weekly_pipeline` — `01_grade_elapsed_week` creates `prediction_grades`.
 2. Pull UC descriptions for the new table:
 
 ```powershell
@@ -57,24 +56,25 @@ python scripts/pull_uc_column_descriptions.py --profile <your-profile> --include
 3. Pull UC descriptions for `prediction_grades` (if not done in step 2).
 4. Re-apply descriptions if needed (`80_apply_uc_column_descriptions` with `only_schema=predictions`).
 
-Metric view deploy (already done for this project):
-
-```powershell
-python scripts/deploy_mv_game_pick_metrics.py
-```
+`deploy_bundle.py` deploys the `game_pick_metrics` view automatically (skip with `--skip-metric-view`).
 
 ### During the 2026 season (each week)
 
-1. `python scripts/stage_odds.py` — refresh staged lines (uses `ODDS_API_KEY` from `.env`).
-2. `python scripts/deploy_bundle.py prod` — sync bundle + wheel to workspace.
-3. `databricks bundle run nfl_weekly_pipeline -t prod --profile <your-profile>` — refresh data, predict next week, grade elapsed week.
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/weekly_run.ps1 -Profile <your-profile>
+```
+
+This stages odds, builds the wheel, deploys the bundle + metric view, and runs `nfl_weekly_pipeline`.
 
 **Note:** 2026 nflverse PBP is skipped until published (pre-season). `00_download_pbp` and `03_load_pbp` tolerate missing current-season files; predictions use 2025 PBP until in-season plays exist.
 
 ### Later (Feb 2027+)
 
-- Build `nfl_annual_refresh` — annual PBP backfill, schedule merge, validation gate.
-- Optional: automate `stage_odds.py` in CI or as a pre-job step; add a Databricks dashboard on `game_pick_metrics`.
+```powershell
+databricks bundle run nfl_annual_refresh -t prod --profile <your-profile>
+```
+
+Optional: add a Databricks dashboard on `game_pick_metrics`.
 
 ## Quick start
 
@@ -158,9 +158,9 @@ api_key = dbutils.secrets.get(scope="nfl", key="odds_api_key")
 |-----|---------|----------|
 | `nfl_bootstrap` | One-time data load | Manual |
 | `nfl_weekly_refresh` | Wednesday data refresh | Paused Wed 8 AM ET |
-| `nfl_weekly_predictions` | Odds → predict → grade → UC descriptions | Manual |
+| `nfl_weekly_predictions` | Predict → grade → UC descriptions (odds from refresh in pipeline) | Manual |
 | `nfl_weekly_pipeline` | `nfl_weekly_refresh` then `nfl_weekly_predictions` | Paused Wed 8 AM ET |
-| `nfl_annual_refresh` | Annual backfill (planned) | — |
+| `nfl_annual_refresh` | Annual PBP backfill + schedule merge + validation | Manual (February) |
 
 ### `nfl_bootstrap` task order
 
@@ -187,10 +187,11 @@ databricks bundle run nfl_weekly_refresh -t prod --profile <your-profile>
 
 ### `nfl_weekly_predictions` task order
 
-1. `00_ingest_odds_api`
-2. `01_predict_upcoming_week`
-3. `02_grade_elapsed_week` (skips when no completed week)
-4. `03_apply_predictions_column_descriptions`
+1. `00_predict_upcoming_week` (uses odds from `nfl_weekly_refresh` when run via pipeline)
+2. `01_grade_elapsed_week` (skips when no completed week)
+3. `02_apply_predictions_column_descriptions`
+
+Simulation tuning via bundle variables: `n_simulations`, `market_blend`, `pick_threshold` in `databricks.yml`.
 
 ```powershell
 databricks bundle run nfl_weekly_predictions -t prod --profile <your-profile>

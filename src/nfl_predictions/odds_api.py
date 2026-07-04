@@ -16,12 +16,13 @@ from nfl_predictions.odds import (
     ODDS_INGEST_GAPS_COLUMNS,
     extract_odds_lines,
 )
-from nfl_predictions.teams import to_abbr
+from nfl_predictions.teams import is_known_team, to_abbr, unmapped_team_names
 
 ODDS_API_BASE = "https://api.the-odds-api.com/v4"
 ODDS_API_SOURCE = "odds_api"
 DEFAULT_MARKETS = "h2h,spreads,totals"
 DEFAULT_REGIONS = "us"
+BOOKMAKER_FALLBACK_ORDER = ("draftkings", "fanduel", "betmgm", "caesars", "pointsbetus")
 ET = ZoneInfo("America/New_York")
 
 
@@ -69,6 +70,59 @@ def kickoff_et_date(commence_time: str) -> str:
 def kickoff_et_datetime(commence_time: str) -> str:
     kickoff = datetime.fromisoformat(commence_time.replace("Z", "+00:00"))
     return kickoff.astimezone(ET).strftime("%Y-%m-%d %H:%M")
+
+
+def _select_bookmaker(
+    bookmakers: list[dict[str, Any]],
+    preferred_bookmaker: str,
+) -> dict[str, Any] | None:
+    if not bookmakers:
+        return None
+
+    keys = [preferred_bookmaker.lower(), *BOOKMAKER_FALLBACK_ORDER]
+    seen: set[str] = set()
+    for key in keys:
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        hit = next((b for b in bookmakers if b.get("key", "").lower() == key), None)
+        if hit:
+            return hit
+    return bookmakers[0]
+
+
+def find_unmapped_team_gaps(odds_games: list[dict[str, Any]]) -> pd.DataFrame:
+    """Surface Odds API team names that do not map to nflverse abbreviations."""
+    unknown = unmapped_team_names(
+        [name for game in odds_games for name in (game.get("away_team"), game.get("home_team"))]
+    )
+    if not unknown:
+        return pd.DataFrame(columns=ODDS_INGEST_GAPS_COLUMNS)
+
+    rows: list[dict[str, Any]] = []
+    for game in odds_games:
+        away_name = game.get("away_team", "")
+        home_name = game.get("home_team", "")
+        if is_known_team(away_name) and is_known_team(home_name):
+            continue
+        rows.append(
+            {
+                "game_id": str(game.get("id", "")),
+                "season": None,
+                "week": None,
+                "game_type": None,
+                "gameday": kickoff_et_date(game["commence_time"]) if game.get("commence_time") else None,
+                "home_team": home_name,
+                "away_team": away_name,
+                "gap_reason": "unmapped_team_name",
+            }
+        )
+
+    if not rows:
+        return pd.DataFrame(columns=ODDS_INGEST_GAPS_COLUMNS)
+    frame = pd.DataFrame(rows)
+    available = [col for col in ODDS_INGEST_GAPS_COLUMNS if col in frame.columns]
+    return frame[available].drop_duplicates(subset=["game_id"], keep="last").reset_index(drop=True)
 
 
 def match_game_ids(
@@ -136,10 +190,7 @@ def to_game_odds_rows(
         if not meta.get("game_id"):
             continue
 
-        bookmaker = next(
-            (b for b in game.get("bookmakers", []) if b["key"] == preferred_bookmaker),
-            game["bookmakers"][0] if game.get("bookmakers") else None,
-        )
+        bookmaker = _select_bookmaker(game.get("bookmakers", []), preferred_bookmaker)
         if not bookmaker:
             continue
 
@@ -288,5 +339,9 @@ def build_odds_from_api(
 
     odds_lines = extract_odds_lines(game_odds)
     gaps = find_api_ingest_gaps(sched, game_odds)
+    unmapped = find_unmapped_team_gaps(odds_games)
+    if not unmapped.empty:
+        gaps = pd.concat([gaps, unmapped], ignore_index=True)
+        gaps = gaps.drop_duplicates(subset=["game_id"], keep="last").reset_index(drop=True)
     latest = game_odds.copy()
     return game_odds, odds_lines, latest, gaps

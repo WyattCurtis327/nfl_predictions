@@ -9,11 +9,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from deploy_mv_game_pick_metrics import deploy_metric_view
 from sync_bundle_env import ENV_FILE, _notify_email, _parse_env_file, _profile, sync_from_env_file
 
 
 def main() -> None:
-    target = sys.argv[1] if len(sys.argv) > 1 else "prod"
+    args = [arg for arg in sys.argv[1:] if not arg.startswith("--")]
+    flags = set(sys.argv[1:])
+    target = args[0] if args else "prod"
 
     if not ENV_FILE.exists():
         raise SystemExit(
@@ -55,6 +58,10 @@ def main() -> None:
         "--auto-approve",
     ]
     subprocess.run(cmd, check=True, env=env)
+
+    if "--skip-metric-view" not in flags:
+        print("Deploying game_pick_metrics view...")
+        deploy_metric_view()
 
 
 if __name__ == "__main__":

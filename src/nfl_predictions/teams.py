@@ -40,3 +40,11 @@ TEAM_NAME_TO_ABBR: dict[str, str] = {
 
 def to_abbr(team_name: str) -> str | None:
     return TEAM_NAME_TO_ABBR.get(team_name)
+
+
+def is_known_team(team_name: str) -> bool:
+    return team_name in TEAM_NAME_TO_ABBR
+
+
+def unmapped_team_names(team_names: list[str]) -> list[str]:
+    return sorted({name for name in team_names if name and not is_known_team(name)})

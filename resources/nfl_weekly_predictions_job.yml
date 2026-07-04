@@ -4,7 +4,8 @@ resources:
       name: nfl_weekly_predictions
       description: >
         Weekly Monte Carlo predictions for the next unplayed week and grading
-        for the latest completed week.
+        for the latest completed week. Odds ingest runs in nfl_weekly_refresh
+        when using nfl_weekly_pipeline.
       email_notifications:
         on_failure:
           - ${var.notify_email}
@@ -17,25 +18,10 @@ resources:
               - pyarrow>=14.0.0
               - numpy>=1.26.0
               - mlflow>=2.14.0
-              - ../dist/nfl_predictions-0.1.0-py3-none-any.whl
+              - ${artifacts.nfl_predictions_wheel}
       tasks:
-        - task_key: 00_ingest_odds_api
+        - task_key: 00_predict_upcoming_week
           environment_key: nfl_env
-          notebook_task:
-            notebook_path: ../notebooks/21_ingest_odds_api.py
-            base_parameters:
-              catalog: ${var.catalog}
-              odds_schema: ${var.odds_schema}
-              schedules_schema: ${var.schedules_schema}
-              season: ${var.schedule_season}
-              target_week: ""
-              preferred_bookmaker: ${var.preferred_bookmaker}
-              min_match_rate: ${var.min_match_rate}
-
-        - task_key: 01_predict_upcoming_week
-          environment_key: nfl_env
-          depends_on:
-            - task_key: 00_ingest_odds_api
           notebook_task:
             notebook_path: ../notebooks/50_predict_upcoming_week.py
             base_parameters:
@@ -49,12 +35,15 @@ resources:
               current_pbp_season: ${var.current_pbp_season}
               target_week: ""
               preferred_bookmaker: ${var.preferred_bookmaker}
+              n_simulations: ${var.n_simulations}
+              market_blend: ${var.market_blend}
+              pick_threshold: ${var.pick_threshold}
               mlflow_experiment: ${var.mlflow_experiment}
 
-        - task_key: 02_grade_elapsed_week
+        - task_key: 01_grade_elapsed_week
           environment_key: nfl_env
           depends_on:
-            - task_key: 01_predict_upcoming_week
+            - task_key: 00_predict_upcoming_week
           notebook_task:
             notebook_path: ../notebooks/60_grade_elapsed_week.py
             base_parameters:
@@ -63,11 +52,11 @@ resources:
               predictions_schema: ${var.predictions_schema}
               mlflow_experiment: ${var.mlflow_experiment}
 
-        - task_key: 03_apply_predictions_column_descriptions
+        - task_key: 02_apply_predictions_column_descriptions
           environment_key: nfl_env
           depends_on:
-            - task_key: 01_predict_upcoming_week
-            - task_key: 02_grade_elapsed_week
+            - task_key: 00_predict_upcoming_week
+            - task_key: 01_grade_elapsed_week
           notebook_task:
             notebook_path: ../notebooks/80_apply_uc_column_descriptions.py
             base_parameters:
