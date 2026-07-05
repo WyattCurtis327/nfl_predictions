@@ -45,7 +45,11 @@ st.caption(
     f"Latest model spread and total picks from `{PREDICTIONS_TABLE}` "
     "(one row per game from the most recent prediction run)."
 )
-st.page_link("pages/1_Misses_and_RCA.py", label="Misses & RCA", icon="🔍")
+link1, link2 = st.columns(2)
+with link1:
+    st.page_link("pages/2_Rerun_Predictions.py", label="How to rerun predictions", icon="🔄")
+with link2:
+    st.page_link("pages/1_Misses_and_RCA.py", label="Misses & RCA", icon="🔍")
 
 try:
     season_weeks = load_season_weeks()
@@ -54,7 +58,8 @@ except Exception as exc:  # noqa: BLE001 - surface connection errors in UI
     st.stop()
 
 if season_weeks.empty:
-    st.warning("No predictions found yet. Run `nfl_weekly_predictions` after refreshing odds.")
+    st.warning("No predictions found yet. Refresh odds, then rerun predictions.")
+    st.page_link("pages/2_Rerun_Predictions.py", label="How to rerun predictions", icon="🔄")
     st.stop()
 
 with st.sidebar:
@@ -69,6 +74,8 @@ with st.sidebar:
     week = st.selectbox("Week", options=weeks_for_season, index=0)
     min_confidence = st.slider("Min confidence to highlight", 0.50, 0.70, 0.55, 0.01)
     st.divider()
+    st.page_link("pages/2_Rerun_Predictions.py", label="Rerun predictions", icon="🔄")
+    st.divider()
     st.markdown("**Source**")
     st.code(PREDICTIONS_TABLE, language="sql")
 
@@ -76,6 +83,7 @@ has_model_id = table_has_column(PREDICTIONS_TABLE, "model_id")
 picks = load_picks(season=int(season), week=int(week), has_model_id=has_model_id)
 if picks.empty:
     st.warning(f"No predictions for season {season}, week {week}.")
+    st.page_link("pages/2_Rerun_Predictions.py", label="How to rerun predictions", icon="🔄")
     st.stop()
 
 run_id = picks["prediction_run_id"].iloc[0]
