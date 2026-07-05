@@ -7,6 +7,7 @@ import json
 import pandas as pd
 import streamlit as st
 
+from display_time import format_timestamp_la, format_timestamps_in_frame
 from rca_queries import cause_summary_sql, list_rca_season_weeks_sql, missed_picks_sql, parse_causes
 from shared import DEFAULT_SEASON, pick_miss_rca_view, sql_query
 
@@ -15,7 +16,10 @@ st.set_page_config(page_title="Misses & RCA", layout="wide", page_icon="🔍")
 VIEW = pick_miss_rca_view()
 
 st.title("Misses & RCA")
-st.caption(f"Graded wrong picks with root-cause decomposition from `{VIEW}`.")
+st.caption(
+    f"Graded wrong picks with root-cause decomposition from `{VIEW}`. "
+    "Times shown in America/Los_Angeles as `yyyy-MM-dd_hh_mm`."
+)
 
 
 @st.cache_data(ttl=120)
@@ -82,6 +86,7 @@ if misses.empty:
 
 summary_cols = [
     "gameday",
+    "analyzed_at",
     "away_abbr",
     "home_abbr",
     "miss_types",
@@ -94,7 +99,11 @@ summary_cols = [
     "actual_home_score",
 ]
 st.subheader("Miss board")
-st.dataframe(misses[summary_cols], use_container_width=True, hide_index=True)
+st.dataframe(
+    format_timestamps_in_frame(misses[summary_cols]),
+    use_container_width=True,
+    hide_index=True,
+)
 
 st.subheader("Root-cause detail")
 for _, row in misses.iterrows():
@@ -120,6 +129,8 @@ for _, row in misses.iterrows():
                 f"Actual: {row.get('actual_away_score', '—')} – {row.get('actual_home_score', '—')}"
             )
         with right:
+            st.markdown("**RCA metadata**")
+            st.write(f"Analyzed at: {format_timestamp_la(row.get('analyzed_at'))}")
             st.markdown("**Training profiles**")
             st.write(
                 f"Home PF mean: {row.get('home_profile_pf_mean', '—')} "

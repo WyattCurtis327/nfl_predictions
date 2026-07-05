@@ -5,6 +5,7 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
+from display_time import format_timestamp_la, format_timestamps_in_frame
 from queries import (
     cause_by_week_sql,
     cause_summary_sql,
@@ -28,7 +29,8 @@ VIEW = pick_miss_rca_view()
 st.title("Misses & Root Cause Analysis")
 st.caption(
     "Review spread and total picks that missed, see how projections stacked up, "
-    "and read ranked explanations for each game."
+    "and read ranked explanations for each game. "
+    "Times shown in America/Los_Angeles as `yyyy-MM-dd_hh_mm`."
 )
 
 with st.expander("How to use this page", expanded=False):
@@ -123,7 +125,7 @@ def _score_comparison(row: pd.Series) -> pd.DataFrame:
 def _render_game_card(row: pd.Series) -> None:
     st.markdown(f"### {row['away_abbr']} @ {row['home_abbr']}")
     st.caption(
-        f"Week {row['week']} · {row.get('gameday', '')} · "
+        f"Week {row['week']} · {format_timestamp_la(row.get('gameday'))} · "
         f"missed **{row['miss_types']}** · `{row['primary_cause']}`"
     )
 
@@ -150,6 +152,7 @@ def _render_game_card(row: pd.Series) -> None:
         else:
             st.write(f"Total pick: **{row.get('total_pick', '—')}**")
         st.write(f"Projection source: `{row.get('projection_source', '—')}`")
+        st.write(f"Analyzed at: {format_timestamp_la(row.get('analyzed_at'))}")
     with right:
         st.markdown("**Training & game signals**")
         st.write(
@@ -265,6 +268,7 @@ with tab_week:
             [
                 "week",
                 "gameday",
+                "analyzed_at",
                 "away_abbr",
                 "home_abbr",
                 "miss_types",
@@ -277,7 +281,11 @@ with tab_week:
                 "actual_home_score",
             ]
         ].copy()
-        st.dataframe(board, use_container_width=True, hide_index=True)
+        st.dataframe(
+            format_timestamps_in_frame(board),
+            use_container_width=True,
+            hide_index=True,
+        )
         st.subheader("Details")
         for _, row in misses.iterrows():
             with st.expander(f"{row['away_abbr']} @ {row['home_abbr']} — {row['primary_cause']}"):

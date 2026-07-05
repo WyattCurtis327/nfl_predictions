@@ -5,6 +5,7 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
+from display_time import format_timestamp_la, format_timestamps_in_frame
 from queries import latest_picks_sql, list_season_weeks_sql
 from shared import DEFAULT_SEASON, predictions_table, sql_query, table_has_column
 
@@ -43,7 +44,8 @@ def load_picks(*, season: int, week: int, has_model_id: bool) -> pd.DataFrame:
 st.title("NFL Weekly Picks")
 st.caption(
     f"Latest model spread and total picks from `{PREDICTIONS_TABLE}` "
-    "(one row per game from the most recent prediction run)."
+    "(one row per game from the most recent prediction run). "
+    "Times shown in America/Los_Angeles as `yyyy-MM-dd_hh_mm`."
 )
 link1, link2 = st.columns(2)
 with link1:
@@ -87,8 +89,9 @@ if picks.empty:
     st.stop()
 
 run_id = picks["prediction_run_id"].iloc[0]
-predicted_at = picks["predicted_at"].iloc[0]
+predicted_at = format_timestamp_la(picks["predicted_at"].iloc[0])
 threshold = float(picks["pick_threshold"].dropna().iloc[0]) if picks["pick_threshold"].notna().any() else 0.55
+picks = format_timestamps_in_frame(picks)
 
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Games", len(picks))
