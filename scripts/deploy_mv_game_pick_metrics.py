@@ -185,7 +185,14 @@ def deploy_metric_view(
             stmt = "\n".join(lines).strip()
             if not stmt:
                 continue
-            alter_response = _execute_sql(stmt, label="model_id column alter")
+            try:
+                alter_response = _execute_sql(stmt, label="model_id column alter")
+            except SystemExit as exc:
+                message = str(exc).lower()
+                if "already exists" in message or "duplicate" in message:
+                    print(f"Skipped (column exists): {stmt.splitlines()[0]}")
+                    continue
+                raise
             print(f"Applied: {stmt.splitlines()[0]}")
             print(f"statement_id: {alter_response.get('statement_id')}")
 

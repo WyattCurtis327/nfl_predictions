@@ -8,4 +8,4 @@ resources:
         metric view.
       warehouse_id: ${var.sql_warehouse_id}
       parent_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
-      file_path: ../src/nfl_game_pick_metrics.geniespace.json
+      file_path: ../../src/nfl_game_pick_metrics.geniespace.json

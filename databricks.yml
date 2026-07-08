@@ -99,6 +99,12 @@ variables:
   sql_warehouse_id:
     description: SQL warehouse ID for Genie space queries (set via .env / sync_bundle_env)
     default: ""
+  genie_pick_metrics_space_id:
+    description: Genie space ID for NFL Pick Metrics (synced from bundle state; required by nfl_copilot)
+    default: ""
+  genie_pick_miss_rca_space_id:
+    description: Genie space ID for NFL Pick Miss RCA (synced from bundle state; required by nfl_copilot)
+    default: ""
 targets:
   dev:
     mode: development

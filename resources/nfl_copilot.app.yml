@@ -60,11 +60,11 @@ resources:
           description: Genie space for pick accuracy questions
           genie_space:
             name: nfl_game_pick_metrics
-            space_id: ${resources.genie_spaces.nfl_game_pick_metrics.id}
+            space_id: ${var.genie_pick_metrics_space_id}
             permission: CAN_RUN
         - name: genie-pick-rca
           description: Genie space for miss RCA questions
           genie_space:
             name: nfl_pick_miss_rca
-            space_id: ${resources.genie_spaces.nfl_pick_miss_rca.id}
+            space_id: ${var.genie_pick_miss_rca_space_id}
             permission: CAN_RUN

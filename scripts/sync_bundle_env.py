@@ -35,6 +35,36 @@ def _bundle_var_overrides_path(target: str = DEFAULT_BUNDLE_TARGET) -> Path:
     return REPO_ROOT / ".databricks" / "bundle" / target / "variable-overrides.json"
 
 
+def _bundle_resources_path(target: str = DEFAULT_BUNDLE_TARGET) -> Path:
+    return REPO_ROOT / ".databricks" / "bundle" / target / "resources.json"
+
+
+def _genie_space_ids_from_state(target: str = DEFAULT_BUNDLE_TARGET) -> dict[str, str]:
+    """Read deployed Genie space IDs from local bundle state."""
+    path = _bundle_resources_path(target)
+    if not path.exists():
+        return {}
+
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+
+    resources = data.get("state", data)
+
+    mapping = {
+        "genie_pick_metrics_space_id": "resources.genie_spaces.nfl_game_pick_metrics",
+        "genie_pick_miss_rca_space_id": "resources.genie_spaces.nfl_pick_miss_rca",
+    }
+    overrides: dict[str, str] = {}
+    for var_name, resource_key in mapping.items():
+        resource = resources.get(resource_key, {})
+        space_id = str(resource.get("__id__", "")).strip()
+        if space_id:
+            overrides[var_name] = space_id
+    return overrides
+
+
 def _workspace_host(profile: str) -> str:
     """Read https:// host from ~/.databrickscfg for the given profile."""
     cfg_path = Path.home() / ".databrickscfg"
@@ -200,6 +230,22 @@ def _sql_warehouse_id(env: dict[str, str]) -> str:
     return env.get("DATABRICKS_WAREHOUSE_ID", "").strip()
 
 
+def _bundle_var_overrides(
+    env: dict[str, str],
+    *,
+    target: str = DEFAULT_BUNDLE_TARGET,
+) -> dict[str, str]:
+    overrides: dict[str, str] = {}
+    email = _notify_email(env)
+    warehouse_id = _sql_warehouse_id(env)
+    if email:
+        overrides["notify_email"] = email
+    if warehouse_id:
+        overrides["sql_warehouse_id"] = warehouse_id
+    overrides.update(_genie_space_ids_from_state(target))
+    return overrides
+
+
 def _sync_bundle_var_overrides(
     env: dict[str, str],
     *,
@@ -208,18 +254,33 @@ def _sync_bundle_var_overrides(
     path = _bundle_var_overrides_path(target)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    overrides: dict[str, str] = {}
-    email = _notify_email(env)
-    warehouse_id = _sql_warehouse_id(env)
-    if email:
-        overrides["notify_email"] = email
-    if warehouse_id:
-        overrides["sql_warehouse_id"] = warehouse_id
+    overrides = _bundle_var_overrides(env, target=target)
 
     if overrides:
         path.write_text(json.dumps(overrides, indent=2) + "\n", encoding="utf-8")
     elif path.exists():
         path.unlink()
+
+
+def _sync_vscode_bundlevars(
+    env: dict[str, str],
+    *,
+    target: str = DEFAULT_BUNDLE_TARGET,
+) -> None:
+    """Mirror bundle variable overrides for the VS Code extension Variables view."""
+    path = _vscode_bundlevars_path(target)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    overrides = _bundle_var_overrides(env, target=target)
+
+    if overrides:
+        path.write_text(json.dumps(overrides, indent=2) + "\n", encoding="utf-8")
+    elif path.exists():
+        path.unlink()
+
+
+def _vscode_bundlevars_path(target: str = DEFAULT_BUNDLE_TARGET) -> Path:
+    return REPO_ROOT / ".databricks" / "bundle" / target / "vscode.bundlevars.json"
 
 
 def _vscode_overrides_path(target: str = DEFAULT_BUNDLE_TARGET) -> Path:
@@ -283,6 +344,7 @@ def sync_from_env_file(env_path: Path = ENV_FILE) -> None:
     _sync_databricks_yml_workspace(host, profile)
     _sync_vscode_overrides(profile)
     _sync_bundle_var_overrides(merged)
+    _sync_vscode_bundlevars(merged)
 
     if profile:
         print(f"Synced profile={profile!r}, serverless compute")
@@ -297,6 +359,12 @@ def sync_from_env_file(env_path: Path = ENV_FILE) -> None:
         print(f"Synced sql_warehouse_id for Genie + SQL deploy scripts")
     else:
         print("No DATABRICKS_WAREHOUSE_ID set in .env")
+    genie_ids = _genie_space_ids_from_state()
+    if genie_ids:
+        print(
+            "Synced Genie space IDs for nfl_copilot: "
+            + ", ".join(f"{k}={v[:8]}..." for k, v in genie_ids.items())
+        )
     if host:
         print(f"Synced workspace host={host.rstrip('/')}")
     print(f"Updated {ENV_FILE}")
@@ -306,6 +374,7 @@ def sync_from_env_file(env_path: Path = ENV_FILE) -> None:
     print(f"Updated {_vscode_overrides_path()}")
     if email or warehouse_id:
         print(f"Updated {_bundle_var_overrides_path()}")
+        print(f"Updated {_vscode_bundlevars_path()}")
 
 
 def main() -> None:

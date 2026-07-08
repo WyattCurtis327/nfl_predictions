@@ -2,6 +2,21 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Deploy Databricks Bundle (prod)",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/Scripts/python.exe",
+      "args": ["${workspaceFolder}/scripts/deploy_bundle.py", "prod"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "dependsOn": ["Sync Databricks Connect"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Sync Databricks Connect",
       "type": "shell",
       "command": "${workspaceFolder}/.venv/Scripts/python.exe",
