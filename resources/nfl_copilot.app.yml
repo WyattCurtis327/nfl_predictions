@@ -1,0 +1,68 @@
+resources:
+  apps:
+    nfl_copilot:
+      name: nfl-copilot
+      description: Unified NFL predictions workspace — picks, PBP ratings, RCA, and model stack.
+      source_code_path: ../app/nfl_copilot
+      lifecycle:
+        started: true
+      config:
+        env:
+          - name: DATABRICKS_WAREHOUSE_ID
+            value_from: sql-warehouse
+          - name: NFL_CATALOG
+            value: ${var.catalog}
+          - name: NFL_PREDICTIONS_SCHEMA
+            value: ${var.predictions_schema}
+          - name: NFL_PBP_SCHEMA
+            value: ${var.pbp_schema}
+          - name: NFL_SCHEDULE_SEASON
+            value: ${var.schedule_season}
+          - name: STREAMLIT_BROWSER_GATHER_USAGE_STATS
+            value: "false"
+      resources:
+        - name: sql-warehouse
+          description: SQL warehouse for Copilot queries
+          sql_warehouse:
+            id: ${var.sql_warehouse_id}
+            permission: CAN_USE
+        - name: predictions-table
+          description: Latest model picks per game
+          uc_securable:
+            securable_type: TABLE
+            securable_full_name: ${var.catalog}.${var.predictions_schema}.game_predictions
+            permission: SELECT
+        - name: prediction-grades-table
+          description: Graded pick outcomes
+          uc_securable:
+            securable_type: TABLE
+            securable_full_name: ${var.catalog}.${var.predictions_schema}.prediction_grades
+            permission: SELECT
+        - name: prediction-rca-table
+          description: Deterministic RCA for missed picks
+          uc_securable:
+            securable_type: TABLE
+            securable_full_name: ${var.catalog}.${var.predictions_schema}.prediction_rca
+            permission: SELECT
+        - name: pick-miss-rca-view
+          description: Joined misses and RCA
+          uc_securable:
+            securable_type: TABLE
+            securable_full_name: ${var.catalog}.${var.predictions_schema}.pick_miss_rca
+            permission: SELECT
+        - name: play-by-play-table
+          description: Play-by-play for team rating analytics
+          uc_securable:
+            securable_type: TABLE
+            securable_full_name: ${var.catalog}.${var.pbp_schema}.play_by_play
+            permission: SELECT
+        - name: genie-pick-metrics
+          description: Genie space for pick accuracy questions
+          genie_space:
+            space_id: ${resources.genie_spaces.nfl_game_pick_metrics.id}
+            permission: CAN_RUN
+        - name: genie-pick-rca
+          description: Genie space for miss RCA questions
+          genie_space:
+            space_id: ${resources.genie_spaces.nfl_pick_miss_rca.id}
+            permission: CAN_RUN
