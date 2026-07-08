@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
 from pathlib import Path
 
 
@@ -39,6 +40,22 @@ def _bundle_resources_path(target: str = DEFAULT_BUNDLE_TARGET) -> Path:
     return REPO_ROOT / ".databricks" / "bundle" / target / "resources.json"
 
 
+_GENIE_VAR_ENV_KEYS = {
+    "genie_pick_metrics_space_id": (
+        "genie_pick_metrics_space_id",
+        "NFL_GENIE_METRICS_SPACE_ID",
+    ),
+    "genie_pick_miss_rca_space_id": (
+        "genie_pick_miss_rca_space_id",
+        "NFL_GENIE_RCA_SPACE_ID",
+    ),
+}
+_GENIE_APP_RESOURCE_NAMES = {
+    "genie_pick_metrics_space_id": "nfl_game_pick_metrics",
+    "genie_pick_miss_rca_space_id": "nfl_pick_miss_rca",
+}
+
+
 def _genie_space_ids_from_state(target: str = DEFAULT_BUNDLE_TARGET) -> dict[str, str]:
     """Read deployed Genie space IDs from local bundle state."""
     path = _bundle_resources_path(target)
@@ -63,6 +80,70 @@ def _genie_space_ids_from_state(target: str = DEFAULT_BUNDLE_TARGET) -> dict[str
         if space_id:
             overrides[var_name] = space_id
     return overrides
+
+
+def _genie_space_ids_from_env(env: dict[str, str]) -> dict[str, str]:
+    overrides: dict[str, str] = {}
+    for var_name, keys in _GENIE_VAR_ENV_KEYS.items():
+        for key in keys:
+            space_id = env.get(key, "").strip()
+            if space_id:
+                overrides[var_name] = space_id
+                break
+    return overrides
+
+
+def _genie_space_ids_from_app(profile: str) -> dict[str, str]:
+    """Fallback: read Genie space IDs already linked on the deployed nfl-copilot app."""
+    if not profile:
+        return {}
+
+    cmd = [
+        "databricks",
+        "apps",
+        "get",
+        "nfl-copilot",
+        "--profile",
+        profile,
+        "-o",
+        "json",
+    ]
+    result = subprocess.run(cmd, check=False, capture_output=True, text=True)
+    if result.returncode != 0:
+        return {}
+
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return {}
+
+    by_name = {
+        str(resource.get("genie_space", {}).get("name", "")).strip(): str(
+            resource.get("genie_space", {}).get("space_id", "")
+        ).strip()
+        for resource in payload.get("resources", [])
+        if resource.get("genie_space")
+    }
+    overrides: dict[str, str] = {}
+    for var_name, genie_name in _GENIE_APP_RESOURCE_NAMES.items():
+        space_id = by_name.get(genie_name, "")
+        if space_id:
+            overrides[var_name] = space_id
+    return overrides
+
+
+def _genie_space_ids(
+    env: dict[str, str],
+    *,
+    target: str = DEFAULT_BUNDLE_TARGET,
+    profile: str = "",
+) -> dict[str, str]:
+    """Resolve Genie space bundle vars (bundle state > .env > nfl-copilot app)."""
+    merged: dict[str, str] = {}
+    merged.update(_genie_space_ids_from_app(profile))
+    merged.update(_genie_space_ids_from_env(env))
+    merged.update(_genie_space_ids_from_state(target))
+    return merged
 
 
 def _workspace_host(profile: str) -> str:
@@ -242,7 +323,7 @@ def _bundle_var_overrides(
         overrides["notify_email"] = email
     if warehouse_id:
         overrides["sql_warehouse_id"] = warehouse_id
-    overrides.update(_genie_space_ids_from_state(target))
+    overrides.update(_genie_space_ids(env, target=target, profile=_profile(env)))
     return overrides
 
 
@@ -359,7 +440,7 @@ def sync_from_env_file(env_path: Path = ENV_FILE) -> None:
         print(f"Synced sql_warehouse_id for Genie + SQL deploy scripts")
     else:
         print("No DATABRICKS_WAREHOUSE_ID set in .env")
-    genie_ids = _genie_space_ids_from_state()
+    genie_ids = _genie_space_ids(merged, profile=profile)
     if genie_ids:
         print(
             "Synced Genie space IDs for nfl_copilot: "
