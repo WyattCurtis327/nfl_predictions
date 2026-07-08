@@ -61,9 +61,12 @@ def _notify_email() -> str:
     return os.environ.get("DATABRICKS_EMAIL_ACCOUNT", "").strip()
 
 
+APP_NAMES = ("nfl-copilot", "nfl-rca-dashboard", "nfl-weekly-picks")
+
+
 def _app_service_principals(profile: str) -> list[str]:
     principals: list[str] = []
-    for app_name in ("nfl-rca-dashboard", "nfl-weekly-picks"):
+    for app_name in APP_NAMES:
         cmd = [
             "databricks",
             "apps",

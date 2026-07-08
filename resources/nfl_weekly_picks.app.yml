@@ -45,6 +45,6 @@ resources:
         - name: pick-miss-rca-view
           description: Joined misses and RCA for the app and Genie
           uc_securable:
-            securable_type: TABLE
+            securable_type: VIEW
             securable_full_name: ${var.catalog}.${var.predictions_schema}.pick_miss_rca
             permission: SELECT
