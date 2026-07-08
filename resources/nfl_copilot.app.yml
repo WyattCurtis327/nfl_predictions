@@ -59,10 +59,12 @@ resources:
         - name: genie-pick-metrics
           description: Genie space for pick accuracy questions
           genie_space:
+            name: nfl_game_pick_metrics
             space_id: ${resources.genie_spaces.nfl_game_pick_metrics.id}
             permission: CAN_RUN
         - name: genie-pick-rca
           description: Genie space for miss RCA questions
           genie_space:
+            name: nfl_pick_miss_rca
             space_id: ${resources.genie_spaces.nfl_pick_miss_rca.id}
             permission: CAN_RUN

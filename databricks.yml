@@ -104,10 +104,12 @@ targets:
     mode: development
     workspace:
       host: https://dbc-89a97ed5-5f7d.cloud.databricks.com
+      profile: wyatts_databricks
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
   prod:
     mode: production
     default: true
     workspace:
       host: https://dbc-89a97ed5-5f7d.cloud.databricks.com
+      profile: wyatts_databricks
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

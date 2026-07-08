@@ -62,32 +62,59 @@ def _workspace_host(profile: str) -> str:
     return host.rstrip("/") + "/"
 
 
-def _sync_databricks_yml_host(host: str) -> None:
-    """Keep workspace.host in databricks.yml aligned with the CLI profile.
+def _sync_databricks_yml_workspace(host: str, profile: str) -> None:
+    """Keep workspace.host and workspace.profile in databricks.yml aligned with .env.
 
     The VS Code extension parses bundle YAML directly and throws
     'Invalid host name' when workspace.host is missing.
     """
-    if not host or not BUNDLE_FILE.exists():
+    if not BUNDLE_FILE.exists():
+        return
+    if not host and not profile:
         return
 
-    normalized = host.rstrip("/")
     text = BUNDLE_FILE.read_text(encoding="utf-8")
-    host_line = f"      host: {normalized}"
+    updated = text
 
-    if re.search(r"^      host: ", text, flags=re.MULTILINE):
-        updated = re.sub(
-            r"^      host: .*$",
-            host_line,
-            text,
-            flags=re.MULTILINE,
-        )
-    else:
-        updated = text.replace(
-            "    workspace:\n      root_path:",
-            f"    workspace:\n{host_line}\n      root_path:",
-            1,
-        )
+    if host:
+        normalized = host.rstrip("/")
+        host_line = f"      host: {normalized}"
+        if re.search(r"^      host: ", updated, flags=re.MULTILINE):
+            updated = re.sub(
+                r"^      host: .*$",
+                host_line,
+                updated,
+                flags=re.MULTILINE,
+            )
+        else:
+            updated = updated.replace(
+                "    workspace:\n      root_path:",
+                f"    workspace:\n{host_line}\n      root_path:",
+                1,
+            )
+
+    if profile:
+        profile_line = f"      profile: {profile}"
+        if re.search(r"^      profile: ", updated, flags=re.MULTILINE):
+            updated = re.sub(
+                r"^      profile: .*$",
+                profile_line,
+                updated,
+                flags=re.MULTILINE,
+            )
+        elif re.search(r"^      host: ", updated, flags=re.MULTILINE):
+            updated = re.sub(
+                r"^(      host: .*)$",
+                rf"\1\n{profile_line}",
+                updated,
+                flags=re.MULTILINE,
+            )
+        else:
+            updated = updated.replace(
+                "    workspace:\n      root_path:",
+                f"    workspace:\n{profile_line}\n      root_path:",
+                1,
+            )
 
     if updated != text:
         BUNDLE_FILE.write_text(updated, encoding="utf-8")
@@ -253,7 +280,7 @@ def sync_from_env_file(env_path: Path = ENV_FILE) -> None:
 
     _upsert_env_file(ENV_FILE, connect_updates)
     _upsert_vscode_env(vscode_updates)
-    _sync_databricks_yml_host(host)
+    _sync_databricks_yml_workspace(host, profile)
     _sync_vscode_overrides(profile)
     _sync_bundle_var_overrides(merged)
 
