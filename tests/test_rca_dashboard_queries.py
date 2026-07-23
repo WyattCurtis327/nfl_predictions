@@ -17,13 +17,13 @@ parse_causes = _mod.parse_causes
 
 
 def test_list_rca_seasons_sql():
-    sql = list_rca_seasons_sql("nfl.predictions.pick_miss_rca")
+    sql = list_rca_seasons_sql("nfl.gold.pick_miss_rca")
     assert "GROUP BY season" in sql
 
 
 def test_missed_picks_sql_supports_cause_filter():
     sql = missed_picks_sql(
-        "nfl.predictions.pick_miss_rca",
+        "nfl.gold.pick_miss_rca",
         season=2025,
         week=7,
         primary_cause="pbp_profile_miss",
@@ -34,12 +34,12 @@ def test_missed_picks_sql_supports_cause_filter():
 
 
 def test_cause_by_week_sql():
-    sql = cause_by_week_sql("nfl.predictions.pick_miss_rca", season=2025)
+    sql = cause_by_week_sql("nfl.gold.pick_miss_rca", season=2025)
     assert "GROUP BY week, primary_cause" in sql
 
 
 def test_game_detail_sql_escapes_quotes():
-    sql = game_detail_sql("nfl.predictions.pick_miss_rca", game_id="2025_01_X")
+    sql = game_detail_sql("nfl.gold.pick_miss_rca", game_id="2025_01_X")
     assert "game_id = '2025_01_X'" in sql
 
 
@@ -68,7 +68,7 @@ def test_parse_causes_empty():
 
 
 def test_model_leaderboard_sql_groups_by_model_id():
-    sql = model_leaderboard_sql("nfl.predictions.prediction_grades", season=2026)
+    sql = model_leaderboard_sql("nfl.gold.prediction_grades", season=2026)
     assert "COALESCE(model_id, 'monte_carlo')" in sql
     assert "season = 2026" in sql
     assert "spread_push IS NOT TRUE" in sql
@@ -76,7 +76,7 @@ def test_model_leaderboard_sql_groups_by_model_id():
 
 def test_model_leaderboard_sql_without_model_id_column():
     sql = model_leaderboard_sql(
-        "nfl.predictions.prediction_grades",
+        "nfl.gold.prediction_grades",
         season=2026,
         has_model_id=False,
     )

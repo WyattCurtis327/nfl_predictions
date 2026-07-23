@@ -33,7 +33,7 @@ For each upcoming game:
 3. **Market blend** (`market_blend`, default 0.35) — calibrates to DraftKings spread/total.
 4. **Monte Carlo** — 10k simulations → spread/total picks above `pick_threshold`.
 
-nfelo data is refreshed weekly via `22_ingest_nfelo_ratings` into `nfl.teams.nfelo_ratings` and `nfl.teams.nfelo_games`. For future seasons before nfelo publishes game lines, team-rating fallback uses the prior season's final snapshot.
+nfelo data is refreshed weekly via `22_ingest_nfelo_ratings` into `nfl.landing.nfelo_ratings` and `nfl.landing.nfelo_games`. For future seasons before nfelo publishes game lines, team-rating fallback uses the prior season's final snapshot.
 
 ### Odds sources
 
@@ -111,17 +111,13 @@ python scripts/test_databricks_connect.py
 
 `.vscode/settings.json` loads `.env` and a folder-open task runs `sync_bundle_env.py`. Reload the window once after cloning.
 
-## Unity Catalog
+## Unity Catalog (medallion)
 
-| Schema | Tables / views |
-|--------|----------------|
-| `nfl.schedules` | `games` |
-| `nfl.teams` | `teams`, `nfelo_ratings`, `nfelo_games` |
-| `nfl.pbp` | `play_by_play` |
-| `nfl.rosters` | `rosters` |
-| `nfl.players` | `players`, `player_roles` |
-| `nfl.odds` | `game_odds`, `odds_lines`, `game_odds_latest`, `odds_ingest_gaps` |
-| `nfl.predictions` | `game_predictions`, `prediction_grades`, `game_pick_metrics` (metric view) |
+| Schema | Role | Tables / views |
+|--------|------|----------------|
+| `nfl.landing` | Raw ingest | `games`, `teams`, `nfelo_*`, `play_by_play`, `rosters`, `players`, `player_roles`, `game_odds`, `odds_lines`, `game_odds_latest`, `odds_ingest_gaps` |
+| `nfl.bronze` / `nfl.silver` | Curated layers | Materialized views from the medallion pipeline |
+| `nfl.gold` | Product / analytics | `game_predictions`, `current_predictions`, `prediction_grades`, `prediction_rca`, `pick_miss_rca`, `game_pick_metrics`, gold aggregates |
 
 ## Jobs
 
@@ -218,7 +214,7 @@ Open from bundle summary or the Apps page in the workspace.
 
 ## Schema metadata
 
-Unity Catalog column comments live in `resources/schema/`. Apply via `80_apply_uc_column_descriptions`; pull edits back with `pull_uc_column_descriptions.py`.
+Unity Catalog column comments live under `resources/schema/nfl/landing/` and `resources/schema/nfl/gold/`. Apply via `80_apply_uc_column_descriptions`; pull edits back with `pull_uc_column_descriptions.py`.
 
 ## Conventions
 

@@ -2,7 +2,7 @@
 # MAGIC %md
 # MAGIC # Predict upcoming week (multi-model)
 # MAGIC Runs Monte Carlo plus alternative model families and appends to
-# MAGIC `nfl.predictions.game_predictions` with distinct `model_id` values.
+# MAGIC `nfl.gold.game_predictions` with distinct `model_id` values.
 
 # COMMAND ----------
 

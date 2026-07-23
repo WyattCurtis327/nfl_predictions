@@ -14,19 +14,19 @@ parse_causes = _mod.parse_causes
 
 
 def test_list_rca_season_weeks_sql():
-    sql = list_rca_season_weeks_sql("nfl.predictions.pick_miss_rca")
-    assert "FROM nfl.predictions.pick_miss_rca" in sql
+    sql = list_rca_season_weeks_sql("nfl.gold.pick_miss_rca")
+    assert "FROM nfl.gold.pick_miss_rca" in sql
 
 
 def test_missed_picks_sql_filters_week():
-    sql = missed_picks_sql("nfl.predictions.pick_miss_rca", season=2025, week=7)
+    sql = missed_picks_sql("nfl.gold.pick_miss_rca", season=2025, week=7)
     assert "season = 2025" in sql
     assert "week = 7" in sql
     assert "primary_cause" in sql
 
 
 def test_cause_summary_sql():
-    sql = cause_summary_sql("nfl.predictions.pick_miss_rca", season=2025)
+    sql = cause_summary_sql("nfl.gold.pick_miss_rca", season=2025)
     assert "GROUP BY primary_cause" in sql
 
 

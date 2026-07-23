@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Load PBP from UC Volume
-# MAGIC Reads volume parquet into `nfl.pbp.play_by_play`.
+# MAGIC Reads volume parquet into `nfl.landing.play_by_play`.
 # MAGIC Drops preseason, joins `schedules.games` for `game_type`, and keeps REG + playoffs only.
 
 # COMMAND ----------

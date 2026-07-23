@@ -120,7 +120,7 @@ with st.expander("Data sources"):
         f"""
 {PREDICTIONS_TABLE}
 {RCA_VIEW}
-nfl.pbp.play_by_play
+nfl.landing.play_by_play
         """.strip(),
         language="sql",
     )

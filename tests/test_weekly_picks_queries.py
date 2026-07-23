@@ -13,18 +13,18 @@ predictions_table = _mod.predictions_table
 
 
 def test_predictions_table():
-    assert predictions_table("nfl", "predictions") == "nfl.predictions.game_predictions"
+    assert predictions_table("nfl", "gold") == "nfl.gold.game_predictions"
 
 
 def test_list_season_weeks_sql_references_table():
-    sql = list_season_weeks_sql("nfl.predictions.game_predictions")
-    assert "FROM nfl.predictions.game_predictions" in sql
+    sql = list_season_weeks_sql("nfl.gold.game_predictions")
+    assert "FROM nfl.gold.game_predictions" in sql
     assert "GROUP BY season, week" in sql
 
 
 def test_latest_picks_sql_dedupes_and_filters_with_model_id():
     sql = latest_picks_sql(
-        "nfl.predictions.game_predictions",
+        "nfl.gold.game_predictions",
         season=2026,
         week=1,
         has_model_id=True,
@@ -39,7 +39,7 @@ def test_latest_picks_sql_dedupes_and_filters_with_model_id():
 
 def test_latest_picks_sql_without_model_id_column():
     sql = latest_picks_sql(
-        "nfl.predictions.game_predictions",
+        "nfl.gold.game_predictions",
         season=2026,
         week=1,
         has_model_id=False,

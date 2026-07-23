@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Ingest nflverse schedules
-# MAGIC Merges REG + playoff games into `nfl.schedules.games` (preseason excluded).
+# MAGIC Merges REG + playoff games into `nfl.landing.games` (preseason excluded).
 
 # COMMAND ----------
 

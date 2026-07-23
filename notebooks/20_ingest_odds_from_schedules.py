@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Ingest nflverse odds from schedules
-# MAGIC Extracts closing lines embedded in `nfl.schedules.games` into `nfl.odds.*`.
+# MAGIC Extracts closing lines embedded in `nfl.landing.games` into `nfl.landing` odds tables.
 
 # COMMAND ----------
 

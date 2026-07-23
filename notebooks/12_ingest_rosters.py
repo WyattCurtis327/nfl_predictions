@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Ingest nflverse rosters
-# MAGIC Loads current-season roster snapshot into `nfl.rosters.rosters`.
+# MAGIC Loads current-season roster snapshot into `nfl.landing.rosters`.
 
 # COMMAND ----------
 

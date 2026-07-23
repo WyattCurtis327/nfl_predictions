@@ -17,7 +17,7 @@ PICK_MISS_RCA_VIEW_SQL = SQL_DIR / "create_vw_pick_miss_rca.sql"
 METRIC_VIEW_SQL = SQL_DIR / "create_mv_game_pick_metrics.sql"
 ALTER_MODEL_ID_SQL = SQL_DIR / "alter_game_predictions_add_model_id.sql"
 DEFAULT_CATALOG = "nfl"
-DEFAULT_PREDICTIONS_SCHEMA = "predictions"
+DEFAULT_PREDICTIONS_SCHEMA = "gold"
 
 
 def _profile() -> str:
@@ -94,7 +94,7 @@ def _grant_predictions_read_access(
     principals: list[str],
 ) -> None:
     schema = f"{catalog}.{predictions_schema}"
-    pbp_schema = os.environ.get("NFL_PBP_SCHEMA", "pbp")
+    pbp_schema = os.environ.get("NFL_PBP_SCHEMA", "landing")
     objects = [
         ("TABLE", f"{schema}.prediction_grades"),
         ("TABLE", f"{schema}.prediction_rca"),

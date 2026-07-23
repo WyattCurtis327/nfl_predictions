@@ -2,7 +2,7 @@
 # MAGIC %md
 # MAGIC # Ingest Odds API lines
 # MAGIC Fetches live NFL odds (or reads staged JSON), matches `game_id` from
-# MAGIC `nfl.schedules.games`, and merges into `nfl.odds.*`.
+# MAGIC `nfl.landing.games`, and merges into `nfl.landing` odds tables.
 
 # COMMAND ----------
 

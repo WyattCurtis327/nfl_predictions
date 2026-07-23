@@ -1,5 +1,5 @@
 {
-  "table": "nfl.pbp.play_by_play",
+  "table": "nfl.landing.play_by_play",
   "comment": "",
   "columns": [
     {

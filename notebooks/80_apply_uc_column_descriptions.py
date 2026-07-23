@@ -25,7 +25,7 @@ dbutils.widgets.text("rosters_schema", DEFAULT_ROSTERS_SCHEMA, "Rosters schema")
 dbutils.widgets.text("players_schema", DEFAULT_PLAYERS_SCHEMA, "Players schema")
 dbutils.widgets.text("odds_schema", DEFAULT_ODDS_SCHEMA, "Odds schema")
 dbutils.widgets.text("predictions_schema", DEFAULT_PREDICTIONS_SCHEMA, "Predictions schema")
-dbutils.widgets.text("only_schema", "", "Apply only this canonical schema (e.g. predictions)")
+dbutils.widgets.text("only_schema", "", "Apply only this metadata folder (e.g. landing or gold)")
 dbutils.widgets.dropdown("skip_missing_tables", "false", ["true", "false"], "Skip tables that do not exist")
 dbutils.widgets.text("schema_dir", "", "Workspace path to resources/schema")
 

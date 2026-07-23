@@ -1,17 +1,34 @@
-"""Unity Catalog path helpers aligned with Databricks bundle variables."""
+"""Unity Catalog path helpers for the medallion layout.
+
+Layers (catalog ``nfl`` by default):
+
+* **landing** — raw ingested domain tables (schedules, teams, PBP, odds, …)
+* **bronze / silver / gold** — curated layers; prediction *outputs* live in **gold**
+
+Job widgets still accept per-domain schema parameters for override flexibility, but
+defaults all point at ``landing`` (domain) or ``gold`` (predictions).
+"""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
 DEFAULT_CATALOG = "nfl"
-DEFAULT_TEAMS_SCHEMA = "teams"
-DEFAULT_SCHEDULES_SCHEMA = "schedules"
-DEFAULT_PBP_SCHEMA = "pbp"
-DEFAULT_ROSTERS_SCHEMA = "rosters"
-DEFAULT_PLAYERS_SCHEMA = "players"
-DEFAULT_ODDS_SCHEMA = "odds"
-DEFAULT_PREDICTIONS_SCHEMA = "predictions"
+
+# Medallion layers
+DEFAULT_LANDING_SCHEMA = "landing"
+DEFAULT_BRONZE_SCHEMA = "bronze"
+DEFAULT_SILVER_SCHEMA = "silver"
+DEFAULT_GOLD_SCHEMA = "gold"
+
+# Domain / product schema defaults (full path cutover targets)
+DEFAULT_TEAMS_SCHEMA = DEFAULT_LANDING_SCHEMA
+DEFAULT_SCHEDULES_SCHEMA = DEFAULT_LANDING_SCHEMA
+DEFAULT_PBP_SCHEMA = DEFAULT_LANDING_SCHEMA
+DEFAULT_ROSTERS_SCHEMA = DEFAULT_LANDING_SCHEMA
+DEFAULT_PLAYERS_SCHEMA = DEFAULT_LANDING_SCHEMA
+DEFAULT_ODDS_SCHEMA = DEFAULT_LANDING_SCHEMA
+DEFAULT_PREDICTIONS_SCHEMA = DEFAULT_GOLD_SCHEMA
 
 
 @dataclass(frozen=True)
@@ -24,6 +41,8 @@ class UcPaths:
     players: str = DEFAULT_PLAYERS_SCHEMA
     odds: str = DEFAULT_ODDS_SCHEMA
     predictions: str = DEFAULT_PREDICTIONS_SCHEMA
+    bronze: str = DEFAULT_BRONZE_SCHEMA
+    silver: str = DEFAULT_SILVER_SCHEMA
 
     def table(self, schema: str, table: str) -> str:
         return f"{self.catalog}.{schema}.{table}"
@@ -70,6 +89,9 @@ class UcPaths:
     def game_predictions_table(self) -> str:
         return self.table(self.predictions, "game_predictions")
 
+    def current_predictions_table(self) -> str:
+        return self.table(self.predictions, "current_predictions")
+
     def prediction_grades_table(self) -> str:
         return self.table(self.predictions, "prediction_grades")
 
@@ -82,16 +104,32 @@ class UcPaths:
     def game_pick_metrics_view(self) -> str:
         return self.table(self.predictions, "game_pick_metrics")
 
+    def bronze_table(self, table: str) -> str:
+        return self.table(self.bronze, table)
+
+    def silver_table(self, table: str) -> str:
+        return self.table(self.silver, table)
+
     def schema_map(self) -> dict[str, str]:
-        """Map canonical schema names in metadata JSON to configured schemas."""
+        """Map metadata JSON schema segments to configured schemas.
+
+        Includes legacy domain names (teams, schedules, …) and medallion
+        folder names (landing, gold) so both metadata layouts remap correctly.
+        """
         return {
-            DEFAULT_TEAMS_SCHEMA: self.teams,
-            DEFAULT_SCHEDULES_SCHEMA: self.schedules,
-            DEFAULT_PBP_SCHEMA: self.pbp,
-            DEFAULT_ROSTERS_SCHEMA: self.rosters,
-            DEFAULT_PLAYERS_SCHEMA: self.players,
-            DEFAULT_ODDS_SCHEMA: self.odds,
-            DEFAULT_PREDICTIONS_SCHEMA: self.predictions,
+            # Legacy domain folders / table prefixes
+            "teams": self.teams,
+            "schedules": self.schedules,
+            "pbp": self.pbp,
+            "rosters": self.rosters,
+            "players": self.players,
+            "odds": self.odds,
+            "predictions": self.predictions,
+            # Medallion folders
+            DEFAULT_LANDING_SCHEMA: self.schedules,
+            DEFAULT_GOLD_SCHEMA: self.predictions,
+            DEFAULT_BRONZE_SCHEMA: self.bronze,
+            DEFAULT_SILVER_SCHEMA: self.silver,
         }
 
     def bootstrap_tables(self) -> list[str]:

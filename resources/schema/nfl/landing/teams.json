@@ -1,5 +1,5 @@
 {
-  "table": "nfl.teams.teams",
+  "table": "nfl.landing.teams",
   "comment": "",
   "columns": [
     {

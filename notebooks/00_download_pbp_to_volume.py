@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Download PBP to UC Volume
-# MAGIC Fetches nflverse play-by-play parquet files into `/Volumes/nfl/pbp/raw/`.
+# MAGIC Fetches nflverse play-by-play parquet files into `/Volumes/nfl/landing/raw/`.
 # MAGIC Preseason is never included in downloaded files.
 
 # COMMAND ----------

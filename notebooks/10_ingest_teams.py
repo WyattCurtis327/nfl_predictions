@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Ingest nflverse teams
-# MAGIC Loads team reference data into `nfl.teams.teams`.
+# MAGIC Loads team reference data into `nfl.landing.teams`.
 
 # COMMAND ----------
 

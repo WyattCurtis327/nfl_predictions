@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Build player dimensions
-# MAGIC Creates `nfl.players.players` and `nfl.players.player_roles` from rosters + PBP.
+# MAGIC Creates `nfl.landing.players` and `nfl.landing.player_roles` from rosters + PBP.
 
 # COMMAND ----------
 

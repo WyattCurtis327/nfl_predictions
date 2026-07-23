@@ -50,13 +50,14 @@ def test_escape_sql_string_doubles_single_quotes():
 
 
 def test_remap_table_catalog():
-    assert remap_table_catalog("nfl.odds.game_odds", "prod_nfl") == "prod_nfl.odds.game_odds"
+    assert remap_table_catalog("nfl.landing.game_odds", "prod_nfl") == "prod_nfl.landing.game_odds"
 
 
 def test_build_apply_statements_honors_schema_map():
-    paths = UcPaths(catalog="prod", odds="odds_data")
+    # landing/* tables remap via the shared landing schema (schedules widget).
+    paths = UcPaths(catalog="prod", schedules="raw_zone")
     metadata = {
-        "table": "nfl.odds.game_odds",
+        "table": "nfl.landing.game_odds",
         "comment": "",
         "columns": [{"name": "game_id", "comment": "Game key"}],
     }
@@ -67,12 +68,12 @@ def test_build_apply_statements_honors_schema_map():
         schema_map=paths.schema_map(),
     )
 
-    assert column_sql[0][1].startswith("ALTER TABLE prod.odds_data.game_odds")
+    assert column_sql[0][1].startswith("ALTER TABLE prod.raw_zone.game_odds")
 
 
 def test_build_apply_statements():
     metadata = {
-        "table": "nfl.odds.game_odds",
+        "table": "nfl.landing.game_odds",
         "comment": "Closing lines",
         "columns": [
             {"name": "game_id", "comment": "Game key"},
@@ -82,14 +83,14 @@ def test_build_apply_statements():
 
     table_sql, column_sql = build_apply_statements(metadata, catalog="nfl")
 
-    assert table_sql == table_comment_sql("nfl.odds.game_odds", "Closing lines")
+    assert table_sql == table_comment_sql("nfl.landing.game_odds", "Closing lines")
     assert len(column_sql) == 1
     assert column_sql[0][0] == "game_id"
 
 
 def test_column_comment_sql_quotes_special_column_names():
-    sql = column_comment_sql("nfl.schedules.games", "_source_file", "Source path")
-    assert "ALTER TABLE nfl.schedules.games ALTER COLUMN `_source_file` COMMENT 'Source path'" == sql
+    sql = column_comment_sql("nfl.landing.games", "_source_file", "Source path")
+    assert "ALTER TABLE nfl.landing.games ALTER COLUMN `_source_file` COMMENT 'Source path'" == sql
 
 
 def test_apply_metadata_skips_missing_columns(tmp_path: Path):
@@ -98,7 +99,7 @@ def test_apply_metadata_skips_missing_columns(tmp_path: Path):
     metadata_path.write_text(
         json.dumps(
             {
-                "table": "nfl.odds.game_odds",
+                "table": "nfl.landing.game_odds",
                 "comment": "",
                 "columns": [
                     {"name": "game_id", "comment": "Game key"},
@@ -109,7 +110,7 @@ def test_apply_metadata_skips_missing_columns(tmp_path: Path):
         encoding="utf-8",
     )
 
-    spark = _FakeSpark({"nfl.odds.game_odds": ["game_id"]})
+    spark = _FakeSpark({"nfl.landing.game_odds": ["game_id"]})
     summary = apply_metadata(spark, json.loads(metadata_path.read_text()), catalog="nfl")
 
     assert summary.column_comments_applied == 1
@@ -120,7 +121,7 @@ def test_apply_metadata_skips_missing_columns(tmp_path: Path):
 def test_apply_metadata_skips_missing_table_when_requested():
     spark = _FakeSpark({})
     metadata = {
-        "table": "nfl.predictions.prediction_grades",
+        "table": "nfl.gold.prediction_grades",
         "comment": "",
         "columns": [{"name": "game_id", "comment": "Game key"}],
     }
@@ -153,7 +154,7 @@ def test_write_manifest_from_directory(tmp_path: Path):
     table_path = tmp_path / "nfl" / "predictions" / "game_predictions.json"
     table_path.parent.mkdir(parents=True)
     table_path.write_text(
-        json.dumps({"table": "nfl.predictions.game_predictions", "columns": []}),
+        json.dumps({"table": "nfl.gold.game_predictions", "columns": []}),
         encoding="utf-8",
     )
 
@@ -161,7 +162,7 @@ def test_write_manifest_from_directory(tmp_path: Path):
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
     assert manifest["catalog"] == "nfl"
-    assert manifest["tables"] == ["nfl.predictions.game_predictions"]
+    assert manifest["tables"] == ["nfl.gold.game_predictions"]
     assert manifest["files"] == ["nfl/predictions/game_predictions.json"]
 
 

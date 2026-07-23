@@ -13,7 +13,7 @@ def env(name: str, default: str = "") -> str:
 
 
 CATALOG = env("NFL_CATALOG", "nfl")
-PREDICTIONS_SCHEMA = env("NFL_PREDICTIONS_SCHEMA", "predictions")
+PREDICTIONS_SCHEMA = env("NFL_PREDICTIONS_SCHEMA", "gold")
 DEFAULT_SEASON = int(env("NFL_SCHEDULE_SEASON", "2026"))
 
 

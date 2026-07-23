@@ -1,5 +1,5 @@
 {
-  "table": "nfl.odds.odds_ingest_gaps",
+  "table": "nfl.landing.odds_ingest_gaps",
   "comment": "",
   "columns": [
     {

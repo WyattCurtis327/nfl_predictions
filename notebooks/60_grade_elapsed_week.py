@@ -2,7 +2,7 @@
 # MAGIC %md
 # MAGIC # Grade elapsed week
 # MAGIC Compare latest predictions to final scores for the most recently completed week.
-# MAGIC Appends to `nfl.predictions.prediction_grades` and logs accuracy to MLflow.
+# MAGIC Appends to `nfl.gold.prediction_grades` and logs accuracy to MLflow.
 
 # COMMAND ----------
 

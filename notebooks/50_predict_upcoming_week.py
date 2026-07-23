@@ -2,7 +2,7 @@
 # MAGIC %md
 # MAGIC # Predict upcoming week
 # MAGIC Monte Carlo spread and total picks for the next unplayed REG/playoff week.
-# MAGIC Appends to `nfl.predictions.game_predictions` and logs to MLflow.
+# MAGIC Appends to `nfl.gold.game_predictions` and logs to MLflow.
 
 # COMMAND ----------
 

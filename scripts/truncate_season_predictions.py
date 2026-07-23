@@ -21,7 +21,7 @@ from databricks.connect import DatabricksSession
 
 spark = DatabricksSession.builder.profile(profile).getOrCreate()
 
-for table in ("nfl.predictions.game_predictions", "nfl.predictions.prediction_grades"):
+for table in ("nfl.gold.game_predictions", "nfl.gold.prediction_grades"):
     if not spark.catalog.tableExists(table):
         print(f"Skip {table} (missing)")
         continue

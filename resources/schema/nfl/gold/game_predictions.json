@@ -1,5 +1,5 @@
 {
-  "table": "nfl.predictions.game_predictions",
+  "table": "nfl.gold.game_predictions",
   "comment": "",
   "columns": [
     {

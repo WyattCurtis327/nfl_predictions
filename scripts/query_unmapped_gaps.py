@@ -1,4 +1,4 @@
-"""Query nfl.odds.odds_ingest_gaps for unmapped team rows."""
+"""Query nfl.landing.odds_ingest_gaps for unmapped team rows."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ def main() -> None:
     spark.sql(
         """
         SELECT gap_reason, COUNT(*) AS n
-        FROM nfl.odds.odds_ingest_gaps
+        FROM nfl.landing.odds_ingest_gaps
         GROUP BY gap_reason
         ORDER BY n DESC
         """
@@ -33,7 +33,7 @@ def main() -> None:
     spark.sql(
         """
         SELECT game_id, season, week, gameday, away_team, home_team, gap_reason
-        FROM nfl.odds.odds_ingest_gaps
+        FROM nfl.landing.odds_ingest_gaps
         WHERE gap_reason = 'unmapped_team_name'
         LIMIT 20
         """

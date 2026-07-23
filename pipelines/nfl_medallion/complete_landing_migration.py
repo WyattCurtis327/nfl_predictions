@@ -3,24 +3,20 @@
 # [tool.databricks.environment]
 # environment_version = "5"
 # ///
-# DBTITLE 1,Landing Migration - Final Step
+# DBTITLE 1,Landing Migration - Final Step (historical)
 # MAGIC %md
-# MAGIC # Complete Landing Migration - Final Step
+# MAGIC # Complete Landing Migration — historical notebook
 # MAGIC
-# MAGIC ## Status
-# MAGIC ✅ **Completed:**
+# MAGIC **Superseded by the full path cutover in git.** Jobs, apps, and `uc_paths`
+# MAGIC now target `nfl.landing` (domain) and `nfl.gold` (predictions) directly.
+# MAGIC Keep this notebook only as a record of the intermediate view-based migration.
+# MAGIC
+# MAGIC ## Status (at time of migration)
 # MAGIC - 16 tables copied to `nfl.landing`
 # MAGIC - Pipeline updated to read from landing
-# MAGIC - All transformations validated
+# MAGIC - Legacy schemas later removed; product code cut over to landing/gold
 # MAGIC
-# MAGIC ⏳ **Remaining:**
-# MAGIC - Replace 16 legacy tables with views (execute cells below)
-# MAGIC
-# MAGIC ## Instructions
-# MAGIC 1. Review each SQL cell below
-# MAGIC 2. Execute them in order
-# MAGIC 3. This will replace legacy tables with views pointing to landing
-# MAGIC 4. All consumers (jobs/notebooks/dashboards) will continue working
+# MAGIC ## Original view-cutover cells (do not re-run on a cut-over workspace)
 
 # COMMAND ----------
 

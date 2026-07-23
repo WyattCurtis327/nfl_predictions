@@ -35,8 +35,8 @@ def summarize(blend: float) -> dict[str, float | int | None]:
         WITH latest AS (
           SELECT g.*,
                  ROW_NUMBER() OVER (PARTITION BY g.game_id ORDER BY g.graded_at DESC) AS rn
-          FROM nfl.predictions.prediction_grades g
-          LEFT JOIN nfl.predictions.game_predictions p
+          FROM nfl.gold.prediction_grades g
+          LEFT JOIN nfl.gold.game_predictions p
             ON g.prediction_id = p.prediction_id
           WHERE g.season = {season}
             AND COALESCE(g.nfelo_blend, p.nfelo_blend) = {blend}

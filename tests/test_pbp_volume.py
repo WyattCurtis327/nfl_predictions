@@ -13,16 +13,19 @@ from nfl_predictions.pbp_volume import (
 
 def test_is_missing_volume_path_error():
     assert is_missing_volume_path_error(
-        Exception("[PATH_NOT_FOUND] Path does not exist: dbfs:/Volumes/nfl/pbp/raw/play_by_play_2026.parquet")
+        Exception(
+            "[PATH_NOT_FOUND] Path does not exist: "
+            "dbfs:/Volumes/nfl/landing/raw/play_by_play_2026.parquet"
+        )
     )
 
 
 def test_pbp_parquet_path():
-    assert pbp_parquet_path("/Volumes/nfl/pbp/raw", 2025) == (
-        "/Volumes/nfl/pbp/raw/play_by_play_2025.parquet"
+    assert pbp_parquet_path("/Volumes/nfl/landing/raw", 2025) == (
+        "/Volumes/nfl/landing/raw/play_by_play_2025.parquet"
     )
-    assert pbp_parquet_path("/Volumes/nfl/pbp/raw/", 2024) == (
-        "/Volumes/nfl/pbp/raw/play_by_play_2024.parquet"
+    assert pbp_parquet_path("/Volumes/nfl/landing/raw/", 2024) == (
+        "/Volumes/nfl/landing/raw/play_by_play_2024.parquet"
     )
 
 

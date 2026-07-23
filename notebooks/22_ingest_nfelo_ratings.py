@@ -2,8 +2,8 @@
 # MAGIC %md
 # MAGIC # Ingest nfelo power ratings
 # MAGIC Loads the latest team ratings from the public nfelo GitHub repo into
-# MAGIC `nfl.teams.nfelo_ratings`. Optionally refreshes per-game nfelo lines in
-# MAGIC `nfl.teams.nfelo_games` for the active schedule season.
+# MAGIC `nfl.landing.nfelo_ratings`. Optionally refreshes per-game nfelo lines in
+# MAGIC `nfl.landing.nfelo_games` for the active schedule season.
 
 # COMMAND ----------
 

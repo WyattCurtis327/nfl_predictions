@@ -125,11 +125,11 @@ Large jumps between stages show where the model diverged from reality.
 with st.expander("For operators — how data gets here"):
     st.markdown(
         f"""
-**Predictions** land in `nfl.predictions.game_predictions` (see Weekly Picks app).
+**Predictions** land in `nfl.gold.game_predictions` (see Weekly Picks app).
 
-**Grading** compares picks to final scores and writes `nfl.predictions.prediction_grades`.
+**Grading** compares picks to final scores and writes `nfl.gold.prediction_grades`.
 
-**RCA** runs during grading when `log_rca=true` and fills `nfl.predictions.prediction_rca`.
+**RCA** runs during grading when `log_rca=true` and fills `nfl.gold.prediction_rca`.
 This dashboard reads the view **`{pick_miss_rca_view()}`**, which exposes misses only.
 
 If a season looks empty:
@@ -138,7 +138,7 @@ If a season looks empty:
 - For historical seasons, an admin can run
   `python scripts/backfill_prediction_rca.py --season <year>`.
 
-**Team Ratings** reads play-by-play directly (`nfl.pbp.play_by_play`) and does not depend
+**Team Ratings** reads play-by-play directly (`nfl.landing.play_by_play`) and does not depend
 on RCA being populated.
         """
     )

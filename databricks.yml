@@ -32,26 +32,26 @@ variables:
     description: Unity Catalog name
     default: nfl
   teams_schema:
-    description: Unity Catalog schema for team reference data
-    default: teams
+    description: UC schema for team reference data (medallion landing)
+    default: landing
   schedules_schema:
-    description: Unity Catalog schema for schedule and game metadata
-    default: schedules
+    description: UC schema for schedule and game metadata (medallion landing)
+    default: landing
   pbp_schema:
-    description: Unity Catalog schema for play-by-play tables
-    default: pbp
+    description: UC schema for play-by-play tables and PBP volume (medallion landing)
+    default: landing
   rosters_schema:
-    description: Unity Catalog schema for roster snapshots
-    default: rosters
+    description: UC schema for roster snapshots (medallion landing)
+    default: landing
   players_schema:
-    description: Unity Catalog schema for player dimensions
-    default: players
+    description: UC schema for player dimensions (medallion landing)
+    default: landing
   odds_schema:
-    description: Unity Catalog schema for odds tables
-    default: odds
+    description: UC schema for odds tables (medallion landing)
+    default: landing
   predictions_schema:
-    description: Unity Catalog schema for prediction tables
-    default: predictions
+    description: UC schema for prediction product tables (medallion gold)
+    default: gold
   pbp_seasons:
     description: Comma-separated PBP seasons for bootstrap backfill
     default: "2024,2025"
@@ -72,7 +72,7 @@ variables:
     default: "2026"
   pbp_volume:
     description: UC Volume path for raw PBP parquet files (/Volumes/{catalog}/{pbp_schema}/raw)
-    default: /Volumes/nfl/pbp/raw
+    default: /Volumes/nfl/landing/raw
   min_match_rate:
     description: Minimum odds game_id match rate
     default: "0.9"

@@ -27,7 +27,7 @@
         "description": [
           "Missed NFL spread and total picks joined to deterministic root-cause analysis. Each row is one wrong pick with primary_cause, projection decomposition, and cause_summary JSON."
         ],
-        "identifier": "nfl.predictions.pick_miss_rca"
+        "identifier": "nfl.gold.pick_miss_rca"
       }
     ]
   },
@@ -42,7 +42,7 @@
           "SELECT\n",
           "  primary_cause,\n",
           "  COUNT(*) AS misses\n",
-          "FROM nfl.predictions.pick_miss_rca\n",
+          "FROM nfl.gold.pick_miss_rca\n",
           "WHERE season = 2025 AND game_type = 'REG'\n",
           "GROUP BY primary_cause\n",
           "ORDER BY misses DESC"
@@ -63,7 +63,7 @@
           "  primary_cause,\n",
           "  miss_types,\n",
           "  cause_summary\n",
-          "FROM nfl.predictions.pick_miss_rca\n",
+          "FROM nfl.gold.pick_miss_rca\n",
           "WHERE season = 2025 AND week = 7\n",
           "  AND miss_types LIKE '%spread%'\n",
           "ORDER BY spread_confidence DESC"
@@ -84,7 +84,7 @@
           "  game_home_turnovers,\n",
           "  game_away_turnovers,\n",
           "  cause_summary\n",
-          "FROM nfl.predictions.pick_miss_rca\n",
+          "FROM nfl.gold.pick_miss_rca\n",
           "WHERE primary_cause = 'turnover_variance'\n",
           "   OR game_home_turnovers >= 3\n",
           "   OR game_away_turnovers >= 3\n",

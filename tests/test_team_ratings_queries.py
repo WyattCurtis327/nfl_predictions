@@ -16,7 +16,7 @@ team_scoring_sql = _mod.team_scoring_sql
 
 def test_team_scoring_sql_filters_season_and_weeks():
     sql = team_scoring_sql(
-        "nfl.pbp.play_by_play",
+        "nfl.landing.play_by_play",
         season=2025,
         weeks=[1, 2, 5],
     )
@@ -26,7 +26,7 @@ def test_team_scoring_sql_filters_season_and_weeks():
 
 
 def test_pbp_season_weeks_sql_includes_reg_season_types():
-    sql = pbp_season_weeks_sql("nfl.pbp.play_by_play")
+    sql = pbp_season_weeks_sql("nfl.landing.play_by_play")
     assert "season_type IN ('REG'" in sql
 
 

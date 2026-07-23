@@ -27,7 +27,7 @@
         "description": [
           "Graded NFL pick accuracy metrics. One row per graded game with ATS and over/under outcomes from prediction_grades."
         ],
-        "identifier": "nfl.predictions.game_pick_metrics"
+        "identifier": "nfl.gold.game_pick_metrics"
       }
     ]
   },
@@ -43,7 +43,7 @@
           "  `Season`,\n",
           "  MEASURE(`ATS Accuracy %`) AS ats_accuracy_pct,\n",
           "  MEASURE(`Total Games`) AS games_graded\n",
-          "FROM nfl.predictions.game_pick_metrics\n",
+          "FROM nfl.gold.game_pick_metrics\n",
           "WHERE `Game Type` = 'REG' AND `Season` = 2025\n",
           "GROUP BY `Season`"
         ]
@@ -59,7 +59,7 @@
           "  `Week`,\n",
           "  MEASURE(`Over/Under Accuracy %`) AS ou_accuracy_pct,\n",
           "  MEASURE(`Total Games`) AS games_graded\n",
-          "FROM nfl.predictions.game_pick_metrics\n",
+          "FROM nfl.gold.game_pick_metrics\n",
           "WHERE `Game Type` = 'REG' AND `Season` = 2025\n",
           "GROUP BY `Season`, `Week`\n",
           "ORDER BY ou_accuracy_pct DESC\n",
@@ -77,7 +77,7 @@
           "  MEASURE(`Total Games`) AS games_graded,\n",
           "  MEASURE(`ATS Wins`) AS ats_wins,\n",
           "  MEASURE(`Over/Under Wins`) AS ou_wins\n",
-          "FROM nfl.predictions.game_pick_metrics\n",
+          "FROM nfl.gold.game_pick_metrics\n",
           "WHERE `Game Type` = 'REG'\n",
           "GROUP BY `Season`\n",
           "ORDER BY `Season` DESC"

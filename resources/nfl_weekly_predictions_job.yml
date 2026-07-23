@@ -91,5 +91,5 @@ resources:
             base_parameters:
               catalog: ${var.catalog}
               predictions_schema: ${var.predictions_schema}
-              only_schema: predictions
+              only_schema: gold
               skip_missing_tables: "true"

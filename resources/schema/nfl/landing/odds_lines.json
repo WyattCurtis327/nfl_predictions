@@ -1,5 +1,5 @@
 {
-  "table": "nfl.odds.odds_lines",
+  "table": "nfl.landing.odds_lines",
   "comment": "",
   "columns": [
     {
