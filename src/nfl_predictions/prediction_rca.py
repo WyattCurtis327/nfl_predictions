@@ -385,7 +385,7 @@ def _rank_causes(
     low_sample_teams = [
         team
         for team, profile in (("home", home_profile), ("away", away_profile))
-        if int(profile.get("games") or 0) < LOW_PROFILE_GAMES_THRESHOLD
+        if _safe_int(profile.get("games")) < LOW_PROFILE_GAMES_THRESHOLD
     ]
     if low_sample_teams:
         causes.append(
@@ -574,19 +574,39 @@ def analyze_missed_pick(
     }
 
 
+def _safe_int(value: Any, default: int = 0) -> int:
+    """Coerce to int; treat None/NaN as default (NaN is truthy so `x or 0` fails)."""
+    if value is None:
+        return default
+    try:
+        if pd.isna(value):
+            return default
+    except (TypeError, ValueError):
+        pass
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
 def _snapshot_profiles(grade: Any) -> tuple[dict[str, float | int | None], dict[str, float | int | None]] | None:
     home_games = _row_get(grade, "home_profile_games")
     away_games = _row_get(grade, "away_profile_games")
     if home_games is None and away_games is None:
         return None
+    try:
+        if pd.isna(home_games) and pd.isna(away_games):
+            return None
+    except (TypeError, ValueError):
+        pass
     return (
         {
-            "games": int(home_games or 0),
+            "games": _safe_int(home_games),
             "points_for_mean": _safe_float(_row_get(grade, "home_profile_pf_mean")),
             "points_against_mean": _safe_float(_row_get(grade, "home_profile_pa_mean")),
         },
         {
-            "games": int(away_games or 0),
+            "games": _safe_int(away_games),
             "points_for_mean": _safe_float(_row_get(grade, "away_profile_pf_mean")),
             "points_against_mean": _safe_float(_row_get(grade, "away_profile_pa_mean")),
         },
