@@ -1,49 +1,43 @@
 {
-  "version": 2,
   "config": {
     "sample_questions": [
       {
         "id": "a1b2c3d4e5f6789012345678abcdef01",
-        "question": ["What was our ATS accuracy for the 2025 regular season?"]
+        "question": [
+          "What was our ATS accuracy for the 2025 regular season?"
+        ]
       },
       {
         "id": "b2c3d4e5f6789012345678abcdef0123",
-        "question": ["Which weeks had the best over/under accuracy in 2025?"]
+        "question": [
+          "Which weeks had the best over/under accuracy in 2025?"
+        ]
       },
       {
         "id": "c3d4e5f6789012345678abcdef012345",
-        "question": ["How many games have we graded by season?"]
+        "question": [
+          "How many games have we graded by season?"
+        ]
       }
     ]
   },
   "data_sources": {
-    "metric_views": [
+    "tables": [
       {
-        "identifier": "nfl.predictions.game_pick_metrics",
         "description": [
           "Graded NFL pick accuracy metrics. One row per graded game with ATS and over/under outcomes from prediction_grades."
-        ]
+        ],
+        "identifier": "nfl.predictions.game_pick_metrics"
       }
     ]
   },
   "instructions": {
-    "text_instructions": [
-      {
-        "id": "01f0b37c378e1c9100000000000000a1",
-        "content": [
-          "Answer questions about NFL model pick accuracy using the game_pick_metrics metric view.",
-          "ATS accuracy measures whether the spread pick covered the closing line.",
-          "Over/under accuracy measures whether the total pick matched the actual result.",
-          "Use MEASURE() for all metrics such as ATS Accuracy % and Over/Under Accuracy %.",
-          "Filter game_type = 'REG' when users ask about the regular season.",
-          "Team abbreviations are three letters (e.g. KC, SF, NE)."
-        ]
-      }
-    ],
     "example_question_sqls": [
       {
         "id": "01f0821116d912db00000000000000b1",
-        "question": ["What was our ATS accuracy for the 2025 regular season?"],
+        "question": [
+          "What was our ATS accuracy for the 2025 regular season?"
+        ],
         "sql": [
           "SELECT\n",
           "  `Season`,\n",
@@ -56,7 +50,9 @@
       },
       {
         "id": "01f099751a3a1df300000000000000b2",
-        "question": ["Which weeks had the best over/under accuracy in 2025?"],
+        "question": [
+          "Which weeks had the best over/under accuracy in 2025?"
+        ],
         "sql": [
           "SELECT\n",
           "  `Season`,\n",
@@ -72,7 +68,9 @@
       },
       {
         "id": "01f099751a3a1df300000000000000b3",
-        "question": ["How many games have we graded by season?"],
+        "question": [
+          "How many games have we graded by season?"
+        ],
         "sql": [
           "SELECT\n",
           "  `Season`,\n",
@@ -85,6 +83,15 @@
           "ORDER BY `Season` DESC"
         ]
       }
+    ],
+    "text_instructions": [
+      {
+        "content": [
+          "Answer questions about NFL model pick accuracy using the game_pick_metrics metric view. ATS accuracy measures whether the spread pick covered the closing line. Over/under accuracy measures whether the total pick matched the actual result. Use MEASURE() for all metrics such as ATS Accuracy % and Over/Under Accuracy %. Filter game_type = 'REG' when users ask about the regular season. Team abbreviations are three letters (e.g. KC, SF, NE)."
+        ],
+        "id": "01f0b37c378e1c9100000000000000a1"
+      }
     ]
-  }
+  },
+  "version": 2
 }

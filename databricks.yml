@@ -17,6 +17,7 @@ sync:
     - app/**
     - src/**
     - notebooks/**
+    - pipelines/**
     - staging/**
     - resources/**
     - resources/schema/**

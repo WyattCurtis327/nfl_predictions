@@ -1,0 +1,17 @@
+resources:
+  pipelines:
+    nfl_medallion_migration:
+      name: NFL Medallion Migration
+      # Fully-qualified table names in transformations target nfl.* layers.
+      # Pipeline default catalog/schema are unused for FQN outputs.
+      catalog: workspace
+      schema: default
+      channel: CURRENT
+      continuous: false
+      photon: true
+      serverless: true
+      root_path: ../pipelines/nfl_medallion
+      libraries:
+        - glob:
+            include: ../pipelines/nfl_medallion/transformations/**
+

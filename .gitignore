@@ -28,3 +28,4 @@ htmlcov/
 
 .grok/config.toml
 terminals/
+_db_export/
