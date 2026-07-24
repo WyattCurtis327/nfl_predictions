@@ -3,14 +3,19 @@ dist/
 build/
 output/
 !output/.gitkeep
+
+# Runtime staging (live odds, nfelo dumps) — never commit operator data
 staging/*
 !staging/.gitkeep
-!staging/odds_latest.json
+!staging/odds_latest.example.json
+
 __pycache__/
 *.egg-info/
 .pytest_cache/
 .databricks/
 .env
+.env.*
+!.env.example
 *.pyc
 *.whl
 .DS_Store

@@ -21,29 +21,44 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
 
+      - name: Public-ready check (no secrets / personal config in git)
+        run: python scripts/check_public_ready.py
+
       - name: Run tests
         run: pytest -q
 
       - name: Build wheel
         run: python -m build --wheel -o dist
 
-      - name: Validate bundle config (syntax)
+      # Offline only — full `databricks bundle validate` needs workspace credentials.
+      # Operators run: databricks bundle validate -t prod --profile <your-profile>
+      - name: Validate bundle config (structure)
         run: |
+          set -e
           grep -q 'name: nfl_predictions' databricks.yml
           grep -q '../dist/\*\.whl' resources/nfl_bootstrap_job.yml
           grep -q 'host:' databricks.yml
+          grep -q 'dbc-xxxxxxxx-xxxx.cloud.databricks.com' databricks.yml
+          # No committed workspace profile (identity belongs in .env / CLI --profile)
+          if grep -E '^[[:space:]]*profile:[[:space:]]*[^#[:space:]]' databricks.yml; then
+            echo "databricks.yml must not commit workspace profile" >&2
+            exit 1
+          fi
           test -f resources/nfl_annual_refresh_job.yml
           test -f resources/nfl_backtest_job.yml
           test -f notebooks/22_ingest_nfelo_ratings.py
-          test -f resources/nfl_game_pick_metrics.genie_space.yml
+          test -f resources/genie/nfl_game_pick_metrics.genie_space.yml
+          test -f resources/genie/nfl_pick_miss_rca.genie_space.yml
           test -f src/nfl_game_pick_metrics.geniespace.json
           test -f resources/nfl_weekly_picks.app.yml
           test -f app/weekly_picks/app.py
-
-      - name: Install Databricks CLI
-        run: |
-          curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-          echo "$HOME/.databricks/bin" >> "$GITHUB_PATH"
-
-      - name: Validate bundle schema
-        run: databricks bundle validate -t prod
+          test -f staging/odds_latest.example.json
+          test -f .env.example
+          test -f SECURITY.md
+          grep -q 'resources/genie/\*\.yml' databricks.yml
+          # Live odds dump must not be tracked
+          if git ls-files --error-unmatch staging/odds_latest.json 2>/dev/null; then
+            echo "staging/odds_latest.json must not be tracked" >&2
+            exit 1
+          fi
+          ls dist/*.whl

@@ -4,6 +4,7 @@ bundle:
 
 include:
   - resources/*.yml
+  - resources/genie/*.yml
 
 artifacts:
   nfl_predictions_wheel:
@@ -106,17 +107,22 @@ variables:
   genie_pick_miss_rca_space_id:
     description: Genie space ID for NFL Pick Miss RCA (synced from bundle state; required by nfl_copilot)
     default: ""
+
+# Workspace host/profile are per-operator secrets of identity — never commit real values.
+# Set DATABRICKS_CONFIG_PROFILE + auth via `databricks auth login`, then run:
+#   python scripts/sync_bundle_env.py
+# That writes host/profile into gitignored .env / .databricks/ only.
+# Placeholder host keeps `databricks bundle validate` and the VS Code extension happy
+# before local sync; CLI deploy always uses --profile / env, not this placeholder.
 targets:
   dev:
     mode: development
     workspace:
-      host: https://dbc-89a97ed5-5f7d.cloud.databricks.com
-      profile: wyatts_databricks
+      host: https://dbc-xxxxxxxx-xxxx.cloud.databricks.com
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
   prod:
     mode: production
     default: true
     workspace:
-      host: https://dbc-89a97ed5-5f7d.cloud.databricks.com
-      profile: wyatts_databricks
+      host: https://dbc-xxxxxxxx-xxxx.cloud.databricks.com
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

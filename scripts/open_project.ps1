@@ -1,5 +1,6 @@
 # Open nfl_predictions as the IDE workspace root (Cursor or VS Code).
-$workspace = Join-Path $PSScriptRoot "..\nfl_predictions.code-workspace" | Resolve-Path
+$repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
+$workspace = Join-Path $repoRoot "nfl_predictions.code-workspace"
 
 $cursor = @(
     "$env:LOCALAPPDATA\Programs\cursor\Cursor.exe",
@@ -18,5 +19,5 @@ if ($code) {
     exit 0
 }
 
-Write-Host "Open this file in Cursor: $workspace"
-Write-Host "Or use File -> Open Folder -> C:\Users\wyatt\nfl_predictions"
+Write-Host "Open this file in Cursor/VS Code: $workspace"
+Write-Host "Or use File -> Open Folder -> $repoRoot"

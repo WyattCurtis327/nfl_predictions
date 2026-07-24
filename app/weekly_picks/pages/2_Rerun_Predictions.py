@@ -33,7 +33,7 @@ st.markdown(
 
 st.header("Commands (from your project folder)")
 
-st.markdown("Replace `<your-profile>` with your Databricks CLI profile (e.g. `wyatts_databricks`).")
+st.markdown("Replace `<your-profile>` with your Databricks CLI profile name from `~/.databrickscfg`.")
 
 st.subheader("Production picks only — fastest")
 st.markdown("Monte Carlo model only (`monte_carlo`). This is what this app displays today.")

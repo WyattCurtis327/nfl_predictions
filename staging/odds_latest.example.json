@@ -1,0 +1,43 @@
+{
+  "ingested_at": "2026-01-01T00:00:00+00:00",
+  "headers": {
+    "x-requests-remaining": "0",
+    "x-requests-used": "0",
+    "x-requests-last": "0"
+  },
+  "games": [
+    {
+      "id": "example-game-id",
+      "sport_key": "americanfootball_nfl",
+      "sport_title": "NFL",
+      "commence_time": "2026-09-10T00:15:00Z",
+      "home_team": "Example Home",
+      "away_team": "Example Away",
+      "bookmakers": [
+        {
+          "key": "draftkings",
+          "title": "DraftKings",
+          "last_update": "2026-01-01T00:00:00Z",
+          "markets": [
+            {
+              "key": "spreads",
+              "last_update": "2026-01-01T00:00:00Z",
+              "outcomes": [
+                { "name": "Example Home", "price": -110, "point": -3.5 },
+                { "name": "Example Away", "price": -110, "point": 3.5 }
+              ]
+            },
+            {
+              "key": "totals",
+              "last_update": "2026-01-01T00:00:00Z",
+              "outcomes": [
+                { "name": "Over", "price": -110, "point": 44.5 },
+                { "name": "Under", "price": -110, "point": 44.5 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
