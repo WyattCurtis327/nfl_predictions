@@ -48,7 +48,7 @@ python scripts/deploy_bundle.py prod
 ```
 
 **Never commit `.env`.**  
-`sync_bundle_env.py` writes your workspace host and profile into **gitignored** `.env` / `.databricks/` only. Committed `databricks.yml` keeps a public host placeholder so clones do not inherit someone else’s workspace.
+`sync_bundle_env.py` writes profile/host into **gitignored** `.env` / `.databricks/` and (for VS Code) the real workspace host into local `databricks.yml`. Before commit/PR run `python scripts/sync_bundle_env.py --public-yml` so `databricks.yml` is back to the public host placeholder.
 
 Optional: install a pre-commit hook that runs the public-ready check:
 

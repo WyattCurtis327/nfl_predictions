@@ -108,12 +108,10 @@ variables:
     description: Genie space ID for NFL Pick Miss RCA (synced from bundle state; required by nfl_copilot)
     default: ""
 
-# Workspace host/profile are per-operator secrets of identity — never commit real values.
-# Set DATABRICKS_CONFIG_PROFILE + auth via `databricks auth login`, then run:
-#   python scripts/sync_bundle_env.py
-# That writes host/profile into gitignored .env / .databricks/ only.
-# Placeholder host keeps `databricks bundle validate` and the VS Code extension happy
-# before local sync; CLI deploy always uses --profile / env, not this placeholder.
+# Workspace host is per-operator: run `python scripts/sync_bundle_env.py` after
+# `databricks auth login` so local VS Code gets a real host. Before commit/PR run
+# `python scripts/sync_bundle_env.py --public-yml` (or rely on check_public_ready)
+# to restore the placeholder. Never commit a real host or workspace profile.
 targets:
   dev:
     mode: development

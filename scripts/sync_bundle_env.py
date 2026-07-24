@@ -1,8 +1,9 @@
 """Sync .env values into VS Code bundle env for Databricks deploy.
 
-Writes only gitignored paths (.env, .databricks/**). Does not rewrite
-databricks.yml workspace host/profile — those stay public placeholders so
-clones never inherit another operator's workspace identity.
+Writes gitignored paths (.env, .databricks/**) and, for local VS Code, the
+real workspace host into databricks.yml so the extension can normalize it
+to a URL. Use --public-yml before commit/PR so host reverts to the public
+placeholder (CI check_public_ready enforces that on tracked files).
 """
 
 from __future__ import annotations
@@ -210,6 +211,41 @@ def _ensure_public_databricks_yml_workspace() -> bool:
     return False
 
 
+def _apply_local_databricks_yml_workspace(host: str) -> bool:
+    """Write the real workspace host into databricks.yml for local VS Code / CLI.
+
+    The Databricks VS Code extension reads ``targets.*.workspace.host`` and runs
+    ``normalizeHost`` → URL. A public placeholder cannot match a real CLI
+    profile, and a string host in vscode.overrides.json crashes the login wizard.
+    Returns True if the file was modified.
+    """
+    if not BUNDLE_FILE.exists() or not host:
+        return False
+
+    host_url = host.rstrip("/")
+    if not host_url.startswith(("http://", "https://")):
+        host_url = f"https://{host_url}"
+
+    text = BUNDLE_FILE.read_text(encoding="utf-8")
+    updated = re.sub(
+        r"^([ \t]*host:\s*).*$",
+        rf"\g<1>{host_url}",
+        text,
+        flags=re.MULTILINE,
+    )
+    # Drop profile under workspace (auth is via authProfile override / CLI --profile).
+    updated = re.sub(
+        r"^[ \t]*profile:\s*\S+[ \t]*\n",
+        "",
+        updated,
+        flags=re.MULTILINE,
+    )
+    if updated != text:
+        BUNDLE_FILE.write_text(updated, encoding="utf-8")
+        return True
+    return False
+
+
 def _parse_env_file(path: Path) -> dict[str, str]:
     if not path.exists():
         return {}
@@ -347,12 +383,29 @@ def _vscode_overrides_path(target: str = DEFAULT_BUNDLE_TARGET) -> Path:
     return REPO_ROOT / ".databricks" / "bundle" / target / "vscode.overrides.json"
 
 
+# Keys the VS Code extension treats as overrideable (see OverrideableConfigModel).
+# Do NOT write "host" here: ConfigModel spreads overrides over pre-validated config,
+# and a string host overwrites the URL object → LoginWizard crashes with
+# "Can't configure workspace. Cannot read properties of undefined (reading 'match')".
+# Do NOT write "profile": the extension key is authProfile.
+_VSCODE_OVERRIDE_ALLOWED = frozenset(
+    {"authProfile", "clusterId", "useClusterOverride", "serverless"}
+)
+_VSCODE_OVERRIDE_STALE = frozenset({"host", "profile"})
+
+
 def _sync_vscode_overrides(
     profile: str,
     host: str = "",
     target: str = DEFAULT_BUNDLE_TARGET,
 ) -> None:
-    """Persist serverless Connect settings for the Databricks VS Code extension."""
+    """Persist serverless Connect + auth profile for the Databricks VS Code extension.
+
+    ``host`` is accepted for API compatibility but intentionally ignored — put the
+    real workspace host in ``databricks.yml`` (local) so the extension can
+    ``normalizeHost`` it into a URL object.
+    """
+    del host  # not written to overrides (see module comment above)
     path = _vscode_overrides_path(target)
     path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -361,15 +414,19 @@ def _sync_vscode_overrides(
         "useClusterOverride": False,
     }
     if profile:
-        overrides["profile"] = profile
-    if host:
-        overrides["host"] = host.rstrip("/")
+        overrides["authProfile"] = profile
 
     if path.exists():
         try:
             existing = json.loads(path.read_text(encoding="utf-8"))
             if isinstance(existing, dict):
-                overrides = {**existing, **overrides}
+                cleaned = {
+                    k: v
+                    for k, v in existing.items()
+                    if k in _VSCODE_OVERRIDE_ALLOWED and k not in _VSCODE_OVERRIDE_STALE
+                }
+                # Prefer freshly computed serverless/auth over stale file values.
+                overrides = {**cleaned, **overrides}
         except json.JSONDecodeError:
             pass
 
@@ -379,7 +436,7 @@ def _sync_vscode_overrides(
 def sync_from_env_file(
     env_path: Path = ENV_FILE,
     *,
-    ensure_public_yml: bool = True,
+    ensure_public_yml: bool = False,
 ) -> None:
     file_env = _parse_env_file(env_path)
     merged = {**file_env}
@@ -420,9 +477,11 @@ def sync_from_env_file(
 
     _upsert_env_file(ENV_FILE, connect_updates)
     _upsert_vscode_env(vscode_updates)
-    yml_reset = False
+    yml_changed = False
     if ensure_public_yml:
-        yml_reset = _ensure_public_databricks_yml_workspace()
+        yml_changed = _ensure_public_databricks_yml_workspace()
+    elif host:
+        yml_changed = _apply_local_databricks_yml_workspace(host)
     _sync_vscode_overrides(profile, host=host)
     _sync_bundle_var_overrides(merged)
     _sync_vscode_bundlevars(merged)
@@ -447,20 +506,31 @@ def sync_from_env_file(
             + ", ".join(f"{k}={v[:8]}..." for k, v in genie_ids.items())
         )
     if host:
-        print(f"Synced workspace host={host.rstrip('/')} → .env / .databricks (gitignored)")
+        print(f"Synced workspace host={host.rstrip('/')} -> .env / .databricks (gitignored)")
     print(f"Updated {ENV_FILE}")
     print(f"Updated {VSCODE_ENV_FILE}")
-    if yml_reset:
-        print(
-            f"Reset {BUNDLE_FILE} workspace host to public placeholder "
-            "(profile lines removed; do not commit personal host/profile)"
-        )
+    if ensure_public_yml:
+        if yml_changed:
+            print(
+                f"Reset {BUNDLE_FILE} workspace host to public placeholder "
+                "(do not commit personal host/profile)"
+            )
+        else:
+            print(f"{BUNDLE_FILE} already uses public host placeholder")
+    elif host:
+        if yml_changed:
+            print(
+                f"Wrote local workspace host into {BUNDLE_FILE} for VS Code "
+                "(gitignored intent: run with --public-yml before commit/PR)"
+            )
+        else:
+            print(f"{BUNDLE_FILE} already has local workspace host")
     else:
         print(
-            f"Left {BUNDLE_FILE} host as public placeholder; "
-            "CLI/VS Code use profile + DATABRICKS_HOST from env"
+            f"No workspace host resolved; left {BUNDLE_FILE} unchanged. "
+            "Set DATABRICKS_CONFIG_PROFILE and re-run."
         )
-    print(f"Updated {_vscode_overrides_path()}")
+    print(f"Updated {_vscode_overrides_path()} (authProfile/serverless only; no string host)")
     if email or warehouse_id or genie_ids:
         print(f"Updated {_bundle_var_overrides_path()}")
         print(f"Updated {_vscode_bundlevars_path()}")
@@ -469,21 +539,29 @@ def sync_from_env_file(
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
-            "Sync .env into gitignored Databricks/VS Code env. "
-            "Never writes real workspace host/profile into databricks.yml."
+            "Sync .env into Databricks/VS Code env. By default writes the real "
+            "workspace host into databricks.yml for the VS Code extension; use "
+            "--public-yml to restore the commit-safe placeholder."
         )
+    )
+    parser.add_argument(
+        "--public-yml",
+        action="store_true",
+        help="Reset databricks.yml host lines to the public placeholder (for commit/PR)",
     )
     parser.add_argument(
         "--no-reset-yml",
         action="store_true",
-        help="Do not rewrite databricks.yml host lines to the public placeholder",
+        help=argparse.SUPPRESS,  # backward-compat: was "keep yml as-is"; now default local host
     )
     args = parser.parse_args()
     if not ENV_FILE.exists():
         raise SystemExit(
             f"Missing {ENV_FILE}. Copy .env.example to .env and fill in your values."
         )
-    sync_from_env_file(ensure_public_yml=not args.no_reset_yml)
+    # --no-reset-yml: legacy "do not force placeholder" → same as default local host write
+    ensure_public = bool(args.public_yml) and not args.no_reset_yml
+    sync_from_env_file(ensure_public_yml=ensure_public)
 
 
 if __name__ == "__main__":
