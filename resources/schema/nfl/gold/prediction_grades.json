@@ -1,0 +1,72 @@
+{
+  "table": "nfl.gold.prediction_grades",
+  "comment": "Graded prediction outcomes joined to actual scores and closing lines.",
+  "columns": [
+    {
+      "name": "grade_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "UUID for one graded game row."
+    },
+    {
+      "name": "grading_run_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "UUID grouping one grade notebook execution."
+    },
+    {
+      "name": "prediction_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Source prediction row id."
+    },
+    {
+      "name": "model_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "Prediction model family that produced the graded pick."
+    },
+    {
+      "name": "game_id",
+      "type": "string",
+      "nullable": true,
+      "comment": "nflverse game identifier."
+    },
+    {
+      "name": "season",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Graded game season."
+    },
+    {
+      "name": "week",
+      "type": "bigint",
+      "nullable": true,
+      "comment": "Graded game week."
+    },
+    {
+      "name": "spread_correct",
+      "type": "boolean",
+      "nullable": true,
+      "comment": "Whether spread_pick covered ATS."
+    },
+    {
+      "name": "total_correct",
+      "type": "boolean",
+      "nullable": true,
+      "comment": "Whether total_pick matched the result."
+    },
+    {
+      "name": "actual_winner",
+      "type": "string",
+      "nullable": true,
+      "comment": "Winning team abbreviation or TIE."
+    },
+    {
+      "name": "graded_at",
+      "type": "string",
+      "nullable": true,
+      "comment": "UTC timestamp when grading ran."
+    }
+  ]
+}

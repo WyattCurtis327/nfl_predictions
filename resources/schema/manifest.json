@@ -1,0 +1,37 @@
+{
+  "catalog": "nfl",
+  "tables": [
+    "nfl.gold.game_predictions",
+    "nfl.gold.prediction_grades",
+    "nfl.gold.prediction_rca",
+    "nfl.landing.game_odds",
+    "nfl.landing.game_odds_latest",
+    "nfl.landing.games",
+    "nfl.landing.nfelo_games",
+    "nfl.landing.nfelo_ratings",
+    "nfl.landing.odds_ingest_gaps",
+    "nfl.landing.odds_lines",
+    "nfl.landing.play_by_play",
+    "nfl.landing.player_roles",
+    "nfl.landing.players",
+    "nfl.landing.rosters",
+    "nfl.landing.teams"
+  ],
+  "files": [
+    "nfl/gold/game_predictions.json",
+    "nfl/gold/prediction_grades.json",
+    "nfl/gold/prediction_rca.json",
+    "nfl/landing/game_odds.json",
+    "nfl/landing/game_odds_latest.json",
+    "nfl/landing/games.json",
+    "nfl/landing/nfelo_games.json",
+    "nfl/landing/nfelo_ratings.json",
+    "nfl/landing/odds_ingest_gaps.json",
+    "nfl/landing/odds_lines.json",
+    "nfl/landing/play_by_play.json",
+    "nfl/landing/player_roles.json",
+    "nfl/landing/players.json",
+    "nfl/landing/rosters.json",
+    "nfl/landing/teams.json"
+  ]
+}

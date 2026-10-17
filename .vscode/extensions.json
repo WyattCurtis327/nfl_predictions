@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "databricks.databricks",
+    "ms-python.python",
+    "ms-python.vscode-pylance"
+  ]
+}
